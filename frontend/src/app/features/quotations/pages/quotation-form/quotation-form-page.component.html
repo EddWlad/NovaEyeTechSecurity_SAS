@@ -1,0 +1,189 @@
+<section class="toolbar">
+  <app-page-header
+    [title]="showStatusOnlyEditor() ? 'Editar Cotización (estado)' : (isEditMode ? 'Editar Cotización (borrador)' : 'Nueva Cotización')"
+    subtitle="Formulario maestro-detalle para proformas de productos y servicios."
+  />
+  <a class="btn btn-secondary" routerLink="/quotations">
+    <span class="material-symbols-outlined">arrow_back</span>
+    Volver
+  </a>
+</section>
+
+<app-loading-spinner *ngIf="loading()" />
+
+<section *ngIf="!loading() && showStatusOnlyEditor() && existingQuotation() as quote" class="card" style="margin-top:.9rem; padding:.95rem;">
+  <h3 style="margin-top:0">{{ quote.quotationNumber }}</h3>
+  <p style="margin-top:0; color:var(--gray-600)">Este endpoint solo permite editar estado. El detalle histórico no se altera.</p>
+
+  <div class="table-wrapper" style="margin-top:.7rem;">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Descripción</th>
+          <th>Cantidad</th>
+          <th>P. Unitario</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of quote.details">
+          <td>{{ item.itemType }}</td>
+          <td>{{ item.descriptionFrozen }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.unitPriceFinal }}</td>
+          <td>{{ item.lineTotal }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <form [formGroup]="statusForm" (ngSubmit)="submitStatusUpdate()" class="status-update-form">
+    <div class="field status-field">
+      <label for="status">Estado</label>
+      <select class="select" id="status" formControlName="status">
+        <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" type="submit" [disabled]="saving()">
+      <span class="material-symbols-outlined">save</span>
+      {{ saving() ? 'Guardando...' : 'Actualizar Estado' }}
+    </button>
+  </form>
+</section>
+
+<form
+  *ngIf="!loading() && (!isEditMode || isDraftEditable())"
+  class="quotation-grid"
+  [formGroup]="form"
+  (ngSubmit)="submitQuotation()"
+>
+  <section class="card" style="padding:.95rem;">
+    <h3>Cabecera</h3>
+    <div class="grid-2">
+      <div class="field">
+        <label for="clientId">Cliente</label>
+        <select class="select" id="clientId" formControlName="clientId">
+          <option value="">Seleccionar cliente</option>
+          <option *ngFor="let client of clients()" [value]="client.id">{{ client.nameOrBusinessName }}</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="status">Estado</label>
+        <select class="select" id="status" formControlName="status">
+          <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="issuedAt">Fecha emisión</label>
+        <input class="input" id="issuedAt" type="date" formControlName="issuedAt" />
+      </div>
+
+      <div class="field">
+        <label for="validUntil">Vigencia</label>
+        <input class="input" id="validUntil" type="date" formControlName="validUntil" />
+      </div>
+
+      <div class="field">
+        <label for="currency">Moneda</label>
+        <input class="input" id="currency" type="text" formControlName="currency" />
+      </div>
+
+      <div class="field">
+        <label for="discount">Descuento</label>
+        <input class="input" id="discount" type="number" step="0.01" formControlName="discount" />
+      </div>
+
+      <div class="field" style="grid-column:1/-1;">
+        <label for="observations">Observaciones</label>
+        <textarea class="textarea" id="observations" rows="2" formControlName="observations"></textarea>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" style="padding:.95rem;">
+    <div class="toolbar items-toolbar">
+      <h3 style="margin:0">Detalle de Ítems</h3>
+      <button class="btn btn-secondary" type="button" (click)="addItem()">
+        <span class="material-symbols-outlined">add</span>
+        Agregar Ítem
+      </button>
+    </div>
+
+    <div class="table-wrapper quotation-items-wrapper">
+      <table class="table quotation-items-table">
+        <thead>
+          <tr>
+            <th>Tipo</th>
+            <th>Producto/Servicio</th>
+            <th>Descripción</th>
+            <th>Cant.</th>
+            <th>IVA %</th>
+            <th>Margen %</th>
+            <th class="line-total-col">Total Línea</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody formArrayName="items">
+          <tr *ngFor="let item of items.controls; let i = index" [formGroupName]="i">
+            <td data-label="Tipo">
+              <select class="select" formControlName="itemType">
+                <option value="PRODUCTO">PRODUCTO</option>
+                <option value="SERVICIO">SERVICIO</option>
+              </select>
+            </td>
+            <td data-label="Producto/Servicio">
+              <ng-container *ngIf="item.value.itemType === 'PRODUCTO'; else serviceSelector">
+                <select class="select" formControlName="productId">
+                  <option value="">Seleccionar producto</option>
+                  <option *ngFor="let product of products()" [value]="product.id">{{ product.name }}</option>
+                </select>
+              </ng-container>
+              <ng-template #serviceSelector>
+                <select class="select" formControlName="serviceId">
+                  <option value="">Seleccionar servicio</option>
+                  <option *ngFor="let service of services()" [value]="service.id">{{ service.name }}</option>
+                </select>
+              </ng-template>
+            </td>
+            <td data-label="Descripción"><input class="input" formControlName="description" /></td>
+            <td data-label="Cant."><input class="input" type="number" min="1" step="1" formControlName="quantity" /></td>
+            <td data-label="IVA %">
+              <select class="select" formControlName="vatPercent">
+                <option *ngFor="let vat of vatOptions()" [value]="vat">{{ vat }}</option>
+              </select>
+            </td>
+            <td data-label="Margen %">
+              <select class="select" formControlName="marginPercent">
+                <option *ngFor="let margin of marginOptions()" [value]="margin">{{ margin }}</option>
+              </select>
+            </td>
+            <td class="line-total-col" data-label="Total línea">{{ lineTotal(i) }}</td>
+            <td data-label="Acciones">
+              <button class="btn btn-sm btn-danger" type="button" (click)="removeItem(i)">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <aside class="card summary-card">
+    <h3>Resumen</h3>
+    <dl>
+      <div><dt>Subtotal</dt><dd>{{ money(totals().subtotal) }}</dd></div>
+      <div><dt>Descuento</dt><dd>{{ money(totals().discount) }}</dd></div>
+      <div><dt>IVA</dt><dd>{{ money(totals().vat) }}</dd></div>
+      <div class="total"><dt>Total</dt><dd>{{ money(totals().total) }}</dd></div>
+    </dl>
+
+    <button class="btn btn-primary" type="submit" [disabled]="saving()" style="width:100%; margin-top:.6rem;">
+      <span class="material-symbols-outlined">save</span>
+      {{ saving() ? 'Guardando...' : (isEditMode ? 'Guardar Cambios' : 'Crear Cotización') }}
+    </button>
+  </aside>
+</form>

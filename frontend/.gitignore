@@ -1,0 +1,22 @@
+# Dependencias
+/node_modules
+
+# Build
+/dist
+/tmp
+/out-tsc
+/bazel-out
+/.angular/cache
+
+# IDE
+/.idea
+/.vscode
+*.iml
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Variables locales
+.env
+.env.local

@@ -1,0 +1,113 @@
+.confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgb(15 23 42 / 45%);
+  display: grid;
+  place-items: center;
+  z-index: 60;
+  padding: 1rem;
+}
+
+.confirm-modal {
+  width: min(460px, 100%);
+  padding: 1rem;
+}
+
+.confirm-modal h3 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.confirm-modal p {
+  margin: .6rem 0 0;
+  color: var(--gray-700, #374151);
+}
+
+.confirm-modal .warning {
+  color: #991b1b;
+  font-weight: 600;
+}
+
+.product-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  background: #f8fafc;
+  display: block;
+}
+
+@media (max-width: 780px) {
+  .resource-filters-toolbar {
+    align-items: stretch;
+  }
+
+  .resource-filters-toolbar > .btn {
+    width: 100%;
+  }
+
+  .resource-search-input {
+    max-width: 100% !important;
+    width: 100%;
+  }
+}
+
+@media (max-width: 680px) {
+  .table-wrapper {
+    overflow: visible;
+    border: 0;
+  }
+
+  .resource-table {
+    min-width: 0;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .resource-table thead {
+    display: none;
+  }
+
+  .resource-table tbody,
+  .resource-table tr,
+  .resource-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .resource-table tr {
+    border: 1px solid #dbe2ea;
+    border-radius: 12px;
+    padding: .65rem;
+    margin-bottom: .65rem;
+    background: #fff;
+  }
+
+  .resource-table td {
+    padding: .35rem 0;
+    border-bottom: 0;
+  }
+
+  .resource-table td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: .26rem;
+    font-size: .68rem;
+    font-weight: 700;
+    color: #2f4d66;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+  }
+
+  .resource-table td[data-label='Acciones'] .actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .resource-table td[data-label='Acciones'] .btn {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}

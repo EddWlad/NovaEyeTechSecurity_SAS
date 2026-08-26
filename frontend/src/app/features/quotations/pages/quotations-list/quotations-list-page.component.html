@@ -1,0 +1,83 @@
+<section class="toolbar">
+  <app-page-header
+    title="Cotizaciones"
+    subtitle="Gestiona proformas, estado comercial y acceso rápido al PDF."
+  />
+  <a class="btn btn-primary" routerLink="/quotations/new">
+    <span class="material-symbols-outlined">add</span>
+    Nueva Cotización
+  </a>
+</section>
+
+<section class="card" style="margin-top: .9rem; padding: .8rem;">
+  <div class="toolbar quotations-filters-toolbar" style="margin-bottom: .65rem;">
+    <input
+      class="input quotations-search-input"
+      style="max-width: 320px;"
+      placeholder="Buscar por cliente o número"
+      [ngModel]="query()"
+      (ngModelChange)="query.set($event)"
+    />
+    <select class="select quotations-status-filter" style="max-width: 220px;" [ngModel]="status()" (ngModelChange)="status.set($event)">
+      <option value="">Todos los estados</option>
+      <option *ngFor="let item of statuses" [value]="item">{{ item }}</option>
+    </select>
+  </div>
+
+  <app-loading-spinner *ngIf="loading()" />
+
+  <div class="table-wrapper" *ngIf="!loading() && filtered().length">
+    <table class="table quotations-table">
+      <thead>
+        <tr>
+          <th>Número</th>
+          <th>Cliente</th>
+          <th>Fecha</th>
+          <th>Vigencia</th>
+          <th>Subtotal</th>
+          <th>Total</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let quotation of filtered()">
+          <td data-label="Número">{{ quotation.quotationNumber }}</td>
+          <td data-label="Cliente">{{ quotation.client.nameOrBusinessName }}</td>
+          <td data-label="Fecha">{{ quotation.issuedAt | date: 'dd/MM/yyyy' }}</td>
+          <td data-label="Vigencia">{{ quotation.validUntil | date: 'dd/MM/yyyy' }}</td>
+          <td data-label="Subtotal">{{ money(quotation.subtotal, quotation.currency) }}</td>
+          <td data-label="Total">{{ money(quotation.total, quotation.currency) }}</td>
+          <td data-label="Estado"><app-status-badge [status]="quotation.status" /></td>
+          <td data-label="Acciones">
+            <div class="actions">
+              <a class="btn btn-sm btn-secondary" [routerLink]="['/quotations', quotation.id]">
+                <span class="material-symbols-outlined">visibility</span>
+              </a>
+              <a *ngIf="quotation.status === 'BORRADOR'" class="btn btn-sm btn-secondary" [routerLink]="['/quotations', quotation.id, 'edit']">
+                <span class="material-symbols-outlined">edit</span>
+              </a>
+              <a class="btn btn-sm btn-secondary" [routerLink]="['/quotations', quotation.id, 'pdf-preview']">
+                <span class="material-symbols-outlined">picture_as_pdf</span>
+              </a>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-pagination-controls
+    *ngIf="!loading() && totalPages() > 1"
+    [page]="page()"
+    [totalPages]="totalPages()"
+    [total]="total()"
+    (pageChange)="changePage($event)"
+  />
+
+  <app-empty-state
+    *ngIf="!loading() && !filtered().length"
+    title="Sin cotizaciones"
+    description="Aún no existen cotizaciones con los filtros aplicados."
+  />
+</section>

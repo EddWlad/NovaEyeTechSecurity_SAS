@@ -1,0 +1,82 @@
+<section class="toolbar">
+  <app-page-header title="Detalle de Cotización"
+    subtitle="Visualiza el snapshot comercial y descarga la proforma en PDF." />
+  <a class="btn btn-secondary" routerLink="/quotations">
+    <span class="material-symbols-outlined">arrow_back</span>
+    Volver
+  </a>
+</section>
+
+<app-loading-spinner *ngIf="loading()" />
+
+<section class="card quotation-detail-card" *ngIf="!loading() && quotation() as quotation">
+  <div class="toolbar quotation-head">
+    <div class="quotation-head-text">
+      <h3>{{ quotation.quotationNumber }}</h3>
+      <p>
+        Cliente: {{ quotation.client.nameOrBusinessName }} | Emisión: {{ quotation.issuedAt | date: 'dd/MM/yyyy' }}
+      </p>
+    </div>
+
+    <div class="actions quotation-head-actions">
+      <a class="btn btn-secondary" [routerLink]="['/quotations', quotation.id, 'pdf-preview']">
+        <span class="material-symbols-outlined">picture_as_pdf</span>
+        Preview PDF
+      </a>
+      <a *ngIf="quotation.status === 'BORRADOR'" class="btn btn-secondary"
+        [routerLink]="['/quotations', quotation.id, 'edit']">
+        <span class="material-symbols-outlined">edit</span>
+        Editar borrador
+      </a>
+    </div>
+  </div>
+
+  <div class="quotation-status-row">
+    <app-status-badge [status]="quotation.status" />
+    <select class="select quotation-status-select" [ngModel]="quotation.status" (ngModelChange)="updateStatus($event)">
+      <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+    </select>
+  </div>
+
+  <div class="table-wrapper quotation-details-table">
+    <table class="table quotation-detail-table">
+      <thead>
+        <tr>
+          <th>Tipo</th>
+          <th>Descripción</th>
+          <th>Cantidad</th>
+          <th>P. Unitario</th>
+          <th>IVA %</th>
+          <th>Margen %</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of quotation.details">
+          <td data-label="Tipo">{{ item.itemType }}</td>
+          <td data-label="Descripción">{{ item.descriptionFrozen }}</td>
+          <td data-label="Cantidad">{{ item.quantity }}</td>
+          <td data-label="P. Unitario">{{ money(item.unitPriceFinal, quotation.currency) }}</td>
+          <td data-label="IVA %">{{ item.vatPercentHistorical }}</td>
+          <td data-label="Margen %">{{ item.marginPercentHistorical }}</td>
+          <td data-label="Total">{{ money(item.lineTotal, quotation.currency) }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="quotation-summary-grid">
+    <article class="card quotation-box">
+      <strong>Observaciones</strong>
+      <p class="quotation-muted">{{ quotation.observations || 'Sin observaciones' }}</p>
+    </article>
+
+    <article class="card quotation-box">
+      <strong>Resumen</strong>
+      <p>Subtotal: {{ money(quotation.subtotal, quotation.currency) }}</p>
+      <p>Descuento: {{ money(quotation.discount, quotation.currency) }}</p>
+      <p>IVA: {{ money(quotation.vatValueHistorical, quotation.currency) }}</p>
+      <p class="quotation-total">Total: {{ money(quotation.total, quotation.currency) }}</p>
+    </article>
+  </div>
+</section>

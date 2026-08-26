@@ -1,0 +1,126 @@
+.quotation-detail-card {
+  margin-top: 0.9rem;
+  padding: 0.95rem;
+}
+
+.quotation-head {
+  align-items: flex-start;
+  gap: .7rem;
+}
+
+.quotation-head-text h3 {
+  margin: 0;
+  word-break: break-word;
+}
+
+.quotation-head-text p {
+  margin: 0.25rem 0 0;
+  color: var(--gray-600);
+}
+
+.quotation-status-row {
+  margin-top: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.quotation-status-select {
+  max-width: 220px;
+}
+
+.quotation-details-table {
+  margin-top: 0.8rem;
+}
+
+.quotation-summary-grid {
+  margin-top: 0.8rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+
+.quotation-box {
+  padding: 0.75rem;
+}
+
+.quotation-box p {
+  margin: 0.35rem 0;
+}
+
+.quotation-muted {
+  color: var(--gray-600);
+}
+
+.quotation-total {
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .quotation-head-actions {
+    width: 100%;
+  }
+
+  .quotation-head-actions .btn {
+    width: 100%;
+  }
+
+  .quotation-status-select {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .quotation-summary-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .quotation-details-table {
+    border: 0;
+    overflow: visible;
+  }
+
+  .quotation-detail-table {
+    min-width: 0;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .quotation-detail-table thead {
+    display: none;
+  }
+
+  .quotation-detail-table tbody,
+  .quotation-detail-table tr,
+  .quotation-detail-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .quotation-detail-table tr {
+    border: 1px solid #dbe2ea;
+    border-radius: 12px;
+    padding: 0.65rem;
+    margin-bottom: 0.65rem;
+    background: #fff;
+  }
+
+  .quotation-detail-table td {
+    padding: 0.35rem 0;
+    border-bottom: 0;
+  }
+
+  .quotation-detail-table td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 0.26rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #2f4d66;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+}

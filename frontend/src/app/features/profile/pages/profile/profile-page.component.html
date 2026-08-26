@@ -1,0 +1,59 @@
+<section class="toolbar">
+  <app-page-header title="Mi Perfil" subtitle="Actualiza tu información personal y de contacto." />
+</section>
+
+<app-loading-spinner *ngIf="loading()" />
+
+<section class="profile-grid" *ngIf="!loading() && authService.user() as user">
+  <article class="card info-card">
+    <div class="avatar-wrap">
+      <img *ngIf="avatarDataUrl(); else initialsAvatar" alt="Avatar de perfil" [src]="avatarDataUrl()!" />
+      <ng-template #initialsAvatar>
+        <div class="avatar-fallback">{{ initials(user.fullName) }}</div>
+      </ng-template>
+    </div>
+
+    <input #avatarInput hidden type="file" accept="image/png,image/jpeg,image/jpg,image/webp" (change)="onAvatarSelected($event)" />
+    <div class="avatar-actions">
+      <button class="btn btn-secondary btn-upload" type="button" (click)="avatarInput.click()">
+        <span class="material-symbols-outlined">upload</span>
+        Subir foto
+      </button>
+      <button class="btn btn-secondary btn-upload" type="button" *ngIf="avatarDataUrl()" (click)="clearAvatar(avatarInput)">
+        <span class="material-symbols-outlined">delete</span>
+        Quitar foto
+      </button>
+      <small class="file-name" *ngIf="selectedFileName()">{{ selectedFileName() }}</small>
+    </div>
+
+    <h3>{{ user.fullName }}</h3>
+    <p>{{ roleLabel() }}</p>
+    <small>{{ user.email }}</small>
+  </article>
+
+  <form class="card form-card" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="grid-2">
+      <div class="field">
+        <label for="fullName">Nombre completo</label>
+        <input class="input" id="fullName" type="text" formControlName="fullName" />
+      </div>
+
+      <div class="field">
+        <label for="email">Correo</label>
+        <input class="input" id="email" type="email" formControlName="email" />
+      </div>
+
+      <div class="field">
+        <label for="phone">Teléfono</label>
+        <input class="input" id="phone" type="text" formControlName="phone" />
+      </div>
+    </div>
+
+    <div class="actions-row">
+      <button class="btn btn-primary" type="submit" [disabled]="saving()">
+        <span class="material-symbols-outlined">save</span>
+        {{ saving() ? 'Guardando...' : 'Guardar cambios' }}
+      </button>
+    </div>
+  </form>
+</section>

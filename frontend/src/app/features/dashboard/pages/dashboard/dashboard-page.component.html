@@ -1,0 +1,81 @@
+<section class="toolbar">
+  <app-page-header
+    title="Dashboard Ejecutivo"
+    subtitle="Monitorea la operación comercial y técnica de Next Eye Security."
+  />
+  <a class="btn btn-primary" routerLink="/quotations/new">
+    <span class="material-symbols-outlined">add</span>
+    Nueva Cotización
+  </a>
+</section>
+
+<app-loading-spinner *ngIf="loading()" text="Cargando indicadores..." />
+
+<section *ngIf="!loading()" class="dashboard-grid">
+  <article class="card kpi" *ngFor="let item of kpis">
+    <div class="icon-box">
+      <span class="material-symbols-outlined">{{ item.icon }}</span>
+    </div>
+    <div>
+      <p>{{ item.label }}</p>
+      <strong>{{ state()[item.key] }}</strong>
+    </div>
+  </article>
+</section>
+
+<section class="grid-two" *ngIf="!loading()">
+  <article class="card panel">
+    <header>
+      <h3>Cotizaciones Recientes</h3>
+      <a routerLink="/quotations">Ver todas</a>
+    </header>
+
+    <div class="table-wrapper" *ngIf="state().quotations.length; else noQuotes">
+      <table class="table dashboard-quotes-table">
+        <thead>
+          <tr>
+            <th>Número</th>
+            <th>Cliente</th>
+            <th>Fecha</th>
+            <th>Total</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let quotation of state().quotations">
+            <td data-label="Número">{{ quotation.quotationNumber }}</td>
+            <td data-label="Cliente">{{ quotation.client.nameOrBusinessName }}</td>
+            <td data-label="Fecha">{{ quotation.issuedAt | date: 'dd/MM/yyyy' }}</td>
+            <td data-label="Total">{{ money(quotation.total) }}</td>
+            <td data-label="Estado"><app-status-badge [status]="quotation.status" /></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ng-template #noQuotes>
+      <app-empty-state title="Sin cotizaciones" description="Aún no existen cotizaciones para mostrar." />
+    </ng-template>
+  </article>
+
+  <article class="card panel">
+    <header>
+      <h3>Mantenimientos Prioritarios</h3>
+      <a routerLink="/maintenance">Ver agenda</a>
+    </header>
+
+    <div class="task-list" *ngIf="state().maintenance.length; else noTasks">
+      <article class="task" *ngFor="let task of state().maintenance">
+        <div>
+          <strong>{{ task.client.nameOrBusinessName }}</strong>
+          <p>{{ task.intervenedSystem }}</p>
+        </div>
+        <app-status-badge [status]="task.status" />
+      </article>
+    </div>
+
+    <ng-template #noTasks>
+      <app-empty-state title="Sin mantenimientos" description="No hay registros pendientes." />
+    </ng-template>
+  </article>
+</section>

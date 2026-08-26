@@ -1,0 +1,22 @@
+# Reglas comunes del monorepo.
+# backend/.gitignore y frontend/.gitignore cubren lo propio de cada stack.
+
+### Secretos: nunca versionar. Las plantillas son los .env.example ###
+.env
+.env.local
+*.pem
+*.key
+
+### Sistema ###
+.DS_Store
+Thumbs.db
+desktop.ini
+
+### Editores ###
+.idea/
+.vscode/
+*.iml
+*.swp
+
+### Logs ###
+*.log

@@ -1,0 +1,83 @@
+<section class="toolbar" *ngIf="definition() as definition">
+  <app-page-header
+    [title]="isEditMode ? 'Editar ' + definition.singular : 'Nuevo ' + definition.singular"
+    [subtitle]="definition.subtitle"
+  />
+  <a class="btn btn-secondary" [routerLink]="['/', definition.key]">
+    <span class="material-symbols-outlined">arrow_back</span>
+    Volver
+  </a>
+</section>
+
+<app-loading-spinner *ngIf="loading()" text="Preparando formulario..." />
+
+<form *ngIf="!loading() && definition() as definition" class="card" style="margin-top: .9rem; padding: .95rem;" [formGroup]="form" (ngSubmit)="submit()">
+  <section *ngIf="isProductsModule()" class="product-upload-block">
+    <div class="product-upload-header">
+      <h3>Imagen del producto</h3>
+      <p>Sube JPG, PNG o WEBP para mostrar la imagen en el catálogo.</p>
+    </div>
+
+    <input #productImageInput hidden type="file" accept="image/png,image/jpeg,image/jpg,image/webp" (change)="onProductImageSelected($event)" />
+
+    <div class="product-upload-content">
+      <button type="button" class="product-dropzone" (click)="productImageInput.click()">
+        <img *ngIf="productImagePreview(); else productUploadPlaceholder" [src]="productImagePreview()!" alt="Vista previa de producto" />
+        <ng-template #productUploadPlaceholder>
+          <span class="material-symbols-outlined">add_a_photo</span>
+          <small>Click para subir imagen</small>
+        </ng-template>
+      </button>
+
+      <div class="product-upload-actions">
+        <button class="btn btn-secondary" type="button" (click)="productImageInput.click()">
+          <span class="material-symbols-outlined">upload</span>
+          Subir imagen
+        </button>
+        <button class="btn btn-secondary" type="button" *ngIf="productImagePreview()" (click)="clearProductImage(productImageInput)">
+          <span class="material-symbols-outlined">delete</span>
+          Quitar imagen
+        </button>
+        <small *ngIf="selectedProductImageName()">Archivo: {{ selectedProductImageName() }}</small>
+      </div>
+    </div>
+  </section>
+
+  <div class="grid-2">
+    <ng-container *ngFor="let field of definition.fields">
+      <div class="field" *ngIf="shouldRenderField(field)" [style.gridColumn]="field.type === 'textarea' ? '1 / -1' : ''">
+        <label [for]="field.key">{{ field.label }}</label>
+
+        <ng-container [ngSwitch]="field.type">
+          <input *ngSwitchCase="'text'" class="input" [id]="field.key" [formControlName]="field.key" type="text" [placeholder]="field.placeholder ?? ''" />
+          <input *ngSwitchCase="'email'" class="input" [id]="field.key" [formControlName]="field.key" type="email" />
+          <input *ngSwitchCase="'password'" class="input" [id]="field.key" [formControlName]="field.key" type="password" />
+          <input *ngSwitchCase="'number'" class="input" [id]="field.key" [formControlName]="field.key" type="number" step="0.01" />
+          <input *ngSwitchCase="'date'" class="input" [id]="field.key" [formControlName]="field.key" type="date" />
+          <textarea *ngSwitchCase="'textarea'" class="textarea" [id]="field.key" [formControlName]="field.key" rows="3"></textarea>
+
+          <select *ngSwitchCase="'select'" class="select" [id]="field.key" [formControlName]="field.key">
+            <option value="">Seleccionar</option>
+            <option *ngFor="let option of options()[field.key]" [value]="option.value">{{ option.label }}</option>
+          </select>
+
+          <label *ngSwitchCase="'boolean'" style="display:flex; align-items:center; gap:.4rem;">
+            <input [id]="field.key" [formControlName]="field.key" type="checkbox" />
+            Habilitado
+          </label>
+        </ng-container>
+
+        <small class="error-text" *ngIf="isInvalid(field.key)">
+          Campo requerido o inválido.
+        </small>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="actions" style="margin-top: .9rem; justify-content: flex-end;">
+    <button class="btn btn-primary" type="submit" [disabled]="saving()">
+      <span class="material-symbols-outlined">save</span>
+      {{ saving() ? 'Guardando...' : 'Guardar' }}
+    </button>
+  </div>
+</form>

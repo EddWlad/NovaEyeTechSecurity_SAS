@@ -1,0 +1,68 @@
+server:
+  port: ${PORT:8080}
+  servlet:
+    # Prefijo global de la API, equivalente a setGlobalPrefix("api") del backend NestJS.
+    context-path: /api
+
+spring:
+  application:
+    name: novaeyetech-backend
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://${DB_HOST:127.0.0.1}:${DB_PORT:5435}/${DB_DATABASE:novaeyetech}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+
+  jpa:
+    hibernate:
+      # En produccion debe ser "validate" o "none": el esquema se gestiona por migraciones.
+      ddl-auto: ${DB_SYNC:update}
+    show-sql: ${DB_LOGGING:false}
+    # Cerrar la sesion al salir del servicio: obliga a resolver las relaciones dentro de la
+    # transaccion y evita consultas perezosas disparadas durante la serializacion.
+    open-in-view: false
+
+  jackson:
+    deserialization:
+      # Equivalente a forbidNonWhitelisted: un campo no declarado en el DTO responde 400, no 200.
+      fail-on-unknown-properties: true
+
+  servlet:
+    multipart:
+      max-file-size: ${MAX_FILE_SIZE:10MB}
+      max-request-size: ${MAX_REQUEST_SIZE:10MB}
+
+  # El arranque no depende de Docker: la base se configura por variables de entorno.
+  docker:
+    compose:
+      enabled: false
+
+app:
+  jwt:
+    # Vacio a proposito: si falta JWT_SECRET la aplicacion no arranca, con un mensaje claro desde
+    # JwtService. Se toma del entorno o del archivo .env local (ver .env.example).
+    secret: ${JWT_SECRET:}
+    expiration: ${JWT_EXPIRES_IN:8h}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
+  cloudinary:
+    # Credenciales del almacenamiento de imagenes y documentos. Sin ellas la aplicacion arranca,
+    # pero cualquier subida responde 400 con un mensaje explicito.
+    cloud-name: ${CLOUDINARY_CLOUD_NAME:}
+    api-key: ${CLOUDINARY_API_KEY:}
+    api-secret: ${CLOUDINARY_API_SECRET:}
+    root-folder: ${CLOUDINARY_ROOT_FOLDER:novaeyetech}
+  company:
+    name: ${COMPANY_NAME:NEXT EYE SECURITY}
+    tagline: ${COMPANY_TAGLINE:Tu aliado en seguridad}
+    tax-id: ${COMPANY_TAX_ID:1717345407001}
+    address: ${COMPANY_ADDRESS:De los Guabos y Av. El Inca}
+    phone: ${COMPANY_PHONE:0969379333}
+  seed:
+    # Datos de demostracion. Nunca activar en produccion: limpia las tablas antes de sembrar.
+    enabled: ${SEED_ENABLED:false}
+
+logging:
+  level:
+    com.tidsec.novaeyetech_backend: ${LOG_LEVEL:INFO}

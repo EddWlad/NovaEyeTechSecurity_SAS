@@ -1,0 +1,55 @@
+<div class="shell">
+  <app-toast-stack />
+
+  <aside class="sidebar" [ngClass]="{ open: sidebarOpen() }">
+    <div class="brand">
+      <img alt="Logo Next Eye Security" src="logo.png" />
+      <div>
+        <p class="brand-name">NEXT EYE SECURITY</p>
+        <p class="brand-subtitle">Panel Administrativo</p>
+      </div>
+    </div>
+
+    <nav class="nav-list">
+      <a
+        *ngFor="let item of menuItems()"
+        [routerLink]="item.route"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
+      >
+        <span class="material-symbols-outlined">{{ item.icon }}</span>
+        <span>{{ item.label }}</span>
+      </a>
+    </nav>
+
+    <section class="profile-box" *ngIf="authService.user() as user">
+      <div class="avatar">{{ userInitials() }}</div>
+      <div>
+        <strong>{{ user.fullName }}</strong>
+        <p>{{ currentRoleLabel() }}</p>
+      </div>
+      <button class="btn btn-sm btn-secondary" type="button" (click)="logout()">
+        <span class="material-symbols-outlined">logout</span>
+      </button>
+    </section>
+  </aside>
+
+  <div class="overlay" [ngClass]="{ show: sidebarOpen() }" (click)="toggleSidebar()"></div>
+
+  <section class="content-area">
+    <header class="topbar card">
+      <button class="menu-toggle" type="button" (click)="toggleSidebar()">
+        <span class="material-symbols-outlined">menu</span>
+      </button>
+      <app-breadcrumbs [items]="crumbs()" />
+      <a class="btn btn-sm btn-secondary" routerLink="/profile">
+        <span class="material-symbols-outlined">account_circle</span>
+        Mi Perfil
+      </a>
+    </header>
+
+    <main class="page-content">
+      <router-outlet />
+    </main>
+  </section>
+</div>

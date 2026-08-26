@@ -1,0 +1,66 @@
+.login-view {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.2rem;
+  background:
+    radial-gradient(circle at 0% 0%, rgb(123 30 43 / 16%), transparent 48%),
+    radial-gradient(circle at 100% 100%, rgb(17 24 39 / 12%), transparent 45%),
+    #f6f7fb;
+}
+
+.login-card {
+  width: min(420px, 100%);
+  padding: 1.6rem;
+  border-top: 7px solid var(--wine-600);
+}
+
+header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+header img {
+  width: 184px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  margin-inline: auto;
+  display: block;
+}
+
+header h1 {
+  margin: .8rem 0 .2rem;
+  font-size: 1.45rem;
+}
+
+header p {
+  margin: 0;
+  font-size: .9rem;
+  color: var(--gray-600);
+}
+
+form {
+  display: grid;
+  gap: .8rem;
+}
+
+.password-box {
+  position: relative;
+}
+
+.password-box button {
+  position: absolute;
+  top: 50%;
+  right: .48rem;
+  border: 0;
+  background: transparent;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: var(--gray-600);
+}
+
+.submit {
+  margin-top: .35rem;
+  height: 44px;
+}

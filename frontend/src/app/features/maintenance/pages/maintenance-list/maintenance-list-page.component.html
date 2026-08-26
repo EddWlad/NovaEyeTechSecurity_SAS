@@ -1,0 +1,99 @@
+<section class="toolbar">
+  <app-page-header
+    title="Mantenimientos"
+    subtitle="Planifica mantenimientos preventivos y correctivos con trazabilidad técnica."
+  />
+  <a class="btn btn-primary" routerLink="/maintenance/new">
+    <span class="material-symbols-outlined">add</span>
+    Nuevo Mantenimiento
+  </a>
+</section>
+
+<section class="card" style="margin-top: .9rem; padding: .8rem;">
+  <div class="filters-toolbar" style="margin-bottom: .65rem;">
+    <input
+      class="input"
+      style="max-width: 280px;"
+      placeholder="Buscar cliente o sistema"
+      [ngModel]="query()"
+      (ngModelChange)="query.set($event)"
+    />
+
+    <div class="filters-group">
+      <select class="select filter-select" [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event)">
+        <option value="">Todos los tipos</option>
+        <option *ngFor="let type of types" [value]="type">{{ type }}</option>
+      </select>
+
+      <select class="select filter-select" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+        <option value="">Todos los estados</option>
+        <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+      </select>
+    </div>
+  </div>
+
+  <app-loading-spinner *ngIf="loading()" />
+
+  <div class="table-wrapper" *ngIf="!loading() && filtered().length">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Tipo</th>
+          <th>Estado</th>
+          <th>Programada</th>
+          <th>Técnico</th>
+          <th>Sistema</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of filtered()">
+          <td data-label="Cliente">{{ item.client.nameOrBusinessName }}</td>
+          <td data-label="Tipo">{{ item.type }}</td>
+          <td data-label="Estado"><app-status-badge [status]="item.status" /></td>
+          <td data-label="Programada">{{ item.scheduledDate | date: 'dd/MM/yyyy' }}</td>
+          <td data-label="Técnico">{{ item.technician.fullName }}</td>
+          <td data-label="Sistema">{{ item.intervenedSystem }}</td>
+          <td data-label="Acciones">
+            <div class="actions">
+              <a class="btn btn-sm btn-secondary" [routerLink]="['/maintenance', item.id]">
+                <span class="material-symbols-outlined">visibility</span>
+              </a>
+              <a class="btn btn-sm btn-secondary" [routerLink]="['/maintenance', item.id, 'edit']">
+                <span class="material-symbols-outlined">edit</span>
+              </a>
+              <button class="btn btn-sm btn-danger" type="button" (click)="remove(item)">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-pagination-controls
+    *ngIf="!loading() && totalPages() > 1"
+    [page]="page()"
+    [totalPages]="totalPages()"
+    [total]="total()"
+    (pageChange)="changePage($event)"
+  />
+
+  <app-empty-state *ngIf="!loading() && !filtered().length" title="Sin mantenimientos" description="No hay registros disponibles." />
+</section>
+
+<div class="confirm-backdrop" *ngIf="showDeleteModal()">
+  <article class="confirm-modal card">
+    <h3>Confirmar eliminación</h3>
+    <p>
+      ¿Deseas eliminar <strong>{{ pendingDeleteLabel() }}</strong>?
+    </p>
+    <p class="warning">Esta acción no se puede deshacer.</p>
+    <div class="actions" style="justify-content: flex-end;">
+      <button class="btn btn-secondary" type="button" (click)="closeDeleteModal()">No, cancelar</button>
+      <button class="btn btn-danger" type="button" (click)="confirmDelete()">Sí, eliminar</button>
+    </div>
+  </article>
+</div>

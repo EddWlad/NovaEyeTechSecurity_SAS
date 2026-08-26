@@ -1,0 +1,73 @@
+<section class="toolbar">
+  <app-page-header
+    title="Auditoría del Sistema"
+    subtitle="Trazabilidad de acciones críticas por módulo, entidad y usuario."
+  />
+  <button class="btn btn-secondary" type="button" (click)="load()">
+    <span class="material-symbols-outlined">refresh</span>
+    Refrescar
+  </button>
+</section>
+
+<section class="card" style="margin-top:.9rem; padding:.8rem;">
+  <div class="toolbar audit-filters-toolbar" style="margin-bottom:.65rem;">
+    <input
+      class="input audit-filter-input"
+      style="max-width:220px;"
+      placeholder="Módulo"
+      [ngModel]="moduleFilter()"
+      (ngModelChange)="moduleFilter.set($event)"
+    />
+    <input
+      class="input audit-filter-input"
+      style="max-width:220px;"
+      placeholder="Usuario"
+      [ngModel]="userFilter()"
+      (ngModelChange)="userFilter.set($event)"
+    />
+    <input
+      class="input audit-filter-input"
+      style="max-width:220px;"
+      placeholder="Acción"
+      [ngModel]="actionFilter()"
+      (ngModelChange)="actionFilter.set($event)"
+    />
+  </div>
+
+  <app-loading-spinner *ngIf="loading()" />
+
+  <div class="table-wrapper" *ngIf="!loading() && filtered().length">
+    <table class="table audit-table">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Módulo</th>
+          <th>Entidad</th>
+          <th>Acción</th>
+          <th>Usuario</th>
+          <th>Resumen</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of filtered()">
+          <td data-label="Fecha">{{ row.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td data-label="Módulo">{{ row.module }}</td>
+          <td data-label="Entidad">{{ row.entity }}</td>
+          <td data-label="Acción">{{ row.action }}</td>
+          <td data-label="Usuario">{{ row.user }}</td>
+          <td data-label="Resumen">{{ row.summary }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-pagination-controls
+    *ngIf="!loading() && totalPages() > 1"
+    [page]="page()"
+    [totalPages]="totalPages()"
+    [total]="total()"
+    (pageChange)="changePage($event)"
+  />
+
+  <app-empty-state *ngIf="!loading() && !filtered().length" title="Sin registros" description="No hay resultados para los filtros aplicados." />
+</section>

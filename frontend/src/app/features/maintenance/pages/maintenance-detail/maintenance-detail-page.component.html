@@ -1,0 +1,179 @@
+<section class="toolbar">
+  <app-page-header
+    title="Detalle de Mantenimiento"
+    subtitle="Controla el historial técnico, comentarios y evidencias del servicio."
+  />
+  <div class="actions maintenance-header-actions">
+    <a class="btn btn-secondary" routerLink="/maintenance">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Volver
+    </a>
+    <a class="btn btn-primary" [routerLink]="['/maintenance', maintenanceId, 'edit']">
+      <span class="material-symbols-outlined">edit</span>
+      Editar
+    </a>
+  </div>
+</section>
+
+<app-loading-spinner *ngIf="loading()" />
+
+<section class="detail-grid" *ngIf="!loading() && maintenance() as maintenance">
+  <article class="card maintenance-main-card">
+    <h3 class="maintenance-title">{{ maintenance.client.nameOrBusinessName }}</h3>
+    <p class="maintenance-subtitle">{{ maintenance.intervenedSystem }}</p>
+
+    <div class="maintenance-status-row">
+      <app-status-badge [status]="maintenance.status" />
+      <app-status-badge [status]="maintenance.type" />
+    </div>
+
+    <div class="grid-2 maintenance-info-grid">
+      <article class="card info-card">
+        <strong>Técnico</strong>
+        <p>{{ maintenance.technician.fullName }}</p>
+      </article>
+      <article class="card info-card">
+        <strong>Fecha programada</strong>
+        <p>{{ maintenance.scheduledDate | date: 'dd/MM/yyyy' }}</p>
+      </article>
+      <article class="card info-card" style="grid-column:1/-1;">
+        <strong>Diagnóstico</strong>
+        <p>{{ maintenance.diagnosis }}</p>
+      </article>
+      <article class="card info-card" style="grid-column:1/-1;">
+        <strong>Solución aplicada</strong>
+        <p>{{ maintenance.appliedSolution }}</p>
+      </article>
+      <article class="card info-card" style="grid-column:1/-1;">
+        <strong>Observaciones</strong>
+        <p>{{ maintenance.observations || 'Sin observaciones' }}</p>
+      </article>
+    </div>
+  </article>
+
+  <article class="card maintenance-comments-card">
+    <h3 style="margin-top:0">Comentarios Técnicos</h3>
+    <div class="timeline" *ngIf="comments().length; else noComments">
+      <article *ngFor="let comment of comments()" class="timeline-item">
+        <strong>{{ comment.user.fullName }}</strong>
+        <small>{{ comment.createdAt | date: 'dd/MM/yyyy HH:mm' }}</small>
+        <p>{{ comment.comment }}</p>
+      </article>
+    </div>
+    <ng-template #noComments>
+      <p style="color:var(--gray-600)">No hay comentarios registrados.</p>
+    </ng-template>
+
+    <form [formGroup]="commentForm" (ngSubmit)="addComment()" class="maintenance-comment-form">
+      <div class="field">
+        <label for="comment">Agregar comentario</label>
+        <textarea class="textarea" id="comment" rows="2" formControlName="comment"></textarea>
+      </div>
+      <button class="btn btn-primary maintenance-comment-btn" type="submit">
+        <span class="material-symbols-outlined">send</span>
+        Guardar comentario
+      </button>
+    </form>
+  </article>
+
+  <article class="card maintenance-attachments-card">
+    <h3 style="margin-top:0">Adjuntos / Evidencias</h3>
+
+    <div class="table-wrapper" *ngIf="attachments().length">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Archivo original</th>
+            <th>MIME</th>
+            <th>Vista previa</th>
+            <th>Tamaño</th>
+            <th>Subido por</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let attachment of attachments()">
+            <td data-label="Archivo original">{{ attachment.originalName }}</td>
+            <td data-label="MIME">{{ attachment.mimeType }}</td>
+            <!-- storagePath es la URL de Cloudinary: se muestra como miniatura o enlace,
+                 nunca la URL cruda, que ocupaba toda la fila. -->
+            <td data-label="Vista previa">
+              <ng-container *ngIf="isRemote(attachment.storagePath); else sinVistaPrevia">
+                <a
+                  [href]="attachment.storagePath"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="attachment-preview-link"
+                >
+                  <img
+                    *ngIf="isImage(attachment.mimeType); else verArchivo"
+                    [src]="attachment.storagePath"
+                    [alt]="attachment.originalName"
+                    class="attachment-thumb"
+                    loading="lazy"
+                  />
+                  <ng-template #verArchivo>
+                    <span class="material-symbols-outlined">open_in_new</span>
+                    Abrir
+                  </ng-template>
+                </a>
+              </ng-container>
+              <ng-template #sinVistaPrevia>
+                <span class="attachment-unavailable">No disponible</span>
+              </ng-template>
+            </td>
+            <td data-label="Tamaño">{{ attachment.size }}</td>
+            <td data-label="Subido por">{{ attachment.uploadedBy }}</td>
+            <td data-label="Acciones">
+              <button
+                class="btn btn-sm btn-secondary"
+                type="button"
+                (click)="downloadAttachment(attachment)"
+              >
+                <span class="material-symbols-outlined">download</span>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="attachment-upload-block">
+      <div class="field">
+        <label>Seleccionar evidencia</label>
+        <input
+          #fileInput
+          class="hidden-file-input"
+          id="evidenceFile"
+          type="file"
+          (change)="onFileSelected($event)"
+          multiple
+          accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+        />
+
+        <div class="file-picker-row">
+          <button class="btn btn-secondary" type="button" (click)="fileInput.click()">
+            <span class="material-symbols-outlined">attach_file</span>
+            Elegir archivo
+          </button>
+          <button
+            class="btn btn-secondary"
+            type="button"
+            (click)="addAttachment(fileInput)"
+            [disabled]="uploadingAttachment() || !selectedFiles().length"
+          >
+            <span class="material-symbols-outlined">upload_file</span>
+            {{ uploadingAttachment() ? 'Subiendo...' : 'Subir evidencia' }}
+          </button>
+          <span class="file-name">
+            {{ selectedFilesLabel() }}
+          </span>
+        </div>
+      </div>
+
+      <p *ngIf="selectedFiles().length" class="attachment-size-info">
+        Tamaño total: <strong>{{ selectedFilesTotalSize() }}</strong> bytes
+      </p>
+    </div>
+  </article>
+</section>

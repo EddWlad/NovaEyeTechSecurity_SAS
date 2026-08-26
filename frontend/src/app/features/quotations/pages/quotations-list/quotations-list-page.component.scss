@@ -1,0 +1,74 @@
+.quotations-filters-toolbar > .input {
+  flex: 0 1 320px;
+}
+
+.quotations-status-filter {
+  min-width: 220px;
+}
+
+@media (max-width: 780px) {
+  .quotations-filters-toolbar {
+    align-items: stretch;
+  }
+
+  .quotations-search-input,
+  .quotations-status-filter {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    width: 100%;
+  }
+}
+
+@media (max-width: 680px) {
+  .table-wrapper {
+    overflow: visible;
+    border: 0;
+  }
+
+  .quotations-table {
+    min-width: 0;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .quotations-table thead {
+    display: none;
+  }
+
+  .quotations-table tbody,
+  .quotations-table tr,
+  .quotations-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .quotations-table tr {
+    border: 1px solid #dbe2ea;
+    border-radius: 12px;
+    padding: .65rem;
+    margin-bottom: .65rem;
+    background: #fff;
+  }
+
+  .quotations-table td {
+    padding: .35rem 0;
+    border-bottom: 0;
+  }
+
+  .quotations-table td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: .24rem;
+    font-size: .68rem;
+    font-weight: 700;
+    color: #2f4d66;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+  }
+
+  .quotations-table td[data-label='Acciones'] .actions .btn {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}

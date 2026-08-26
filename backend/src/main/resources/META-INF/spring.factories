@@ -1,0 +1,2 @@
+org.springframework.boot.EnvironmentPostProcessor=\
+com.tidsec.novaeyetech_backend.config.DotEnvEnvironmentPostProcessor

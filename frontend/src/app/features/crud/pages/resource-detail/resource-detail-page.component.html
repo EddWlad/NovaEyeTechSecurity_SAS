@@ -1,0 +1,72 @@
+<section class="toolbar" *ngIf="definition() as definition">
+  <app-page-header [title]="'Detalle de ' + definition.singular" [subtitle]="definition.subtitle" />
+  <div class="actions">
+    <a class="btn btn-secondary" [routerLink]="['/', definition.key]">
+      <span class="material-symbols-outlined">arrow_back</span>
+      Volver
+    </a>
+    <a class="btn btn-primary" [routerLink]="['/', definition.key, entity()?.['id'], 'edit']">
+      <span class="material-symbols-outlined">edit</span>
+      Editar
+    </a>
+  </div>
+</section>
+
+<app-loading-spinner *ngIf="loading()" text="Cargando detalle..." />
+
+<app-empty-state *ngIf="!loading() && !entity()" title="Sin detalle" description="No se encontró el registro solicitado." />
+
+<section class="card" style="margin-top: .9rem; padding: .95rem;" *ngIf="!loading() && entity() && definition() as definition">
+  <div class="grid-2" [class.user-attributes]="definition.key === 'users' || definition.key === 'clients' || definition.key === 'suppliers' || definition.key === 'product-categories' || definition.key === 'products' || definition.key === 'service-categories' || definition.key === 'services'">
+    <ng-container *ngFor="let field of definition.fields">
+      <article class="field-item" [class.user-field]="definition.key === 'users' || definition.key === 'clients' || definition.key === 'suppliers' || definition.key === 'product-categories' || definition.key === 'products' || definition.key === 'service-categories' || definition.key === 'services'">
+        <strong>{{ field.label }}</strong>
+
+        <ng-container [ngSwitch]="field.key">
+          <app-status-badge *ngSwitchCase="'active'" [status]="valueFor(field.key) ? 'ACTIVO' : 'INACTIVO'" />
+          <span *ngSwitchDefault [class.masked-password]="field.key === 'password'">{{ valueFor(field.key) }}</span>
+        </ng-container>
+      </article>
+    </ng-container>
+  </div>
+
+  <article style="margin-top: 1rem; border-top: 1px solid #e5e7eb; padding-top: .7rem; color: var(--gray-600); font-size: .8rem;">
+    <p style="margin: 0" *ngIf="definition.key === 'users'; else clientFooter">
+      Usuario: {{ entity()?.['fullName'] ?? '-' }}
+    </p>
+    <ng-template #clientFooter>
+      <p style="margin: 0" *ngIf="definition.key === 'clients'; else supplierFooter">
+        Cliente: {{ entity()?.['nameOrBusinessName'] ?? '-' }}
+      </p>
+    </ng-template>
+    <ng-template #supplierFooter>
+      <p style="margin: 0" *ngIf="definition.key === 'suppliers'; else productCategoryFooter">
+        Proveedor: {{ entity()?.['businessName'] ?? '-' }}
+      </p>
+    </ng-template>
+    <ng-template #productCategoryFooter>
+      <p style="margin: 0" *ngIf="definition.key === 'product-categories'; else productFooter">
+        Categoría: {{ entity()?.['name'] ?? '-' }}
+      </p>
+    </ng-template>
+    <ng-template #productFooter>
+      <p style="margin: 0" *ngIf="definition.key === 'products'; else serviceCategoryFooter">
+        Producto: {{ entity()?.['name'] ?? '-' }}
+      </p>
+    </ng-template>
+    <ng-template #serviceCategoryFooter>
+      <p style="margin: 0" *ngIf="definition.key === 'service-categories'; else serviceFooter">
+        Categoría: {{ entity()?.['name'] ?? '-' }}
+      </p>
+    </ng-template>
+    <ng-template #serviceFooter>
+      <p style="margin: 0" *ngIf="definition.key === 'services'; else defaultIdFooter">
+        Servicio: {{ entity()?.['name'] ?? '-' }}
+      </p>
+    </ng-template>
+    <ng-template #defaultIdFooter>
+      <p style="margin: 0">ID: {{ entity()?.['id'] }}</p>
+    </ng-template>
+    <p style="margin: .2rem 0 0">Creado: {{ entity()?.['createdAt'] ?? '-' }}</p>
+  </article>
+</section>

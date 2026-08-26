@@ -1,0 +1,175 @@
+.quotation-grid {
+  margin-top: .9rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: .9rem;
+}
+
+.quotation-grid > * {
+  min-width: 0;
+}
+
+.status-update-form {
+  margin-top: .9rem;
+  display: flex;
+  gap: .7rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.status-field {
+  max-width: 220px;
+}
+
+.items-toolbar {
+  margin-bottom: .65rem;
+}
+
+.quotation-items-table {
+  min-width: 940px;
+}
+
+.summary-card {
+  padding: .95rem;
+  width: min(100%, 360px);
+  justify-self: end;
+}
+
+.summary-card dl {
+  margin: 0;
+  display: grid;
+  gap: .45rem;
+}
+
+.summary-card div {
+  display: flex;
+  justify-content: space-between;
+  font-size: .9rem;
+}
+
+.summary-card dt,
+.summary-card dd {
+  margin: 0;
+}
+
+.summary-card .total {
+  margin-top: .35rem;
+  padding-top: .45rem;
+  border-top: 1px solid #e5e7eb;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+:host ::ng-deep .line-total-col {
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+:host ::ng-deep td.line-total-col {
+  font-weight: 600;
+}
+
+@media (max-width: 900px) {
+  .status-update-form {
+    align-items: stretch;
+  }
+
+  .status-field {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .status-update-form .btn {
+    width: 100%;
+  }
+
+  .summary-card {
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  .items-toolbar .btn {
+    width: 100%;
+  }
+
+  .quotation-items-table {
+    min-width: 760px;
+  }
+}
+
+@media (max-width: 640px) {
+  .quotation-grid {
+    gap: .72rem;
+  }
+
+  .items-toolbar {
+    align-items: stretch;
+  }
+
+  .items-toolbar .btn {
+    width: 100%;
+  }
+
+  .quotation-items-wrapper {
+    border: 0;
+    overflow: visible;
+  }
+
+  .quotation-items-table {
+    min-width: 0;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .quotation-items-table thead {
+    display: none;
+  }
+
+  .quotation-items-table tbody,
+  .quotation-items-table tr,
+  .quotation-items-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .quotation-items-table tr {
+    border: 1px solid #dbe2ea;
+    border-radius: 12px;
+    padding: .65rem;
+    margin-bottom: .65rem;
+    background: #fff;
+  }
+
+  .quotation-items-table td {
+    padding: .35rem 0;
+    border-bottom: 0;
+  }
+
+  .quotation-items-table td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: .26rem;
+    font-size: .68rem;
+    font-weight: 700;
+    color: #2f4d66;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+  }
+
+  .quotation-items-table td[data-label='Acciones'] .btn {
+    width: 100%;
+  }
+
+  .quotation-items-table td :is(.input, .select, .textarea) {
+    width: 100%;
+  }
+
+  .quotation-items-table td.line-total-col {
+    font-size: .95rem;
+  }
+
+  .summary-card {
+    margin-top: .25rem;
+  }
+}

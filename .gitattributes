@@ -1,0 +1,21 @@
+# Normaliza finales de linea: en el repositorio siempre LF, en el disco lo que
+# corresponda al sistema. Sin esto, un archivo subido desde Windows con CRLF
+# rompe los scripts al ejecutarlos en Linux ("bad interpreter").
+* text=auto
+
+# Scripts que se ejecutan en Linux: siempre LF, tambien en el disco.
+mvnw text eol=lf
+*.sh text eol=lf
+
+# Scripts de Windows: siempre CRLF.
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Binarios: git no debe tocarlos.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.jar binary

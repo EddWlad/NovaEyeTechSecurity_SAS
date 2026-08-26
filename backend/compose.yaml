@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: 'postgres:16'
+    container_name: novaeyetech-postgres
+    environment:
+      - 'POSTGRES_DB=novaeyetech'
+      - 'POSTGRES_USER=postgres'
+      - 'POSTGRES_PASSWORD=postgres'
+    ports:
+      # 5435 en el host para no chocar con una instalacion local de Postgres en 5432.
+      - '5435:5432'
+    volumes:
+      - novaeyetech-pgdata:/var/lib/postgresql/data
+
+volumes:
+  novaeyetech-pgdata:

@@ -1,0 +1,95 @@
+<section class="toolbar" *ngIf="definition() as definition">
+  <app-page-header [title]="definition.title" [subtitle]="definition.subtitle" />
+  <a *ngIf="canWrite()" class="btn btn-primary" [routerLink]="['/', definition.key, 'new']">
+    <span class="material-symbols-outlined">add</span>
+    Nuevo
+  </a>
+</section>
+
+<section class="card" style="margin-top: .9rem; padding: .8rem;">
+  <div class="toolbar resource-filters-toolbar" style="margin-bottom: .65rem;">
+    <input
+      class="input resource-search-input"
+      style="max-width: 360px;"
+      placeholder="Buscar por cualquier campo"
+      [ngModel]="query()"
+      (ngModelChange)="query.set($event)"
+    />
+    <button class="btn btn-secondary" type="button" (click)="load()">
+      <span class="material-symbols-outlined">refresh</span>
+      Refrescar
+    </button>
+  </div>
+
+  <app-loading-spinner *ngIf="loading()" text="Cargando datos..." />
+
+  <div class="table-wrapper" *ngIf="!loading() && filteredRows().length">
+    <table class="table resource-table">
+      <thead>
+        <tr>
+          <th *ngFor="let column of columns()">{{ column.label }}</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let row of filteredRows()">
+          <td *ngFor="let column of columns()" [attr.data-label]="column.label">
+            <ng-container [ngSwitch]="column.key">
+              <app-status-badge *ngSwitchCase="'active'" [status]="row[column.key] ? 'ACTIVO' : 'INACTIVO'" />
+              <ng-container *ngSwitchCase="'imageUrl'">
+                <ng-container *ngIf="productImageSrc(row) as imageSrc; else noProductImage">
+                  <img class="product-thumb" [src]="imageSrc" alt="Imagen de producto" loading="lazy" />
+                </ng-container>
+                <ng-template #noProductImage>
+                  <span>-</span>
+                </ng-template>
+              </ng-container>
+              <span *ngSwitchDefault>{{ getCellValue(row, column.key) }}</span>
+            </ng-container>
+          </td>
+          <td data-label="Acciones">
+            <div class="actions">
+              <button class="btn btn-sm btn-secondary" type="button" (click)="view(asId(row['id']))">
+                <span class="material-symbols-outlined">visibility</span>
+              </button>
+              <button *ngIf="canWrite()" class="btn btn-sm btn-secondary" type="button" (click)="edit(asId(row['id']))">
+                <span class="material-symbols-outlined">edit</span>
+              </button>
+              <button *ngIf="canWrite()" class="btn btn-sm btn-danger" type="button" (click)="remove(asId(row['id']))">
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <app-pagination-controls
+    *ngIf="!loading() && totalPages() > 1"
+    [page]="page()"
+    [totalPages]="totalPages()"
+    [total]="total()"
+    (pageChange)="changePage($event)"
+  />
+
+  <app-empty-state
+    *ngIf="!loading() && !filteredRows().length"
+    title="Sin registros"
+    description="No hay información para esta sección."
+  />
+</section>
+
+<div class="confirm-backdrop" *ngIf="showDeleteModal() && usesDeleteModal()">
+  <article class="confirm-modal card">
+    <h3>Confirmar eliminación</h3>
+    <p>
+      ¿Deseas eliminar <strong>{{ pendingDeleteLabel() }}</strong>?
+    </p>
+    <p class="warning">Esta acción no se puede deshacer.</p>
+    <div class="actions" style="justify-content: flex-end;">
+      <button class="btn btn-secondary" type="button" (click)="closeDeleteModal()">No, cancelar</button>
+      <button class="btn btn-danger" type="button" (click)="confirmDelete()">Sí, eliminar</button>
+    </div>
+  </article>
+</div>

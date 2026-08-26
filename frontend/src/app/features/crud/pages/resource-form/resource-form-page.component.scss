@@ -1,0 +1,86 @@
+.product-upload-block {
+  margin-bottom: 1rem;
+  padding: .9rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #fafbfd;
+}
+
+.product-upload-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #111827;
+}
+
+.product-upload-header p {
+  margin: .2rem 0 0;
+  color: #6b7280;
+  font-size: .86rem;
+}
+
+.product-upload-content {
+  margin-top: .8rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.product-dropzone {
+  width: 130px;
+  height: 130px;
+  border: 2px dashed #d4b1b5;
+  border-radius: 12px;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  color: #7b1e2a;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.product-dropzone img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-dropzone .material-symbols-outlined {
+  font-size: 2rem;
+  opacity: .8;
+}
+
+.product-dropzone small {
+  display: block;
+  font-size: .74rem;
+  color: #6b7280;
+  margin-top: .3rem;
+}
+
+.product-upload-actions {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+}
+
+.product-upload-actions small {
+  color: #6b7280;
+  font-size: .78rem;
+}
+
+@media (max-width: 780px) {
+  .product-upload-content {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .product-dropzone {
+    width: 100%;
+    max-width: 220px;
+    margin: 0 auto;
+  }
+
+  .product-upload-actions .btn {
+    width: 100%;
+  }
+}

@@ -1,0 +1,87 @@
+<section class="toolbar">
+  <app-page-header
+    [title]="isEditMode ? 'Editar Mantenimiento' : 'Nuevo Mantenimiento'"
+    subtitle="Registra diagnóstico, solución aplicada y fechas operativas."
+  />
+  <a class="btn btn-secondary" routerLink="/maintenance">
+    <span class="material-symbols-outlined">arrow_back</span>
+    Volver
+  </a>
+</section>
+
+<app-loading-spinner *ngIf="loading()" />
+
+<form *ngIf="!loading()" class="card" style="margin-top:.9rem; padding:.95rem;" [formGroup]="form" (ngSubmit)="submit()">
+  <div class="grid-2">
+    <div class="field">
+      <label for="clientId">Cliente</label>
+      <select class="select" id="clientId" formControlName="clientId">
+        <option value="">Seleccionar cliente</option>
+        <option *ngFor="let client of clients()" [value]="client.id">{{ client.nameOrBusinessName }}</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="technicianId">Técnico</label>
+      <select class="select" id="technicianId" formControlName="technicianId">
+        <option value="">Asignar automáticamente</option>
+        <option *ngFor="let technician of technicians()" [value]="technician.id">{{ technician.fullName }}</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="type">Tipo</label>
+      <select class="select" id="type" formControlName="type">
+        <option value="PREVENTIVO">PREVENTIVO</option>
+        <option value="CORRECTIVO">CORRECTIVO</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="status">Estado</label>
+      <select class="select" id="status" formControlName="status">
+        <option value="PENDIENTE">PENDIENTE</option>
+        <option value="EN_PROCESO">EN_PROCESO</option>
+        <option value="COMPLETADO">COMPLETADO</option>
+        <option value="CANCELADO">CANCELADO</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="scheduledDate">Fecha programada</label>
+      <input class="input" id="scheduledDate" type="date" formControlName="scheduledDate" />
+    </div>
+
+    <div class="field">
+      <label for="executionDate">Fecha ejecución</label>
+      <input class="input" id="executionDate" type="date" formControlName="executionDate" />
+    </div>
+
+    <div class="field" style="grid-column:1/-1;">
+      <label for="intervenedSystem">Sistema intervenido</label>
+      <input class="input" id="intervenedSystem" type="text" formControlName="intervenedSystem" />
+    </div>
+
+    <div class="field" style="grid-column:1/-1;">
+      <label for="diagnosis">Diagnóstico</label>
+      <textarea class="textarea" id="diagnosis" rows="3" formControlName="diagnosis"></textarea>
+    </div>
+
+    <div class="field" style="grid-column:1/-1;">
+      <label for="appliedSolution">Solución aplicada</label>
+      <textarea class="textarea" id="appliedSolution" rows="3" formControlName="appliedSolution"></textarea>
+    </div>
+
+    <div class="field" style="grid-column:1/-1;">
+      <label for="observations">Observaciones</label>
+      <textarea class="textarea" id="observations" rows="2" formControlName="observations"></textarea>
+    </div>
+  </div>
+
+  <div class="actions" style="margin-top:.9rem; justify-content:flex-end;">
+    <button class="btn btn-primary" type="submit" [disabled]="saving()">
+      <span class="material-symbols-outlined">save</span>
+      {{ saving() ? 'Guardando...' : 'Guardar' }}
+    </button>
+  </div>
+</form>

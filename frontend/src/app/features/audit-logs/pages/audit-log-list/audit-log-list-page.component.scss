@@ -1,0 +1,63 @@
+.audit-filters-toolbar > .input {
+  flex: 0 1 220px;
+}
+
+@media (max-width: 780px) {
+  .audit-filters-toolbar {
+    align-items: stretch;
+  }
+
+  .audit-filter-input {
+    max-width: 100% !important;
+    width: 100%;
+  }
+}
+
+@media (max-width: 680px) {
+  .table-wrapper {
+    overflow: visible;
+    border: 0;
+  }
+
+  .audit-table {
+    min-width: 0;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .audit-table thead {
+    display: none;
+  }
+
+  .audit-table tbody,
+  .audit-table tr,
+  .audit-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .audit-table tr {
+    border: 1px solid #dbe2ea;
+    border-radius: 12px;
+    padding: .65rem;
+    margin-bottom: .65rem;
+    background: #fff;
+  }
+
+  .audit-table td {
+    padding: .35rem 0;
+    border-bottom: 0;
+  }
+
+  .audit-table td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: .24rem;
+    font-size: .68rem;
+    font-weight: 700;
+    color: #2f4d66;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+  }
+}

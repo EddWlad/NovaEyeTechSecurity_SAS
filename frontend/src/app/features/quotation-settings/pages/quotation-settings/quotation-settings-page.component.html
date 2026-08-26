@@ -1,0 +1,55 @@
+<section class="toolbar">
+  <app-page-header
+    title="Parámetros de Cotización"
+    subtitle="Configura IVA, márgenes permitidos y vigencia por defecto para nuevas cotizaciones."
+  />
+</section>
+
+<app-loading-spinner *ngIf="loading()" />
+
+<section class="card" style="margin-top: .9rem; padding: .95rem;" *ngIf="!loading()">
+  <article style="padding:.75rem; border:1px solid #f5d0d0; background:#fff7f7; color:#7f1d1d; border-radius:10px; margin-bottom:.9rem;">
+    <strong>Importante:</strong> los cambios aquí afectan nuevas cotizaciones. Las históricas no se recalculan.
+  </article>
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="grid-2">
+      <div class="field">
+        <label for="currentVat">IVA Actual</label>
+        <input class="input" id="currentVat" type="text" formControlName="currentVat" />
+      </div>
+
+      <div class="field">
+        <label for="defaultMargin">Margen por Defecto</label>
+        <input class="input" id="defaultMargin" type="text" formControlName="defaultMargin" />
+      </div>
+
+      <div class="field" style="grid-column: 1 / -1;">
+        <label for="allowedVatRates">IVA permitidos (separados por coma)</label>
+        <input class="input" id="allowedVatRates" type="text" formControlName="allowedVatRates" />
+      </div>
+
+      <div class="field" style="grid-column: 1 / -1;">
+        <label for="allowedMargins">Márgenes permitidos (separados por coma)</label>
+        <input class="input" id="allowedMargins" type="text" formControlName="allowedMargins" />
+      </div>
+
+      <div class="field">
+        <label for="defaultCurrency">Moneda</label>
+        <input class="input" id="defaultCurrency" type="text" formControlName="defaultCurrency" />
+      </div>
+
+      <div class="field">
+        <label for="defaultValidityDays">Vigencia por defecto (días)</label>
+        <input class="input" id="defaultValidityDays" type="number" formControlName="defaultValidityDays" />
+      </div>
+    </div>
+
+    <div class="actions" style="margin-top: 1rem; justify-content: flex-end;">
+      <button class="btn btn-primary" type="submit" [disabled]="saving() || !canEdit()">
+        <span class="material-symbols-outlined">save</span>
+        {{ saving() ? 'Guardando...' : 'Guardar Parámetros' }}
+      </button>
+    </div>
+  </form>
+</section>
