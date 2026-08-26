@@ -15,6 +15,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.util.UUID;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -55,7 +57,8 @@ public class QuotationDetail implements Identifiable<UUID> {
     private Integer lineNumber;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
+    @Column(nullable = false, columnDefinition = "quotation_details_itemtype_enum")
     private QuotationItemType itemType;
 
     /** Id del producto o servicio de origen. Se guarda plano: el catalogo puede cambiar o desaparecer. */

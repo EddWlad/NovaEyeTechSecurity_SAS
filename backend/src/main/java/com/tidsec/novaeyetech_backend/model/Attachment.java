@@ -76,6 +76,6 @@ public class Attachment implements Identifiable<UUID> {
     private String uploadedBy;
 
     @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 }

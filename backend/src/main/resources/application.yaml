@@ -16,8 +16,13 @@ spring:
 
   jpa:
     hibernate:
-      # En produccion debe ser "validate" o "none": el esquema se gestiona por migraciones.
-      ddl-auto: ${DB_SYNC:update}
+      # "validate" tambien en local: el esquema no lo genera Hibernate, viene de migrations/.
+      # Con "update" Hibernate crearia columnas snake_case duplicadas junto a las camelCase
+      # existentes y partiria los datos en dos. Un campo nuevo exige su script de migracion.
+      ddl-auto: ${DB_SYNC:validate}
+      naming:
+        # La base la creo TypeORM con columnas en camelCase. Ver CamelCaseNamingStrategy.
+        physical-strategy: com.tidsec.novaeyetech_backend.config.CamelCaseNamingStrategy
     show-sql: ${DB_LOGGING:false}
     # Cerrar la sesion al salir del servicio: obliga a resolver las relaciones dentro de la
     # transaccion y evita consultas perezosas disparadas durante la serializacion.

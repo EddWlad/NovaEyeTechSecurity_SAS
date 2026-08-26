@@ -49,6 +49,6 @@ public class MaintenanceComment implements Identifiable<UUID> {
     private String comment;
 
     @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 }

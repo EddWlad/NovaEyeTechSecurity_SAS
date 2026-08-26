@@ -25,6 +25,11 @@ cp .env.example .env
 # Base de datos (Postgres 16 en el puerto 5435)
 docker compose up -d
 
+# Esquema: no lo genera Hibernate, viene de migrations/ (ver migrations/README.md)
+docker exec -i novaeyetech-postgres psql -U postgres -c "CREATE DATABASE novaeyetech;"
+docker exec -i novaeyetech-postgres psql -U postgres -d novaeyetech < migrations/000-esquema-base.sql
+docker exec -i novaeyetech-postgres psql -U postgres -d novaeyetech < migrations/001-migracion-a-spring-boot.sql
+
 # Compilar
 ./mvnw -DskipTests compile
 
@@ -52,7 +57,7 @@ La API queda en `http://localhost:8080/api`.
 | `JWT_EXPIRES_IN` | `8h` | Formato `Duration` de Spring. |
 | `PORT` | `8080` | El frontend Angular apunta a este puerto en `environment.ts`. |
 | `DB_HOST` / `DB_PORT` / `DB_DATABASE` / `DB_USERNAME` / `DB_PASSWORD` | `127.0.0.1` / `5435` / `novaeyetech` / `postgres` / `postgres` | |
-| `DB_SYNC` | `update` | En producción debe ser `validate` o `none`. |
+| `DB_SYNC` | `validate` | El esquema viene de `migrations/`, no lo genera Hibernate. **Nunca `update`.** |
 | `CORS_ALLOWED_ORIGINS` | `http://localhost:4200` | Lista separada por comas. |
 | `CLOUDINARY_CLOUD_NAME` / `CLOUDINARY_API_KEY` / `CLOUDINARY_API_SECRET` | — | Sin ellas la app arranca, pero toda subida responde 400. |
 | `CLOUDINARY_ROOT_FOLDER` | `novaeyetech` | Carpeta raíz en Cloudinary. |
@@ -122,6 +127,16 @@ Todos los importes son `BigDecimal` con escala 2 y redondeo `HALF_UP`, normaliza
 
 No hay interceptor. Cada servicio llama explícitamente a `auditLogService.register(AuditEntry.builder()...)`. **Una operación mutante nueva debe registrar su log** o se pierde la trazabilidad.
 
+### Esquema de base de datos
+
+**Hibernate no genera el esquema.** La base existe desde el backend NestJS, con datos reales en producción, y este backend se adapta a ella:
+
+- Columnas en **camelCase** (`"nameOrBusinessName"`, `"createdAt"`), no snake_case. Lo resuelve `CamelCaseNamingStrategy`, que además marca cada identificador como entrecomillado: sin eso Postgres pliega a minúsculas y busca `createdat`. La propiedad `globally_quoted_identifiers` **no sirve** aquí — la validación de esquema seguía fallando con ella.
+- Los enums son **tipos nativos de Postgres** (`users_role_enum`). Cada campo enum lleva `@JdbcTypeCode(SqlTypes.NAMED_ENUM)` y `columnDefinition` con el nombre del tipo. Sin eso el insert falla: `column "role" is of type users_role_enum but expression is of type character varying`.
+- `DB_SYNC` es `validate`, también en local. Un campo nuevo exige su script en `migrations/`. Ver [`migrations/README.md`](migrations/README.md).
+
+La base local se monta desde `migrations/` para que replique producción. No hay dos formas de esquema conviviendo.
+
 ### Archivos
 
 Todo lo que sube un usuario (evidencias, adjuntos, foto de perfil) va a **Cloudinary** vía `IStorageService`. El servidor no escribe en disco: la aplicación es apta para un despliegue con sistema de archivos efímero o con varias instancias.
@@ -176,7 +191,7 @@ Los agentes, workflows y features viven en `.agents/`:
 | `verify-frontend-contract` | Antes de dar por buena cualquier alteración de una respuesta |
 | `generate-test-data` | Poblar la base vía API |
 
-**Features** (`.agents/features/`) — `security-jwt`, `pagination-dual-mode`, `quotation-engine`, `file-storage-cloudinary`, `cors`. Leer la nota correspondiente antes de tocar esa área.
+**Features** (`.agents/features/`) — `security-jwt`, `pagination-dual-mode`, `quotation-engine`, `file-storage-cloudinary`, `legacy-schema`, `cors`. Leer la nota correspondiente antes de tocar esa área.
 
 **Skills** (`.agents/skills/`) — `java-code-review`, que invocan el subagente `spring-api-reviewer` y el workflow de revisión.
 

@@ -21,14 +21,19 @@ cd backend
 cp .env.example .env
 ```
 
-Editar `.env`: poner un `JWT_SECRET` propio de al menos 32 caracteres y, si vas a subir archivos, las credenciales de Cloudinary. Después:
+Editar `.env`: poner un `JWT_SECRET` propio de al menos 32 caracteres y, si vas a subir archivos, las credenciales de Cloudinary. Después levanta la base y aplica el esquema (ver `backend/migrations/README.md`):
 
 ```bash
 docker compose up -d
+docker exec -i novaeyetech-postgres psql -U postgres -c "CREATE DATABASE novaeyetech;"
+docker exec -i novaeyetech-postgres psql -U postgres -d novaeyetech < migrations/000-esquema-base.sql
+docker exec -i novaeyetech-postgres psql -U postgres -d novaeyetech < migrations/001-migracion-a-spring-boot.sql
 ./mvnw spring-boot:run
 ```
 
 API en `http://localhost:8080/api`.
+
+El esquema no lo genera Hibernate: viene de `backend/migrations/` y replica el de producción, que creó el backend NestJS anterior. Un campo nuevo en una entidad exige su script de migración.
 
 **2. Frontend**
 

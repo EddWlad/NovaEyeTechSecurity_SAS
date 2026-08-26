@@ -47,8 +47,14 @@ public class AuditLog implements Identifiable<UUID> {
     @Column(nullable = false, length = 30)
     private String action;
 
-    /** Email del actor. La columna se llama app_user porque "user" es palabra reservada en Postgres. */
-    @Column(name = "app_user", nullable = false, length = 180)
+    /**
+     * Email del actor.
+     *
+     * <p>La columna se llama {@code user}, que es palabra reservada en Postgres. Funciona porque
+     * Hibernate entrecomilla todos los identificadores ({@code globally_quoted_identifiers}), igual
+     * que hacia TypeORM en el backend anterior.
+     */
+    @Column(nullable = false, length = 180)
     private String user;
 
     @Column(nullable = false, length = 300)
@@ -58,6 +64,6 @@ public class AuditLog implements Identifiable<UUID> {
     private String payloadSummary;
 
     @CreatedDate
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 }
