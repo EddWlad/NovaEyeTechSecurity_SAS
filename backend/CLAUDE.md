@@ -10,7 +10,7 @@ Backend de **Nova Eye Technology SAS / Next Eye Security**: catálogo comercial,
 
 Es la migración del backend NestJS que vivía en `../NextEyeSecurity/apps/backend`. El contrato HTTP se conservó para que el frontend Angular de ese repo siga funcionando sin cambios: mismo prefijo `/api`, mismas rutas, `PATCH` para actualizaciones, `access_token` en el login y paginación de doble modo.
 
-Stack: **Java 25 + Spring Boot 4.1 + Spring Security + JPA/Hibernate + PostgreSQL + Maven**.
+Stack: **Java 21 + Spring Boot 4.1 + Spring Security + JPA/Hibernate + PostgreSQL + Maven**.
 
 > Spring Boot 4.1 usa **Jackson 3**: los imports son `tools.jackson.*`, no `com.fasterxml.jackson.databind.*`. Las anotaciones (`@JsonFormat`, `@JsonProperty`) sí siguen en `com.fasterxml.jackson.annotation`.
 

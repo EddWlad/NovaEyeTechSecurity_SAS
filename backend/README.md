@@ -4,7 +4,7 @@ Backend de **Nova Eye Technology SAS / Next Eye Security**: catálogo comercial,
 
 Migración a Spring Boot del backend NestJS que vivía en `../NextEyeSecurity/apps/backend`. El contrato HTTP se conservó intacto, de modo que el frontend Angular de ese repositorio funciona contra este backend sin cambios.
 
-**Java 25 · Spring Boot 4.1 · Spring Security · JPA/Hibernate · PostgreSQL 16 · Maven**
+**Java 21 · Spring Boot 4.1 · Spring Security · JPA/Hibernate · PostgreSQL 16 · Maven**
 
 ---
 

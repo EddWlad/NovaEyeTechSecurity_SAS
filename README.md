@@ -4,7 +4,7 @@ Sistema administrativo de **Nova Eye Technology SAS / Next Eye Security**: catá
 
 ```
 NovaEyeTechSecurity_SAS/
-├── backend/     API REST — Java 25 · Spring Boot 4.1 · PostgreSQL
+├── backend/     API REST — Java 21 · Spring Boot 4.1 · PostgreSQL
 └── frontend/    Portal administrativo — Angular 20
 ```
 
