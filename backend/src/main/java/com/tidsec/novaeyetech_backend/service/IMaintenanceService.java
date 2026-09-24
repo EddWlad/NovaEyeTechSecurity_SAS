@@ -17,6 +17,12 @@ public interface IMaintenanceService {
 
     Page<Maintenance> findAll(AuthenticatedUser actor, Pageable pageable);
 
+    /**
+     * Mantenimientos que no estan COMPLETADO, dentro del alcance del usuario. Incluye los CANCELADO:
+     * es el mismo criterio que aplicaba el dashboard cuando filtraba el listado en el navegador.
+     */
+    Page<Maintenance> findPending(AuthenticatedUser actor, Pageable pageable);
+
     Maintenance findById(UUID id, AuthenticatedUser actor);
 
     Maintenance update(UUID id, MaintenanceRequest request, AuthenticatedUser actor);

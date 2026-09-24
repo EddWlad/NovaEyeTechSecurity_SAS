@@ -1,6 +1,7 @@
 package com.tidsec.novaeyetech_backend.repo;
 
 import com.tidsec.novaeyetech_backend.model.Maintenance;
+import com.tidsec.novaeyetech_backend.model.enums.MaintenanceStatus;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -15,4 +16,8 @@ public interface IMaintenanceRepo extends IGenericRepo<Maintenance, UUID> {
     Page<Maintenance> findByTechnician_Id(UUID technicianId, Pageable pageable);
 
     Optional<Maintenance> findByIdAndTechnician_Id(UUID id, UUID technicianId);
+
+    Page<Maintenance> findByStatusNot(MaintenanceStatus status, Pageable pageable);
+
+    Page<Maintenance> findByTechnician_IdAndStatusNot(UUID technicianId, MaintenanceStatus status, Pageable pageable);
 }

@@ -81,6 +81,14 @@ public class MaintenanceServiceImpl implements IMaintenanceService {
 
     @Override
     @Transactional(readOnly = true)
+    public Page<Maintenance> findPending(AuthenticatedUser actor, Pageable pageable) {
+        return actor.isTechnician()
+                ? repo.findByTechnician_IdAndStatusNot(actor.id(), MaintenanceStatus.COMPLETADO, pageable)
+                : repo.findByStatusNot(MaintenanceStatus.COMPLETADO, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Maintenance findById(UUID id, AuthenticatedUser actor) {
         return actor.isTechnician()
                 ? repo.findByIdAndTechnician_Id(id, actor.id())

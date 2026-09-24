@@ -24,6 +24,11 @@ spring:
         # La base la creo TypeORM con columnas en camelCase. Ver CamelCaseNamingStrategy.
         physical-strategy: com.tidsec.novaeyetech_backend.config.CamelCaseNamingStrategy
     show-sql: ${DB_LOGGING:false}
+    properties:
+      hibernate:
+        # Las relaciones EAGER (detalle de cotizaciones, cliente, usuario) se cargaban de a una por
+        # fila: un listado de 69 cotizaciones hacia 88 consultas. Con lotes se resuelven en pocas.
+        default_batch_fetch_size: 50
     # Cerrar la sesion al salir del servicio: obliga a resolver las relaciones dentro de la
     # transaccion y evita consultas perezosas disparadas durante la serializacion.
     open-in-view: false
