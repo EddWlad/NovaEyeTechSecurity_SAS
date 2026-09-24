@@ -1,0 +1,54 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+          cache-dependency-path: backend/pom.xml
+
+      - name: Build and test
+        working-directory: backend
+        run: ./mvnw clean package
+
+      - name: Deploy to Contabo
+        env:
+          SSH_KEY: ${{ secrets.CONTABO_SSH_KEY }}
+          HOST: ${{ secrets.CONTABO_HOST }}
+          USER: ${{ secrets.CONTABO_USER }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
+
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes \
+            backend/target/novaeyetech-backend-0.0.1-SNAPSHOT.jar \
+            "$USER@$HOST:/home/novaeyetech/novaeyetech/app.jar.new"
+
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes "$USER@$HOST" \
+            'sudo /usr/local/bin/deploy-backend.sh'
+
+      - name: Verificar servicio activo
+        env:
+          SSH_KEY: ${{ secrets.CONTABO_SSH_KEY }}
+          HOST: ${{ secrets.CONTABO_HOST }}
+          USER: ${{ secrets.CONTABO_USER }}
+        run: |
+          sleep 15
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes "$USER@$HOST" \
+            'systemctl is-active novaeyetech-backend'
