@@ -2,6 +2,7 @@ package com.tidsec.novaeyetech_backend.service.impl;
 
 import com.tidsec.novaeyetech_backend.dto.ProductRequest;
 import com.tidsec.novaeyetech_backend.dto.common.AuditEntry;
+import com.tidsec.novaeyetech_backend.exception.BusinessRuleException;
 import com.tidsec.novaeyetech_backend.exception.DuplicateResourceException;
 import com.tidsec.novaeyetech_backend.exception.ResourceNotFoundException;
 import com.tidsec.novaeyetech_backend.model.Product;
@@ -14,12 +15,16 @@ import com.tidsec.novaeyetech_backend.repo.ISupplierRepo;
 import com.tidsec.novaeyetech_backend.security.AuthenticatedUser;
 import com.tidsec.novaeyetech_backend.service.IAuditLogService;
 import com.tidsec.novaeyetech_backend.service.IProductService;
+import com.tidsec.novaeyetech_backend.service.IStorageService;
 import com.tidsec.novaeyetech_backend.util.DtoMapper;
+import com.tidsec.novaeyetech_backend.util.InlineImageGuard;
 import com.tidsec.novaeyetech_backend.util.MoneyUtils;
+import java.util.Locale;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -27,11 +32,13 @@ public class ProductServiceImpl extends CRUDImpl<Product, UUID> implements IProd
 
     private static final String MODULE = "products";
     private static final String ENTITY = "Product";
+    private static final String IMAGE_FOLDER = "products";
 
     private final IProductRepo repo;
     private final IProductCategoryRepo categoryRepo;
     private final ISupplierRepo supplierRepo;
     private final IAuditLogService auditLogService;
+    private final IStorageService storageService;
     private final DtoMapper dtoMapper;
 
     @Override
@@ -52,6 +59,7 @@ public class ProductServiceImpl extends CRUDImpl<Product, UUID> implements IProd
     @Override
     @Transactional
     public Product create(ProductRequest request, AuthenticatedUser actor) {
+        InlineImageGuard.reject(request.getImageUrl());
         String internalCode = request.getInternalCode().trim();
 
         if (repo.existsByInternalCode(internalCode)) {
@@ -83,6 +91,7 @@ public class ProductServiceImpl extends CRUDImpl<Product, UUID> implements IProd
     @Override
     @Transactional
     public Product update(UUID id, ProductRequest request, AuthenticatedUser actor) {
+        InlineImageGuard.reject(request.getImageUrl());
         Product product = findById(id);
 
         if (request.getInternalCode() != null) {
@@ -131,8 +140,11 @@ public class ProductServiceImpl extends CRUDImpl<Product, UUID> implements IProd
     public void delete(UUID id, AuthenticatedUser actor) {
         Product product = findById(id);
         String name = product.getName();
+        String imageUrl = product.getImageUrl();
 
         delete(id);
+        // Solo si el borrado prospero: un producto con registros relacionados conserva su imagen.
+        storageService.deleteByUrl(imageUrl);
 
         auditLogService.register(AuditEntry.builder()
                 .module(MODULE)
@@ -141,6 +153,60 @@ public class ProductServiceImpl extends CRUDImpl<Product, UUID> implements IProd
                 .action(AuditEntry.ACTION_DELETE)
                 .user(actor.email())
                 .summary("Producto eliminado: " + name)
+                .build());
+    }
+
+    @Override
+    @Transactional
+    public Product updateImage(UUID id, MultipartFile file, AuthenticatedUser actor) {
+        requireImage(file);
+        Product product = findById(id);
+        String previousImage = product.getImageUrl();
+
+        IStorageService.StoredFile stored = storageService.upload(file, IMAGE_FOLDER);
+        product.setImageUrl(stored.url());
+
+        Product saved = repo.save(product);
+        // Una imagen heredada en base64 no es un recurso del proveedor: deleteByUrl la ignora y
+        // simplemente queda sobrescrita.
+        storageService.deleteByUrl(previousImage);
+        registerImageAudit(saved, actor, "Imagen de producto actualizada: ");
+
+        return saved;
+    }
+
+    @Override
+    @Transactional
+    public Product removeImage(UUID id, AuthenticatedUser actor) {
+        Product product = findById(id);
+        String previousImage = product.getImageUrl();
+
+        product.setImageUrl(null);
+
+        Product saved = repo.save(product);
+        storageService.deleteByUrl(previousImage);
+        registerImageAudit(saved, actor, "Imagen de producto eliminada: ");
+
+        return saved;
+    }
+
+    /** El almacenamiento acepta tambien PDF y Office: para un producto solo tiene sentido una imagen. */
+    private void requireImage(MultipartFile file) {
+        String contentType = file == null ? null : file.getContentType();
+
+        if (contentType == null || !contentType.toLowerCase(Locale.ROOT).startsWith("image/")) {
+            throw new BusinessRuleException("El archivo debe ser una imagen (PNG, JPG o WEBP)");
+        }
+    }
+
+    private void registerImageAudit(Product product, AuthenticatedUser actor, String summaryPrefix) {
+        auditLogService.register(AuditEntry.builder()
+                .module(MODULE)
+                .entity(ENTITY)
+                .entityId(product.getId().toString())
+                .action(AuditEntry.ACTION_UPDATE)
+                .user(actor.email())
+                .summary(summaryPrefix + product.getName())
                 .build());
     }
 

@@ -77,6 +77,13 @@ public class UserController {
         return ResponseEntity.ok(dtoMapper.map(service.updateAvatar(actor.id(), file), UserDTO.class));
     }
 
+    /** Quita la foto de perfil y la elimina de Cloudinary. */
+    @DeleteMapping("/me/avatar")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    public ResponseEntity<UserDTO> removeOwnAvatar(@AuthenticationPrincipal AuthenticatedUser actor) {
+        return ResponseEntity.ok(dtoMapper.map(service.removeAvatar(actor.id()), UserDTO.class));
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<UserDTO> findById(@PathVariable UUID id) {

@@ -22,4 +22,12 @@ public interface IUserService extends ICRUD<User, UUID> {
      * igual ahi.
      */
     User updateAvatar(UUID id, MultipartFile file);
+
+    /**
+     * Quita la foto de perfil y la elimina del almacenamiento.
+     *
+     * <p>Existe porque el PATCH del perfil no puede hacerlo: el mapeo ignora los nulos, asi que
+     * enviar {@code avatarDataUrl: null} nunca borraba la foto.
+     */
+    User removeAvatar(UUID id);
 }

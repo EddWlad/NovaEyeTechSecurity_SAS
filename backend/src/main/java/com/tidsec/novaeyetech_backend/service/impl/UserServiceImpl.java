@@ -8,6 +8,7 @@ import com.tidsec.novaeyetech_backend.repo.IUserRepo;
 import com.tidsec.novaeyetech_backend.service.IStorageService;
 import com.tidsec.novaeyetech_backend.service.IUserService;
 import com.tidsec.novaeyetech_backend.util.DtoMapper;
+import com.tidsec.novaeyetech_backend.util.InlineImageGuard;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -44,6 +45,7 @@ public class UserServiceImpl extends CRUDImpl<User, UUID> implements IUserServic
     @Override
     @Transactional
     public User create(UserRequest request) {
+        InlineImageGuard.reject(request.getAvatarDataUrl());
         String email = normalizeEmail(request.getEmail());
 
         if (repo.existsByEmailIgnoreCase(email)) {
@@ -61,6 +63,7 @@ public class UserServiceImpl extends CRUDImpl<User, UUID> implements IUserServic
     @Override
     @Transactional
     public User update(UUID id, UserRequest request) {
+        InlineImageGuard.reject(request.getAvatarDataUrl());
         User user = findById(id);
 
         // El orden importa: la unicidad se valida contra el email todavia guardado, y el hash se
@@ -102,6 +105,20 @@ public class UserServiceImpl extends CRUDImpl<User, UUID> implements IUserServic
         User saved = repo.save(user);
         // El anterior se borra despues de guardar: si la subida o el guardado fallan, el usuario
         // conserva la foto que ya tenia.
+        storageService.deleteByUrl(previousAvatar);
+
+        return saved;
+    }
+
+    @Override
+    @Transactional
+    public User removeAvatar(UUID id) {
+        User user = findById(id);
+        String previousAvatar = user.getAvatarDataUrl();
+
+        user.setAvatarDataUrl(null);
+
+        User saved = repo.save(user);
         storageService.deleteByUrl(previousAvatar);
 
         return saved;

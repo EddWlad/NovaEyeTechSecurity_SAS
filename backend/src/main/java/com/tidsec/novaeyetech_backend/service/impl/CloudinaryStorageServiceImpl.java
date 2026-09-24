@@ -173,7 +173,30 @@ public class CloudinaryStorageServiceImpl implements IStorageService {
             return false;
         }
 
-        return delete(extractPublicId(url), url.contains("/raw/upload/") ? RAW_RESOURCE_TYPE : IMAGE_RESOURCE_TYPE);
+        String publicId = extractPublicId(url);
+        // La URL puede llegar de una peticion del cliente (por ejemplo avatarDataUrl): solo se borra lo
+        // que este backend subio, dentro de su cuenta y de su carpeta raiz.
+        if (!isOwnResource(url, publicId)) {
+            log.warn("Se omite el borrado de un recurso ajeno a la cuenta o carpeta configuradas: {}", url);
+            return false;
+        }
+
+        return delete(publicId, url.contains("/raw/upload/") ? RAW_RESOURCE_TYPE : IMAGE_RESOURCE_TYPE);
+    }
+
+    private boolean isOwnResource(String url, String publicId) {
+        String cloudName = properties.cloudName();
+
+        return cloudName != null
+                && !cloudName.isBlank()
+                && url.contains("/" + cloudName + "/")
+                && publicId.startsWith(rootFolder() + "/");
+    }
+
+    private String rootFolder() {
+        return properties.rootFolder() == null || properties.rootFolder().isBlank()
+                ? DEFAULT_ROOT_FOLDER
+                : properties.rootFolder();
     }
 
     /**
@@ -263,11 +286,7 @@ public class CloudinaryStorageServiceImpl implements IStorageService {
     }
 
     private String resolveFolder(String folder) {
-        String root = properties.rootFolder() == null || properties.rootFolder().isBlank()
-                ? DEFAULT_ROOT_FOLDER
-                : properties.rootFolder();
-
-        return root + "/" + (folder == null || folder.isBlank() ? DEFAULT_FOLDER : folder);
+        return rootFolder() + "/" + (folder == null || folder.isBlank() ? DEFAULT_FOLDER : folder);
     }
 
     /** Nombre original sin ruta y con extension. Cloudinary sanea el resto de caracteres. */

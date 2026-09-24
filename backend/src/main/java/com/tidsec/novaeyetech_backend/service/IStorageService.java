@@ -33,8 +33,9 @@ public interface IStorageService {
     /**
      * Elimina un recurso a partir de su URL, deduciendo identificador y tipo.
      *
-     * <p>Para los casos donde la entidad solo guarda la URL, como el avatar del usuario. Ignora en
-     * silencio cualquier valor que no sea una URL del proveedor.
+     * <p>Para los casos donde la entidad solo guarda la URL, como el avatar del usuario. Ignora
+     * cualquier valor que no sea un recurso propio: un data URL heredado, una ruta local o una URL de
+     * otra cuenta o carpeta del proveedor.
      */
     boolean deleteByUrl(String url);
 
