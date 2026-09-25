@@ -53,6 +53,26 @@
   .resource-table td[data-label='Acciones'] .actions {
     flex-wrap: nowrap;
   }
+
+  /*
+   * Si la tabla es mas ancha que la pantalla (Productos, Clientes) hay scroll horizontal, y las
+   * acciones no deben quedar escondidas al final: la columna se ancla a la derecha.
+   */
+  .resource-table th:last-child,
+  .resource-table td[data-label='Acciones'] {
+    position: sticky;
+    right: 0;
+    z-index: 1;
+    box-shadow: -1px 0 0 #eaedf2;
+  }
+
+  .resource-table td[data-label='Acciones'] {
+    background: #fff;
+  }
+
+  .resource-table th:last-child {
+    background: #f1f4f8;
+  }
 }
 
 @media (max-width: 780px) {
