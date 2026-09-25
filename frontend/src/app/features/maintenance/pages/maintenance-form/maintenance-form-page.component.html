@@ -4,7 +4,7 @@
     subtitle="Registra diagnóstico, solución aplicada y fechas operativas."
   />
   <a class="btn btn-secondary" routerLink="/maintenance">
-    <span class="material-symbols-outlined">arrow_back</span>
+    <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
     Volver
   </a>
 </section>
@@ -80,7 +80,7 @@
 
   <div class="actions" style="margin-top:.9rem; justify-content:flex-end;">
     <button class="btn btn-primary" type="submit" [disabled]="saving()">
-      <span class="material-symbols-outlined">save</span>
+      <span class="material-symbols-outlined" aria-hidden="true">save</span>
       {{ saving() ? 'Guardando...' : 'Guardar' }}
     </button>
   </div>

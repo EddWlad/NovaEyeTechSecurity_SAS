@@ -4,7 +4,7 @@
     [subtitle]="definition.subtitle"
   />
   <a class="btn btn-secondary" [routerLink]="['/', definition.key]">
-    <span class="material-symbols-outlined">arrow_back</span>
+    <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
     Volver
   </a>
 </section>
@@ -24,18 +24,18 @@
       <button type="button" class="product-dropzone" (click)="productImageInput.click()">
         <img *ngIf="productImagePreview(); else productUploadPlaceholder" [src]="productImagePreview()!" alt="Vista previa de producto" />
         <ng-template #productUploadPlaceholder>
-          <span class="material-symbols-outlined">add_a_photo</span>
+          <span class="material-symbols-outlined" aria-hidden="true">add_a_photo</span>
           <small>Click para subir imagen</small>
         </ng-template>
       </button>
 
       <div class="product-upload-actions">
         <button class="btn btn-secondary" type="button" (click)="productImageInput.click()">
-          <span class="material-symbols-outlined">upload</span>
+          <span class="material-symbols-outlined" aria-hidden="true">upload</span>
           Subir imagen
         </button>
         <button class="btn btn-secondary" type="button" *ngIf="productImagePreview()" (click)="clearProductImage(productImageInput)">
-          <span class="material-symbols-outlined">delete</span>
+          <span class="material-symbols-outlined" aria-hidden="true">delete</span>
           Quitar imagen
         </button>
         <small *ngIf="selectedProductImageName()">Archivo: {{ selectedProductImageName() }}</small>
@@ -76,7 +76,7 @@
 
   <div class="actions" style="margin-top: .9rem; justify-content: flex-end;">
     <button class="btn btn-primary" type="submit" [disabled]="saving()">
-      <span class="material-symbols-outlined">save</span>
+      <span class="material-symbols-outlined" aria-hidden="true">save</span>
       {{ saving() ? 'Guardando...' : 'Guardar' }}
     </button>
   </div>

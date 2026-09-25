@@ -4,7 +4,7 @@
     subtitle="Monitorea la operación comercial y técnica de Next Eye Security."
   />
   <a class="btn btn-primary" routerLink="/quotations/new">
-    <span class="material-symbols-outlined">add</span>
+    <span class="material-symbols-outlined" aria-hidden="true">add</span>
     Nueva Cotización
   </a>
 </section>
@@ -14,7 +14,7 @@
 <section *ngIf="!loading()" class="dashboard-grid">
   <article class="card kpi" *ngFor="let item of kpis">
     <div class="icon-box">
-      <span class="material-symbols-outlined">{{ item.icon }}</span>
+      <span class="material-symbols-outlined" aria-hidden="true">{{ item.icon }}</span>
     </div>
     <div>
       <p>{{ item.label }}</p>

@@ -51,6 +51,7 @@
   min-width: 190px;
 }
 
+
 @media (max-width: 768px) {
   .filters-toolbar {
     align-items: stretch;
@@ -69,57 +70,5 @@
     max-width: 100% !important;
     min-width: 0 !important;
     width: 100%;
-  }
-
-  .table-wrapper {
-    overflow: visible;
-    border: 0;
-  }
-
-  .table {
-    min-width: 0;
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-  }
-
-  .table thead {
-    display: none;
-  }
-
-  .table tbody,
-  .table tr,
-  .table td {
-    display: block;
-    width: 100%;
-  }
-
-  .table tr {
-    border: 1px solid #dbe2ea;
-    border-radius: 12px;
-    padding: .65rem;
-    margin-bottom: .65rem;
-    background: #fff;
-  }
-
-  .table td {
-    padding: .35rem 0;
-    border-bottom: 0;
-  }
-
-  .table td::before {
-    content: attr(data-label);
-    display: block;
-    margin-bottom: .24rem;
-    font-size: .68rem;
-    font-weight: 700;
-    color: #2f4d66;
-    text-transform: uppercase;
-    letter-spacing: .02em;
-  }
-
-  .table td[data-label='Acciones'] .actions .btn {
-    flex: 1 1 0;
-    min-width: 0;
   }
 }

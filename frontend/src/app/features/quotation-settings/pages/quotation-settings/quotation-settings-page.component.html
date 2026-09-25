@@ -47,7 +47,7 @@
 
     <div class="actions" style="margin-top: 1rem; justify-content: flex-end;">
       <button class="btn btn-primary" type="submit" [disabled]="saving() || !canEdit()">
-        <span class="material-symbols-outlined">save</span>
+        <span class="material-symbols-outlined" aria-hidden="true">save</span>
         {{ saving() ? 'Guardando...' : 'Guardar Parámetros' }}
       </button>
     </div>

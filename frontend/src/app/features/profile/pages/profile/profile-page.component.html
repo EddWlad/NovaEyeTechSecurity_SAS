@@ -16,11 +16,11 @@
     <input #avatarInput hidden type="file" accept="image/png,image/jpeg,image/jpg,image/webp" (change)="onAvatarSelected($event)" />
     <div class="avatar-actions">
       <button class="btn btn-secondary btn-upload" type="button" (click)="avatarInput.click()">
-        <span class="material-symbols-outlined">upload</span>
+        <span class="material-symbols-outlined" aria-hidden="true">upload</span>
         Subir foto
       </button>
       <button class="btn btn-secondary btn-upload" type="button" *ngIf="avatarDataUrl()" (click)="clearAvatar(avatarInput)">
-        <span class="material-symbols-outlined">delete</span>
+        <span class="material-symbols-outlined" aria-hidden="true">delete</span>
         Quitar foto
       </button>
       <small class="file-name" *ngIf="selectedFileName()">{{ selectedFileName() }}</small>
@@ -51,7 +51,7 @@
 
     <div class="actions-row">
       <button class="btn btn-primary" type="submit" [disabled]="saving()">
-        <span class="material-symbols-outlined">save</span>
+        <span class="material-symbols-outlined" aria-hidden="true">save</span>
         {{ saving() ? 'Guardando...' : 'Guardar cambios' }}
       </button>
     </div>

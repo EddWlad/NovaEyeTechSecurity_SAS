@@ -4,7 +4,7 @@
     subtitle="Formulario maestro-detalle para proformas de productos y servicios."
   />
   <a class="btn btn-secondary" routerLink="/quotations">
-    <span class="material-symbols-outlined">arrow_back</span>
+    <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
     Volver
   </a>
 </section>
@@ -46,7 +46,7 @@
       </select>
     </div>
     <button class="btn btn-primary" type="submit" [disabled]="saving()">
-      <span class="material-symbols-outlined">save</span>
+      <span class="material-symbols-outlined" aria-hidden="true">save</span>
       {{ saving() ? 'Guardando...' : 'Actualizar Estado' }}
     </button>
   </form>
@@ -107,7 +107,7 @@
     <div class="toolbar items-toolbar">
       <h3 style="margin:0">Detalle de Ítems</h3>
       <button class="btn btn-secondary" type="button" (click)="addItem()">
-        <span class="material-symbols-outlined">add</span>
+        <span class="material-symbols-outlined" aria-hidden="true">add</span>
         Agregar Ítem
       </button>
     </div>
@@ -162,8 +162,8 @@
             </td>
             <td class="line-total-col" data-label="Total línea">{{ lineTotal(i) }}</td>
             <td data-label="Acciones">
-              <button class="btn btn-sm btn-danger" type="button" (click)="removeItem(i)">
-                <span class="material-symbols-outlined">delete</span>
+              <button class="btn btn-sm btn-danger" type="button" title="Quitar ítem" aria-label="Quitar ítem" (click)="removeItem(i)">
+                <span class="material-symbols-outlined" aria-hidden="true">delete</span>
               </button>
             </td>
           </tr>
@@ -182,7 +182,7 @@
     </dl>
 
     <button class="btn btn-primary" type="submit" [disabled]="saving()" style="width:100%; margin-top:.6rem;">
-      <span class="material-symbols-outlined">save</span>
+      <span class="material-symbols-outlined" aria-hidden="true">save</span>
       {{ saving() ? 'Guardando...' : (isEditMode ? 'Guardar Cambios' : 'Crear Cotización') }}
     </button>
   </aside>

@@ -5,11 +5,11 @@
   />
   <div class="actions maintenance-header-actions">
     <a class="btn btn-secondary" routerLink="/maintenance">
-      <span class="material-symbols-outlined">arrow_back</span>
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
       Volver
     </a>
     <a class="btn btn-primary" [routerLink]="['/maintenance', maintenanceId, 'edit']">
-      <span class="material-symbols-outlined">edit</span>
+      <span class="material-symbols-outlined" aria-hidden="true">edit</span>
       Editar
     </a>
   </div>
@@ -70,7 +70,7 @@
         <textarea class="textarea" id="comment" rows="2" formControlName="comment"></textarea>
       </div>
       <button class="btn btn-primary maintenance-comment-btn" type="submit">
-        <span class="material-symbols-outlined">send</span>
+        <span class="material-symbols-outlined" aria-hidden="true">send</span>
         Guardar comentario
       </button>
     </form>
@@ -113,7 +113,7 @@
                     loading="lazy"
                   />
                   <ng-template #verArchivo>
-                    <span class="material-symbols-outlined">open_in_new</span>
+                    <span class="material-symbols-outlined" aria-hidden="true">open_in_new</span>
                     Abrir
                   </ng-template>
                 </a>
@@ -128,9 +128,10 @@
               <button
                 class="btn btn-sm btn-secondary"
                 type="button"
+                title="Descargar" aria-label="Descargar adjunto"
                 (click)="downloadAttachment(attachment)"
               >
-                <span class="material-symbols-outlined">download</span>
+                <span class="material-symbols-outlined" aria-hidden="true">download</span>
               </button>
             </td>
           </tr>
@@ -153,7 +154,7 @@
 
         <div class="file-picker-row">
           <button class="btn btn-secondary" type="button" (click)="fileInput.click()">
-            <span class="material-symbols-outlined">attach_file</span>
+            <span class="material-symbols-outlined" aria-hidden="true">attach_file</span>
             Elegir archivo
           </button>
           <button
@@ -162,7 +163,7 @@
             (click)="addAttachment(fileInput)"
             [disabled]="uploadingAttachment() || !selectedFiles().length"
           >
-            <span class="material-symbols-outlined">upload_file</span>
+            <span class="material-symbols-outlined" aria-hidden="true">upload_file</span>
             {{ uploadingAttachment() ? 'Subiendo...' : 'Subir evidencia' }}
           </button>
           <span class="file-name">

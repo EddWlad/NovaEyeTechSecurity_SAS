@@ -25,8 +25,8 @@
             [type]="showPassword() ? 'text' : 'password'"
             placeholder="••••••••"
           />
-          <button type="button" (click)="togglePassword()">
-            <span class="material-symbols-outlined">{{ showPassword() ? 'visibility_off' : 'visibility' }}</span>
+          <button type="button" [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'" (click)="togglePassword()">
+            <span class="material-symbols-outlined" aria-hidden="true">{{ showPassword() ? 'visibility_off' : 'visibility' }}</span>
           </button>
         </div>
         <small class="error-text" *ngIf="form.controls.password.touched && form.controls.password.invalid">
@@ -35,7 +35,7 @@
       </div>
 
       <button class="btn btn-primary submit" type="submit" [disabled]="loading()">
-        <span class="material-symbols-outlined">login</span>
+        <span class="material-symbols-outlined" aria-hidden="true">login</span>
         {{ loading() ? 'Ingresando...' : 'Iniciar Sesión' }}
       </button>
     </form>

@@ -38,43 +38,6 @@
   display: block;
 }
 
-/*
- * Desktop: [Ver] [Editar] [Eliminar] en una sola fila. La celda de acciones no tenia ancho propio,
- * asi que en tablas con muchas columnas (Clientes, Productos) el navegador la comprimia y los
- * botones saltaban de linea. Con width:1% + nowrap la columna mide justo lo que ocupan los botones.
- * En movil (<=680px) la tabla se convierte en tarjetas y se conserva su propio comportamiento.
- */
-@media (min-width: 681px) {
-  .resource-table td[data-label='Acciones'] {
-    width: 1%;
-    white-space: nowrap;
-  }
-
-  .resource-table td[data-label='Acciones'] .actions {
-    flex-wrap: nowrap;
-  }
-
-  /*
-   * Si la tabla es mas ancha que la pantalla (Productos, Clientes) hay scroll horizontal, y las
-   * acciones no deben quedar escondidas al final: la columna se ancla a la derecha.
-   */
-  .resource-table th:last-child,
-  .resource-table td[data-label='Acciones'] {
-    position: sticky;
-    right: 0;
-    z-index: 1;
-    box-shadow: -1px 0 0 #eaedf2;
-  }
-
-  .resource-table td[data-label='Acciones'] {
-    background: #fff;
-  }
-
-  .resource-table th:last-child {
-    background: #f1f4f8;
-  }
-}
-
 @media (max-width: 780px) {
   .resource-filters-toolbar {
     align-items: stretch;
@@ -90,61 +53,3 @@
   }
 }
 
-@media (max-width: 680px) {
-  .table-wrapper {
-    overflow: visible;
-    border: 0;
-  }
-
-  .resource-table {
-    min-width: 0;
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-  }
-
-  .resource-table thead {
-    display: none;
-  }
-
-  .resource-table tbody,
-  .resource-table tr,
-  .resource-table td {
-    display: block;
-    width: 100%;
-  }
-
-  .resource-table tr {
-    border: 1px solid #dbe2ea;
-    border-radius: 12px;
-    padding: .65rem;
-    margin-bottom: .65rem;
-    background: #fff;
-  }
-
-  .resource-table td {
-    padding: .35rem 0;
-    border-bottom: 0;
-  }
-
-  .resource-table td::before {
-    content: attr(data-label);
-    display: block;
-    margin-bottom: .26rem;
-    font-size: .68rem;
-    font-weight: 700;
-    color: #2f4d66;
-    text-transform: uppercase;
-    letter-spacing: .02em;
-  }
-
-  .resource-table td[data-label='Acciones'] .actions {
-    width: 100%;
-    justify-content: flex-start;
-  }
-
-  .resource-table td[data-label='Acciones'] .btn {
-    flex: 1 1 0;
-    min-width: 0;
-  }
-}

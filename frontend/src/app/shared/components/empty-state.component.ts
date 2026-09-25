@@ -5,7 +5,7 @@ import { Component, Input } from '@angular/core';
   standalone: true,
   template: `
     <div class="card" style="padding: 1.5rem; text-align: center; color: var(--gray-600)">
-      <span class="material-symbols-outlined" style="font-size: 2rem; color: var(--gray-300)">{{ icon }}</span>
+      <span class="material-symbols-outlined" aria-hidden="true" style="font-size: 2rem; color: var(--gray-300)">{{ icon }}</span>
       <p style="margin: .6rem 0 0; font-weight: 600; color: var(--gray-800)">{{ title }}</p>
       <p style="margin: .25rem 0 0; font-size: .85rem">{{ description }}</p>
     </div>

@@ -5,15 +5,15 @@
   />
   <div class="actions pdf-preview-actions">
     <a class="btn btn-secondary" [routerLink]="['/quotations', quotationId]">
-      <span class="material-symbols-outlined">arrow_back</span>
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
       Volver
     </a>
     <button class="btn btn-secondary" type="button" (click)="print()">
-      <span class="material-symbols-outlined">print</span>
+      <span class="material-symbols-outlined" aria-hidden="true">print</span>
       Imprimir
     </button>
     <button class="btn btn-primary" type="button" (click)="download()">
-      <span class="material-symbols-outlined">download</span>
+      <span class="material-symbols-outlined" aria-hidden="true">download</span>
       Descargar
     </button>
   </div>

@@ -4,7 +4,7 @@
     subtitle="Gestiona proformas, estado comercial y acceso rápido al PDF."
   />
   <a class="btn btn-primary" routerLink="/quotations/new">
-    <span class="material-symbols-outlined">add</span>
+    <span class="material-symbols-outlined" aria-hidden="true">add</span>
     Nueva Cotización
   </a>
 </section>
@@ -26,7 +26,7 @@
 
   <app-loading-spinner *ngIf="loading()" />
 
-  <div class="table-wrapper" *ngIf="!loading() && filtered().length">
+  <div class="table-wrapper table-stack" *ngIf="!loading() && filtered().length">
     <table class="table quotations-table">
       <thead>
         <tr>
@@ -51,14 +51,14 @@
           <td data-label="Estado"><app-status-badge [status]="quotation.status" /></td>
           <td data-label="Acciones">
             <div class="actions">
-              <a class="btn btn-sm btn-secondary" [routerLink]="['/quotations', quotation.id]">
-                <span class="material-symbols-outlined">visibility</span>
+              <a class="btn btn-sm btn-secondary" title="Ver" aria-label="Ver" [routerLink]="['/quotations', quotation.id]">
+                <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
               </a>
-              <a *ngIf="quotation.status === 'BORRADOR'" class="btn btn-sm btn-secondary" [routerLink]="['/quotations', quotation.id, 'edit']">
-                <span class="material-symbols-outlined">edit</span>
+              <a *ngIf="quotation.status === 'BORRADOR'" class="btn btn-sm btn-secondary" title="Editar" aria-label="Editar" [routerLink]="['/quotations', quotation.id, 'edit']">
+                <span class="material-symbols-outlined" aria-hidden="true">edit</span>
               </a>
-              <a class="btn btn-sm btn-secondary" [routerLink]="['/quotations', quotation.id, 'pdf-preview']">
-                <span class="material-symbols-outlined">picture_as_pdf</span>
+              <a class="btn btn-sm btn-secondary" title="Vista previa PDF" aria-label="Vista previa PDF" [routerLink]="['/quotations', quotation.id, 'pdf-preview']">
+                <span class="material-symbols-outlined" aria-hidden="true">picture_as_pdf</span>
               </a>
             </div>
           </td>

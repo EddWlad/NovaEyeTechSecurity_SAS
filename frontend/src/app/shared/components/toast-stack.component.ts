@@ -10,7 +10,7 @@ import { NotificationService } from '../../core/services/notification.service';
   template: `
     <div class="toast-stack">
       <article *ngFor="let toast of notificationService.toasts()" [ngClass]="toast.type" class="toast-item">
-        <span class="material-symbols-outlined">{{ icon(toast.type) }}</span>
+        <span class="material-symbols-outlined" aria-hidden="true">{{ icon(toast.type) }}</span>
         <span>{{ toast.message }}</span>
       </article>
     </div>

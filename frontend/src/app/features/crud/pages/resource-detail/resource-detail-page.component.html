@@ -2,11 +2,11 @@
   <app-page-header [title]="'Detalle de ' + definition.singular" [subtitle]="definition.subtitle" />
   <div class="actions">
     <a class="btn btn-secondary" [routerLink]="['/', definition.key]">
-      <span class="material-symbols-outlined">arrow_back</span>
+      <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
       Volver
     </a>
     <a class="btn btn-primary" [routerLink]="['/', definition.key, entity()?.['id'], 'edit']">
-      <span class="material-symbols-outlined">edit</span>
+      <span class="material-symbols-outlined" aria-hidden="true">edit</span>
       Editar
     </a>
   </div>

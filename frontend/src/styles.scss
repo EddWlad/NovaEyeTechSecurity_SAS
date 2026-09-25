@@ -17,6 +17,33 @@
 
 * {
   box-sizing: border-box;
+  scrollbar-width: thin;
+}
+
+/*
+ * Scrollbars finos y discretos en toda la app. `scrollbar-color` se hereda (por eso va en :root) y
+ * `scrollbar-width` no (por eso va en `*`). Cada contenedor puede sobrescribir el color: el menu
+ * lateral, oscuro, usa uno propio.
+ */
+:root {
+  scrollbar-color: rgb(102 106 112 / 45%) transparent;
+}
+
+/* Navegadores sin scrollbar-width (Safari anterior a 18.2): mismo aspecto con el pseudo-elemento. */
+@supports not (scrollbar-width: thin) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgb(102 106 112 / 45%);
+    border-radius: 999px;
+  }
 }
 
 html,
@@ -261,5 +288,104 @@ a {
   .table td {
     padding: 0.58rem 0.62rem;
     font-size: 0.8rem;
+  }
+}
+
+/*
+ * Tabla que en desktop es tabla y en pantallas chicas se vuelve una lista de tarjetas.
+ *
+ * Uso: `<div class="table-wrapper table-stack"><table class="table">` con `data-label` en cada <td>
+ * y `data-label="Acciones"` en la celda de botones. Lo usan las listas de CRUD, cotizaciones y
+ * mantenimientos; un cambio aqui las cubre a todas, en vez de repetirlo en cada componente.
+ */
+$table-stack-breakpoint: 768px;
+
+@media (min-width: #{$table-stack-breakpoint + 1}) {
+  /* Acciones en una sola fila. Sin ancho propio, la celda se comprimia en tablas con muchas columnas
+     y los botones saltaban de linea. */
+  .table-stack td[data-label='Acciones'] {
+    width: 1%;
+    white-space: nowrap;
+  }
+
+  .table-stack td[data-label='Acciones'] .actions {
+    flex-wrap: nowrap;
+  }
+
+  /* Si la tabla es mas ancha que la pantalla hay scroll horizontal: las acciones se anclan a la
+     derecha para que nunca queden escondidas al final. */
+  .table-stack th:last-child,
+  .table-stack td[data-label='Acciones'] {
+    position: sticky;
+    right: 0;
+    z-index: 1;
+    box-shadow: -1px 0 0 #eaedf2;
+  }
+
+  .table-stack td[data-label='Acciones'] {
+    background: var(--white);
+  }
+
+  .table-stack th:last-child {
+    background: #f1f4f8;
+  }
+}
+
+@media (max-width: $table-stack-breakpoint) {
+  .table-stack {
+    overflow: visible;
+    border: 0;
+  }
+
+  .table-stack .table {
+    min-width: 0;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .table-stack thead {
+    display: none;
+  }
+
+  .table-stack tbody,
+  .table-stack tr,
+  .table-stack td {
+    display: block;
+    width: 100%;
+  }
+
+  .table-stack tr {
+    border: 1px solid #dbe2ea;
+    border-radius: 12px;
+    padding: 0.65rem;
+    margin-bottom: 0.65rem;
+    background: var(--white);
+  }
+
+  .table-stack td {
+    padding: 0.35rem 0;
+    border-bottom: 0;
+  }
+
+  .table-stack td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 0.26rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #2f4d66;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+
+  .table-stack td[data-label='Acciones'] .actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .table-stack td[data-label='Acciones'] .btn {
+    flex: 1 1 0;
+    min-width: 0;
   }
 }

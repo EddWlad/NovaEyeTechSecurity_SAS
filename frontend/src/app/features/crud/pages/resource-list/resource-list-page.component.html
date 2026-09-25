@@ -1,7 +1,7 @@
 <section class="toolbar" *ngIf="definition() as definition">
   <app-page-header [title]="definition.title" [subtitle]="definition.subtitle" />
   <a *ngIf="canWrite()" class="btn btn-primary" [routerLink]="['/', definition.key, 'new']">
-    <span class="material-symbols-outlined">add</span>
+    <span class="material-symbols-outlined" aria-hidden="true">add</span>
     Nuevo
   </a>
 </section>
@@ -16,14 +16,14 @@
       (ngModelChange)="query.set($event)"
     />
     <button class="btn btn-secondary" type="button" (click)="load()">
-      <span class="material-symbols-outlined">refresh</span>
+      <span class="material-symbols-outlined" aria-hidden="true">refresh</span>
       Refrescar
     </button>
   </div>
 
   <app-loading-spinner *ngIf="loading()" text="Cargando datos..." />
 
-  <div class="table-wrapper" *ngIf="!loading() && filteredRows().length">
+  <div class="table-wrapper table-stack" *ngIf="!loading() && filteredRows().length">
     <table class="table resource-table">
       <thead>
         <tr>
@@ -49,14 +49,14 @@
           </td>
           <td data-label="Acciones">
             <div class="actions">
-              <button class="btn btn-sm btn-secondary" type="button" (click)="view(asId(row['id']))">
-                <span class="material-symbols-outlined">visibility</span>
+              <button class="btn btn-sm btn-secondary" type="button" title="Ver" aria-label="Ver" (click)="view(asId(row['id']))">
+                <span class="material-symbols-outlined" aria-hidden="true">visibility</span>
               </button>
-              <button *ngIf="canWrite()" class="btn btn-sm btn-secondary" type="button" (click)="edit(asId(row['id']))">
-                <span class="material-symbols-outlined">edit</span>
+              <button *ngIf="canWrite()" class="btn btn-sm btn-secondary" type="button" title="Editar" aria-label="Editar" (click)="edit(asId(row['id']))">
+                <span class="material-symbols-outlined" aria-hidden="true">edit</span>
               </button>
-              <button *ngIf="canWrite()" class="btn btn-sm btn-danger" type="button" (click)="remove(asId(row['id']))">
-                <span class="material-symbols-outlined">delete</span>
+              <button *ngIf="canWrite()" class="btn btn-sm btn-danger" type="button" title="Eliminar" aria-label="Eliminar" (click)="remove(asId(row['id']))">
+                <span class="material-symbols-outlined" aria-hidden="true">delete</span>
               </button>
             </div>
           </td>

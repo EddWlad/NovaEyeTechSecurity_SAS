@@ -61,6 +61,40 @@
   min-height: 0;
   overflow: auto;
   padding-right: .2rem;
+
+  /*
+   * Scrollbar del menu: fino y casi imperceptible. En reposo no se ve; al pasar el mouse (o navegar
+   * con teclado) aparece un hilo blanco translucido que armoniza con el fondo oscuro, en lugar del
+   * scrollbar claro del sistema con flechas.
+   */
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color .3s ease;
+}
+
+.nav-list:hover,
+.nav-list:focus-within {
+  scrollbar-color: rgb(255 255 255 / 22%) transparent;
+}
+
+/* Sin scrollbar-width (Safari anterior a 18.2): mismo comportamiento con el pseudo-elemento. */
+@supports not (scrollbar-width: thin) {
+  .nav-list::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .nav-list::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .nav-list::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 999px;
+  }
+
+  .nav-list:hover::-webkit-scrollbar-thumb {
+    background: rgb(255 255 255 / 22%);
+  }
 }
 
 .nav-list a {

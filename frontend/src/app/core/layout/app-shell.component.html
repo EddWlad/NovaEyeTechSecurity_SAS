@@ -17,7 +17,7 @@
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: item.route === '/dashboard' }"
       >
-        <span class="material-symbols-outlined">{{ item.icon }}</span>
+        <span class="material-symbols-outlined" aria-hidden="true">{{ item.icon }}</span>
         <span>{{ item.label }}</span>
       </a>
     </nav>
@@ -28,8 +28,8 @@
         <strong>{{ user.fullName }}</strong>
         <p>{{ currentRoleLabel() }}</p>
       </div>
-      <button class="btn btn-sm btn-secondary" type="button" (click)="logout()">
-        <span class="material-symbols-outlined">logout</span>
+      <button class="btn btn-sm btn-secondary" type="button" title="Cerrar sesión" aria-label="Cerrar sesión" (click)="logout()">
+        <span class="material-symbols-outlined" aria-hidden="true">logout</span>
       </button>
     </section>
   </aside>
@@ -38,12 +38,12 @@
 
   <section class="content-area">
     <header class="topbar card">
-      <button class="menu-toggle" type="button" (click)="toggleSidebar()">
-        <span class="material-symbols-outlined">menu</span>
+      <button class="menu-toggle" type="button" aria-label="Abrir menú" [attr.aria-expanded]="sidebarOpen()" (click)="toggleSidebar()">
+        <span class="material-symbols-outlined" aria-hidden="true">menu</span>
       </button>
       <app-breadcrumbs [items]="crumbs()" />
       <a class="btn btn-sm btn-secondary" routerLink="/profile">
-        <span class="material-symbols-outlined">account_circle</span>
+        <span class="material-symbols-outlined" aria-hidden="true">account_circle</span>
         Mi Perfil
       </a>
     </header>
