@@ -8,6 +8,14 @@ on:
       - '.github/workflows/backend-deploy.yml'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+# Dos despliegues del backend nunca corren a la vez; el segundo espera al primero.
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest

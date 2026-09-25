@@ -8,6 +8,16 @@ on:
       - '.github/workflows/frontend-deploy.yml'
   workflow_dispatch:
 
+# Lectura del repo y de los runs (el script que espera al backend consulta la API de Actions).
+permissions:
+  contents: read
+  actions: read
+
+# Dos despliegues del frontend nunca corren a la vez; el segundo espera al primero.
+concurrency:
+  group: deploy-frontend
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -24,9 +34,20 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      # La fuente de iconos se pide solo con los iconos usados: uno que falte se ve como texto.
+      - name: Verificar iconos
+        working-directory: frontend
+        run: npm run check:icons
+
       - name: Build production
         working-directory: frontend
         run: npm run build -- --configuration production
+
+      # Si este mismo commit cambia el backend, su despliegue va primero (ver el script).
+      - name: Esperar al despliegue del backend
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/wait-for-backend-deploy.sh
 
       - name: Deploy to Contabo
         env:
