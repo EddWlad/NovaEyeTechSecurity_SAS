@@ -1,5 +1,8 @@
 server:
   port: ${PORT:8080}
+  # Al reiniciar (despliegue, systemctl restart) se terminan las peticiones en curso antes de cerrar,
+  # en vez de cortarlas a medias.
+  shutdown: graceful
   servlet:
     # Prefijo global de la API, equivalente a setGlobalPrefix("api") del backend NestJS.
     context-path: /api
@@ -7,6 +10,9 @@ server:
 spring:
   application:
     name: novaeyetech-backend
+
+  lifecycle:
+    timeout-per-shutdown-phase: 20s
 
   datasource:
     driver-class-name: org.postgresql.Driver
