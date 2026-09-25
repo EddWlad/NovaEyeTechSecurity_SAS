@@ -15,7 +15,7 @@
   <section *ngIf="isProductsModule()" class="product-upload-block">
     <div class="product-upload-header">
       <h3>Imagen del producto</h3>
-      <p>Sube JPG, PNG o WEBP para mostrar la imagen en el catálogo.</p>
+      <p>Sube JPG, PNG o WEBP de hasta 10 MB para mostrar la imagen en el catálogo.</p>
     </div>
 
     <input #productImageInput hidden type="file" accept="image/png,image/jpeg,image/jpg,image/webp" (change)="onProductImageSelected($event)" />

@@ -4,6 +4,7 @@ import { catchError, throwError } from 'rxjs';
 
 import { AuthService } from '../services/auth.service';
 import { NotificationService } from '../services/notification.service';
+import { tooLargeMessage } from '../utils/image.util';
 
 export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
@@ -12,9 +13,11 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
       const message =
-        (error.error as { message?: string })?.message ??
-        error.message ??
-        'Ocurrió un error de comunicación.';
+        error.status === 413
+          ? tooLargeMessage()
+          : ((error.error as { message?: string } | null)?.message ??
+            error.message ??
+            'Ocurrió un error de comunicación.');
 
       if (error.status === 401 && !req.url.includes('/auth/login')) {
         auth.logout();

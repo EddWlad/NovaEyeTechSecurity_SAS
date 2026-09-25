@@ -35,7 +35,7 @@ Las evidencias de mantenimiento, los adjuntos y la foto de perfil se guardan en 
 
 ## Límites
 
-- Tamaño máximo: **10 MB** por archivo (`MAX_BYTES`), alineado con `spring.servlet.multipart.max-file-size`.
+- Tamaño máximo: **10 MB** por archivo (`MAX_BYTES`), alineado con `spring.servlet.multipart.max-file-size` y con `MAX_UPLOAD_MB` del frontend. `max-request-size` es 11 MB para dejar lugar a las cabeceras multipart; nginx debe permitir algo más (`client_max_body_size 12m`). Un archivo mayor responde 413 "El archivo excede 10 MB".
 - Tipos permitidos: JPEG, PNG, WebP, GIF, PDF, Word y Excel.
 - `application/octet-stream` se acepta solo si la extensión está en la lista blanca: algunos navegadores lo envían para `.xlsx` y `.docx`, pero sin esa comprobación se aceptaría cualquier binario.
 

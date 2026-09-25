@@ -47,7 +47,9 @@ spring:
   servlet:
     multipart:
       max-file-size: ${MAX_FILE_SIZE:10MB}
-      max-request-size: ${MAX_REQUEST_SIZE:10MB}
+      # El pedido lleva el archivo mas las cabeceras multipart: con el mismo tope que el archivo, uno
+      # de 10 MB justos se rechazaba.
+      max-request-size: ${MAX_REQUEST_SIZE:11MB}
 
   # El arranque no depende de Docker: la base se configura por variables de entorno.
   docker:

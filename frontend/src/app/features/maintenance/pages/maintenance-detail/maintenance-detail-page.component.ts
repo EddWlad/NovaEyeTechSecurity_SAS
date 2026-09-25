@@ -6,6 +6,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { Attachment, Maintenance, MaintenanceComment } from '../../../../core/models/entities.models';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { MAX_UPLOAD_BYTES, tooLargeMessage } from '../../../../core/utils/image.util';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header.component';
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge.component';
@@ -87,7 +88,17 @@ export class MaintenanceDetailPageComponent {
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    this.selectedFiles.set(Array.from(input.files ?? []));
+    const files = Array.from(input.files ?? []);
+    const tooLarge = files.filter((file) => file.size > MAX_UPLOAD_BYTES);
+
+    if (tooLarge.length) {
+      this.notifications.error(tooLarge.map((file) => tooLargeMessage(file.name)).join(' '));
+      input.value = '';
+      this.selectedFiles.set([]);
+      return;
+    }
+
+    this.selectedFiles.set(files);
   }
 
   addAttachment(fileInput: HTMLInputElement): void {

@@ -10,7 +10,7 @@ import { ROLE_LABELS } from '../../../../shared/constants/roles.constants';
 import { PageHeaderComponent } from '../../../../shared/components/page-header.component';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner.component';
 import { toInitials } from '../../../../core/utils/format.util';
-import { toImageSrc } from '../../../../core/utils/image.util';
+import { toImageSrc, imageFileError } from '../../../../core/utils/image.util';
 
 @Component({
   selector: 'app-profile-page',
@@ -117,16 +117,9 @@ export class ProfilePageComponent {
       return;
     }
 
-    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      this.notifications.error('Formato inválido. Usa PNG, JPG o WEBP.');
-      input.value = '';
-      return;
-    }
-
-    const maxSizeBytes = 5 * 1024 * 1024;
-    if (file.size > maxSizeBytes) {
-      this.notifications.error('La imagen no debe superar 5MB.');
+    const invalid = imageFileError(file);
+    if (invalid) {
+      this.notifications.error(invalid);
       input.value = '';
       return;
     }

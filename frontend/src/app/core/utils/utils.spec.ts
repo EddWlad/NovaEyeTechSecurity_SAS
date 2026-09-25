@@ -1,5 +1,5 @@
 import { toDateInputValue, toInitials, toMoney } from './format.util';
-import { toImageSrc } from './image.util';
+import { MAX_UPLOAD_BYTES, imageFileError, toImageSrc } from './image.util';
 import { relationLabel } from './relation.util';
 
 describe('format.util', () => {
@@ -30,6 +30,24 @@ describe('toImageSrc', () => {
     expect(toImageSrc(null)).toBeNull();
     expect(toImageSrc('   ')).toBeNull();
     expect(toImageSrc(42)).toBeNull();
+  });
+});
+
+describe('imageFileError', () => {
+  const fileOf = (bytes: number, type: string) => {
+    const file = new File([''], 'foto', { type });
+    Object.defineProperty(file, 'size', { value: bytes });
+    return file;
+  };
+
+  it('acepta imagenes de hasta 10 MB', () => {
+    expect(imageFileError(fileOf(9.9 * 1024 * 1024, 'image/jpeg'))).toBeNull();
+    expect(imageFileError(fileOf(MAX_UPLOAD_BYTES, 'image/webp'))).toBeNull();
+  });
+
+  it('rechaza las que superan 10 MB o no son imagen', () => {
+    expect(imageFileError(fileOf(MAX_UPLOAD_BYTES + 1, 'image/png'))).toContain('10 MB');
+    expect(imageFileError(fileOf(1024, 'application/pdf'))).toContain('Formato');
   });
 });
 

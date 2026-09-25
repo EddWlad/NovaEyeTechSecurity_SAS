@@ -9,7 +9,7 @@ import { ResourceCrudService } from '../../services/resource-crud.service';
 import { LookupService } from '../../services/lookup.service';
 import { ResourceDefinition, ResourceField } from '../../../../core/models/resource.models';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { toImageSrc } from '../../../../core/utils/image.util';
+import { toImageSrc, imageFileError } from '../../../../core/utils/image.util';
 import { PageHeaderComponent } from '../../../../shared/components/page-header.component';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner.component';
 
@@ -294,16 +294,9 @@ export class ResourceFormPageComponent {
       return;
     }
 
-    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      this.notifications.error('Formato inválido. Usa PNG, JPG o WEBP.');
-      input.value = '';
-      return;
-    }
-
-    const maxSizeBytes = 5 * 1024 * 1024;
-    if (file.size > maxSizeBytes) {
-      this.notifications.error('La imagen no debe superar 5MB.');
+    const invalid = imageFileError(file);
+    if (invalid) {
+      this.notifications.error(invalid);
       input.value = '';
       return;
     }

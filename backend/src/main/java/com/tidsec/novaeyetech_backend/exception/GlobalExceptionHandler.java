@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 /**
@@ -112,6 +113,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return ResponseEntity.badRequest().body(ApiErrorResponse.of(
                 HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase(), message, path(request)));
+    }
+
+    /**
+     * Archivo sobre {@code spring.servlet.multipart.max-file-size}: lo corta Tomcat antes del
+     * controlador. Sin esto la respuesta llevaba el texto por defecto de Spring, en ingles.
+     */
+    @Override
+    protected @Nullable ResponseEntity<Object> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex,
+                                                                                     HttpHeaders headers,
+                                                                                     HttpStatusCode status,
+                                                                                     WebRequest request) {
+        return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(ApiErrorResponse.of(
+                HttpStatus.CONTENT_TOO_LARGE.value(), HttpStatus.CONTENT_TOO_LARGE.getReasonPhrase(),
+                "El archivo excede 10 MB", path(request)));
     }
 
     private ResponseEntity<ApiErrorResponse> build(HttpStatus status, String message, WebRequest request) {
