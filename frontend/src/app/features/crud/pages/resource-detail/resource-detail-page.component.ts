@@ -1,6 +1,8 @@
 import { NgFor, NgIf, NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { combineLatest, distinctUntilChanged, map } from 'rxjs';
 
 import { ResourceCrudService } from '../../services/resource-crud.service';
 import { ResourceDefinition } from '../../../../core/models/resource.models';
@@ -38,21 +40,27 @@ export class ResourceDetailPageComponent {
   readonly entity = signal<Record<string, unknown> | null>(null);
 
   constructor() {
-    this.route.data.subscribe((data) => {
-      const resourceKey = String(data['resourceKey'] ?? '');
-      const id = this.route.snapshot.paramMap.get('id');
-      this.definition.set(this.crudService.getDefinition(resourceKey));
+    // route.data emite dos veces al entrar a una ruta con parametros: sin distinctUntilChanged cada
+    // visita al detalle pedia el mismo registro dos veces.
+    combineLatest([this.route.data, this.route.paramMap])
+      .pipe(
+        map(([data, params]) => ({ resourceKey: String(data['resourceKey'] ?? ''), id: params.get('id') })),
+        distinctUntilChanged((a, b) => a.resourceKey === b.resourceKey && a.id === b.id),
+        takeUntilDestroyed(),
+      )
+      .subscribe(({ resourceKey, id }) => {
+        this.definition.set(this.crudService.getDefinition(resourceKey));
 
-      if (!id) {
-        this.loading.set(false);
-        return;
-      }
+        if (!id) {
+          this.loading.set(false);
+          return;
+        }
 
-      this.crudService.get<Record<string, unknown>>(resourceKey, id).subscribe({
-        next: (entity) => this.entity.set(entity),
-        complete: () => this.loading.set(false),
+        this.crudService.get<Record<string, unknown>>(resourceKey, id).subscribe({
+          next: (entity) => this.entity.set(entity),
+          complete: () => this.loading.set(false),
+        });
       });
-    });
   }
 
   valueFor(key: string): unknown {

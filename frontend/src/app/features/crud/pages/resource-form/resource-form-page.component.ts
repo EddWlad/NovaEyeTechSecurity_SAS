@@ -1,8 +1,9 @@
 import { NgFor, NgIf, NgSwitch, NgSwitchCase } from '@angular/common';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Observable, catchError, forkJoin, map, of, switchMap } from 'rxjs';
+import { Observable, catchError, combineLatest, distinctUntilChanged, forkJoin, map, of, switchMap } from 'rxjs';
 
 import { ResourceCrudService } from '../../services/resource-crud.service';
 import { LookupService } from '../../services/lookup.service';
@@ -56,13 +57,20 @@ export class ResourceFormPageComponent {
   constructor() {
     inject(DestroyRef).onDestroy(() => this.revokeProductPreview());
 
-    this.route.data.subscribe((data) => {
-      const resourceKey = String(data['resourceKey'] ?? '');
-      this.definition.set(this.crudService.getDefinition(resourceKey));
-      this.entityId.set(this.route.snapshot.paramMap.get('id'));
-      this.setupForm();
-      this.loadLookupsAndEntity();
-    });
+    // route.data emite dos veces al entrar a una ruta con parametros: sin distinctUntilChanged cada
+    // visita a la edicion pedia el registro y los combos dos veces.
+    combineLatest([this.route.data, this.route.paramMap])
+      .pipe(
+        map(([data, params]) => ({ resourceKey: String(data['resourceKey'] ?? ''), id: params.get('id') })),
+        distinctUntilChanged((a, b) => a.resourceKey === b.resourceKey && a.id === b.id),
+        takeUntilDestroyed(),
+      )
+      .subscribe(({ resourceKey, id }) => {
+        this.definition.set(this.crudService.getDefinition(resourceKey));
+        this.entityId.set(id);
+        this.setupForm();
+        this.loadLookupsAndEntity();
+      });
   }
 
   get isEditMode(): boolean {
