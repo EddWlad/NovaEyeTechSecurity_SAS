@@ -6,19 +6,8 @@ import { PageHeaderComponent } from '../../../../shared/components/page-header.c
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge.component';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state.component';
-import { DashboardService } from '../../services/dashboard.service';
-import { Quotation, Maintenance } from '../../../../core/models/entities.models';
+import { DashboardService, DashboardSummary } from '../../services/dashboard.service';
 import { toMoney } from '../../../../core/utils/format.util';
-
-interface DashboardState {
-  clients: number;
-  suppliers: number;
-  products: number;
-  services: number;
-  pendingMaintenance: number;
-  quotations: Quotation[];
-  maintenance: Maintenance[];
-}
 
 @Component({
   selector: 'app-dashboard-page',
@@ -40,7 +29,7 @@ export class DashboardPageComponent {
   private readonly dashboardService = inject(DashboardService);
 
   readonly loading = signal(true);
-  readonly state = signal<DashboardState>({
+  readonly state = signal<DashboardSummary>({
     clients: 0,
     suppliers: 0,
     products: 0,
@@ -66,12 +55,10 @@ export class DashboardPageComponent {
     this.loading.set(true);
 
     this.dashboardService.loadDashboard().subscribe({
-      next: (state) => {
-        this.state.set(state as DashboardState);
-      },
-      complete: () => {
-        this.loading.set(false);
-      },
+      next: (state) => this.state.set(state),
+      // Sin esto, un error dejaba "Cargando indicadores..." para siempre. El interceptor ya avisa.
+      error: () => this.loading.set(false),
+      complete: () => this.loading.set(false),
     });
   }
 
