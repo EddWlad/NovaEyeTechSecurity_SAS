@@ -1,5 +1,6 @@
 package com.tidsec.novaeyetech_backend.controller;
 
+import com.tidsec.novaeyetech_backend.dto.PdfPreviewDTO;
 import com.tidsec.novaeyetech_backend.dto.QuotationDTO;
 import com.tidsec.novaeyetech_backend.dto.QuotationRequest;
 import com.tidsec.novaeyetech_backend.dto.QuotationStatusRequest;
@@ -11,6 +12,7 @@ import com.tidsec.novaeyetech_backend.service.IQuotationService;
 import com.tidsec.novaeyetech_backend.util.DtoMapper;
 import com.tidsec.novaeyetech_backend.util.PaginationSupport;
 import jakarta.validation.Valid;
+import java.util.Base64;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -97,5 +99,20 @@ public class QuotationController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"cotizacion-" + id + ".pdf\"")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(pdf);
+    }
+
+    /**
+     * Vista previa para celulares: los navegadores moviles no dibujan un PDF embebido. Mismo alcance por
+     * rol que el PDF: un tecnico solo ve la de sus propias cotizaciones.
+     */
+    @GetMapping("/{id}/pdf/preview")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    public ResponseEntity<PdfPreviewDTO> previewPdf(@PathVariable UUID id,
+                                                    @AuthenticationPrincipal AuthenticatedUser actor) {
+        Base64.Encoder encoder = Base64.getEncoder();
+
+        return ResponseEntity.ok(new PdfPreviewDTO(service.buildPdfPreview(id, actor).stream()
+                .map(png -> "data:image/png;base64," + encoder.encodeToString(png))
+                .toList()));
     }
 }

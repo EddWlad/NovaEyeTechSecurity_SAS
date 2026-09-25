@@ -19,6 +19,7 @@ import com.tidsec.novaeyetech_backend.service.IQuotationService;
 import com.tidsec.novaeyetech_backend.service.IQuotationSettingService;
 import com.tidsec.novaeyetech_backend.util.MoneyUtils;
 import com.tidsec.novaeyetech_backend.util.PaginationSupport;
+import com.tidsec.novaeyetech_backend.util.PdfPageRenderer;
 import com.tidsec.novaeyetech_backend.util.QuotationPdfGenerator;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -59,6 +60,7 @@ public class QuotationServiceImpl implements IQuotationService {
     private final IQuotationSettingService settingService;
     private final QuotationCalculator calculator;
     private final QuotationPdfGenerator pdfGenerator;
+    private final PdfPageRenderer pdfPageRenderer;
     private final IAuditLogService auditLogService;
 
     @Override
@@ -173,6 +175,13 @@ public class QuotationServiceImpl implements IQuotationService {
     @Transactional(readOnly = true)
     public byte[] buildPdf(UUID id, AuthenticatedUser actor) {
         return pdfGenerator.generate(findById(id, actor));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<byte[]> buildPdfPreview(UUID id, AuthenticatedUser actor) {
+        // Se renderiza el mismo PDF que se descarga, no una version aparte: lo que se ve es lo que se entrega.
+        return pdfPageRenderer.renderPages(buildPdf(id, actor));
     }
 
     /**

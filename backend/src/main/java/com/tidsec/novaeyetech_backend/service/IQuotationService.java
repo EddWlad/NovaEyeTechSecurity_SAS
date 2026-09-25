@@ -31,4 +31,7 @@ public interface IQuotationService {
     Quotation updateStatus(UUID id, QuotationStatusRequest request, AuthenticatedUser actor);
 
     byte[] buildPdf(UUID id, AuthenticatedUser actor);
+
+    /** Paginas del mismo PDF como imagenes PNG, para la vista previa en celulares. */
+    List<byte[]> buildPdfPreview(UUID id, AuthenticatedUser actor);
 }
