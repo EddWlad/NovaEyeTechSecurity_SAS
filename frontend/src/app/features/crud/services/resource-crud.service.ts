@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { ApiService } from '../../../core/services/api.service';
@@ -8,7 +8,7 @@ import { PaginatedResponse } from '../../../core/models/pagination.models';
 
 @Injectable({ providedIn: 'root' })
 export class ResourceCrudService {
-  constructor(private readonly api: ApiService) {}
+  private readonly api = inject(ApiService);
 
   getDefinition(key: string): ResourceDefinition {
     const definition = RESOURCE_DEFINITIONS[key];
@@ -27,9 +27,10 @@ export class ResourceCrudService {
     resourceKey: string,
     page: number,
     limit: number,
+    search = '',
   ): Observable<PaginatedResponse<T>> {
     const def = this.getDefinition(resourceKey);
-    return this.api.listPaginated<T>(def.endpoint, { page, limit });
+    return this.api.listPaginated<T>(def.endpoint, { page, limit, search: search.trim() });
   }
 
   get<T>(resourceKey: string, id: string): Observable<T> {

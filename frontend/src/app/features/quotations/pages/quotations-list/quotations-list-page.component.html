@@ -14,11 +14,12 @@
     <input
       class="input quotations-search-input"
       style="max-width: 320px;"
+      maxlength="100"
       placeholder="Buscar por cliente o número"
       [ngModel]="query()"
       (ngModelChange)="query.set($event)"
     />
-    <select class="select quotations-status-filter" style="max-width: 220px;" [ngModel]="status()" (ngModelChange)="status.set($event)">
+    <select class="select quotations-status-filter" style="max-width: 220px;" [ngModel]="status()" (ngModelChange)="changeStatus($event)">
       <option value="">Todos los estados</option>
       <option *ngFor="let item of statuses" [value]="item">{{ item }}</option>
     </select>
@@ -26,7 +27,7 @@
 
   <app-loading-spinner *ngIf="loading()" />
 
-  <div class="table-wrapper table-stack" *ngIf="!loading() && filtered().length">
+  <div class="table-wrapper table-stack" *ngIf="!loading() && rows().length">
     <table class="table quotations-table">
       <thead>
         <tr>
@@ -41,7 +42,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let quotation of filtered()">
+        <tr *ngFor="let quotation of rows()">
           <td data-label="Número">{{ quotation.quotationNumber }}</td>
           <td data-label="Cliente">{{ quotation.client.nameOrBusinessName }}</td>
           <td data-label="Fecha">{{ quotation.issuedAt | date: 'dd/MM/yyyy' }}</td>
@@ -76,7 +77,7 @@
   />
 
   <app-empty-state
-    *ngIf="!loading() && !filtered().length"
+    *ngIf="!loading() && !rows().length"
     title="Sin cotizaciones"
     description="Aún no existen cotizaciones con los filtros aplicados."
   />

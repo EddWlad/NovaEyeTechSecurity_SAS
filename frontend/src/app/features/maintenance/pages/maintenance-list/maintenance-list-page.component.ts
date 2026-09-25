@@ -1,8 +1,10 @@
 import { DatePipe, NgFor, NgIf } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
+import { Maintenance } from '../../../../core/models/entities.models';
 import { MaintenanceStatus, MaintenanceType } from '../../../../core/models/enums';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state.component';
@@ -11,6 +13,7 @@ import { PageHeaderComponent } from '../../../../shared/components/page-header.c
 import { PaginationControlsComponent } from '../../../../shared/components/pagination-controls.component';
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge.component';
 import { MaintenanceService } from '../../services/maintenance.service';
+import { onSearchChange } from '../../../../core/utils/search.util';
 
 @Component({
   selector: 'app-maintenance-list-page',
@@ -35,7 +38,7 @@ export class MaintenanceListPageComponent {
   private readonly notifications = inject(NotificationService);
 
   readonly loading = signal(true);
-  readonly rows = signal<any[]>([]);
+  readonly rows = signal<Maintenance[]>([]);
   readonly query = signal('');
   readonly page = signal(1);
   readonly limit = signal(10);
@@ -50,29 +53,30 @@ export class MaintenanceListPageComponent {
   readonly types: MaintenanceType[] = ['PREVENTIVO', 'CORRECTIVO'];
   readonly statuses: MaintenanceStatus[] = ['PENDIENTE', 'EN_PROCESO', 'COMPLETADO', 'CANCELADO'];
 
-  readonly filtered = computed(() => {
-    const query = this.query().toLowerCase();
-    const type = this.typeFilter();
-    const status = this.statusFilter();
-
-    return this.rows().filter((item) => {
-      const queryMatch =
-        !query ||
-        item.client?.nameOrBusinessName?.toLowerCase().includes(query) ||
-        item.intervenedSystem?.toLowerCase().includes(query);
-      const typeMatch = !type || item.type === type;
-      const statusMatch = !status || item.status === status;
-      return queryMatch && typeMatch && statusMatch;
-    });
-  });
+  private loadSubscription?: Subscription;
 
   constructor() {
+    // Busqueda, tipo y estado los resuelve el servidor sobre todos los registros, no solo la pagina visible.
+    onSearchChange(this.query, () => this.load(1));
     this.load();
+  }
+
+  changeType(type: string): void {
+    this.typeFilter.set(type);
+    this.load(1);
+  }
+
+  changeStatus(status: string): void {
+    this.statusFilter.set(status);
+    this.load(1);
   }
 
   load(nextPage = this.page()): void {
     this.loading.set(true);
-    this.maintenanceService.list(nextPage, this.limit()).subscribe({
+    this.loadSubscription?.unsubscribe();
+    this.loadSubscription = this.maintenanceService
+      .list(nextPage, this.limit(), { search: this.query(), type: this.typeFilter(), status: this.statusFilter() })
+      .subscribe({
       next: (response) => {
         this.rows.set(response.items);
         this.page.set(response.page);
@@ -80,6 +84,7 @@ export class MaintenanceListPageComponent {
         this.total.set(response.total);
         this.totalPages.set(response.totalPages);
       },
+      error: () => this.loading.set(false),
       complete: () => this.loading.set(false),
     });
   }
@@ -88,7 +93,7 @@ export class MaintenanceListPageComponent {
     this.load(nextPage);
   }
 
-  remove(item: any): void {
+  remove(item: Maintenance): void {
     this.pendingDeleteId.set(String(item.id));
     this.pendingDeleteLabel.set(
       item?.intervenedSystem
@@ -114,7 +119,7 @@ export class MaintenanceListPageComponent {
       next: () => {
         this.notifications.success('Mantenimiento eliminado correctamente.');
         const shouldGoPrevious =
-          this.rows().length === 1 && this.page() > 1 && this.filtered().length <= 1;
+          this.rows().length === 1 && this.page() > 1;
         this.load(shouldGoPrevious ? this.page() - 1 : this.page());
       },
     });

@@ -1,5 +1,6 @@
 import { NgFor, NgIf, NgSwitch, NgSwitchCase, NgSwitchDefault } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
@@ -14,6 +15,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { toImageSrc } from '../../../../core/utils/image.util';
 import { relationLabel } from '../../../../core/utils/relation.util';
+import { onSearchChange } from '../../../../core/utils/search.util';
 
 @Component({
   selector: 'app-resource-list-page',
@@ -59,14 +61,7 @@ export class ResourceListPageComponent {
     return (def?.fields ?? []).filter((field) => !field.hideInList && field.key !== 'password');
   });
 
-  readonly filteredRows = computed(() => {
-    const text = this.query().trim().toLowerCase();
-    if (!text) {
-      return this.rows();
-    }
-
-    return this.rows().filter((row) => JSON.stringify(row).toLowerCase().includes(text));
-  });
+  private loadSubscription?: Subscription;
 
   readonly canWrite = computed(() => {
     const def = this.definition();
@@ -85,10 +80,14 @@ export class ResourceListPageComponent {
   });
 
   constructor() {
+    // La busqueda la resuelve el servidor sobre todos los registros; antes solo filtraba la pagina visible.
+    onSearchChange(this.query, () => this.load(1));
+
     this.route.data.subscribe((data) => {
       const resourceKey = String(data['resourceKey'] ?? '');
       const definition = this.crudService.getDefinition(resourceKey);
       this.definition.set(definition);
+      this.query.set('');
       this.page.set(1);
       this.load(1);
     });
@@ -101,8 +100,10 @@ export class ResourceListPageComponent {
     }
 
     this.loading.set(true);
-    this.crudService
-      .listPaginated<Record<string, unknown>>(def.key, nextPage, this.limit())
+    // Una respuesta lenta de una busqueda anterior no debe pisar la actual.
+    this.loadSubscription?.unsubscribe();
+    this.loadSubscription = this.crudService
+      .listPaginated<Record<string, unknown>>(def.key, nextPage, this.limit(), this.query())
       .subscribe({
       next: (response) => {
         this.rows.set(response.items);
@@ -111,6 +112,7 @@ export class ResourceListPageComponent {
         this.total.set(response.total);
         this.totalPages.set(response.totalPages);
       },
+      error: () => this.loading.set(false),
       complete: () => this.loading.set(false),
     });
   }
@@ -180,7 +182,7 @@ export class ResourceListPageComponent {
       next: () => {
         this.notifications.success(`${def.singular} eliminado correctamente.`);
         const shouldGoPrevious =
-          this.rows().length === 1 && this.page() > 1 && this.filteredRows().length <= 1;
+          this.rows().length === 1 && this.page() > 1;
         this.load(shouldGoPrevious ? this.page() - 1 : this.page());
       },
     });

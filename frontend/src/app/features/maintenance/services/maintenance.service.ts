@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { forkJoin, Observable } from 'rxjs';
 
@@ -26,13 +26,18 @@ export interface MaintenancePayload {
 
 @Injectable({ providedIn: 'root' })
 export class MaintenanceService {
-  constructor(
-    private readonly api: ApiService,
-    private readonly http: HttpClient,
-  ) {}
+  private readonly api = inject(ApiService);
+  private readonly http = inject(HttpClient);
 
-  list(page = 1, limit = 10) {
-    return this.api.listPaginated<Maintenance>('maintenance', { page, limit });
+  /** Busqueda por cliente o sistema y filtros de tipo y estado: los resuelve el servidor sobre todas las paginas. */
+  list(page = 1, limit = 10, filters: { search?: string; type?: string; status?: string } = {}) {
+    return this.api.listPaginated<Maintenance>('maintenance', {
+      page,
+      limit,
+      search: filters.search?.trim(),
+      type: filters.type,
+      status: filters.status,
+    });
   }
 
   findOne(id: string) {

@@ -136,16 +136,10 @@
             </td>
             <td data-label="Producto/Servicio">
               <ng-container *ngIf="item.value.itemType === 'PRODUCTO'; else serviceSelector">
-                <select class="select" formControlName="productId">
-                  <option value="">Seleccionar producto</option>
-                  <option *ngFor="let product of products()" [value]="product.id">{{ product.name }}</option>
-                </select>
+                <app-search-select formControlName="productId" [options]="productOptions()" placeholder="Buscar producto por nombre, código o marca" />
               </ng-container>
               <ng-template #serviceSelector>
-                <select class="select" formControlName="serviceId">
-                  <option value="">Seleccionar servicio</option>
-                  <option *ngFor="let service of services()" [value]="service.id">{{ service.name }}</option>
-                </select>
+                <app-search-select formControlName="serviceId" [options]="serviceOptions()" placeholder="Buscar servicio" />
               </ng-template>
             </td>
             <td data-label="Descripción"><input class="input" formControlName="description" /></td>

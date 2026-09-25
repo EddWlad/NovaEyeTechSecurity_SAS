@@ -3,7 +3,7 @@ import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 
 import { Client, Product, Quotation, QuotationSetting, Service } from '../../../../core/models/entities.models';
 import { QuotationStatus } from '../../../../core/models/enums';
@@ -12,6 +12,7 @@ import { NotificationService } from '../../../../core/services/notification.serv
 import { toDateInputValue, toMoney } from '../../../../core/utils/format.util';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header.component';
+import { SearchSelectComponent, SearchSelectOption } from '../../../../shared/components/search-select.component';
 import { QuotationItemPayload, QuotationsService } from '../../services/quotations.service';
 
 @Component({
@@ -24,6 +25,7 @@ import { QuotationItemPayload, QuotationsService } from '../../services/quotatio
     ReactiveFormsModule,
     PageHeaderComponent,
     LoadingSpinnerComponent,
+    SearchSelectComponent,
   ],
   templateUrl: './quotation-form-page.component.html',
   styleUrl: './quotation-form-page.component.scss',
@@ -45,6 +47,18 @@ export class QuotationFormPageComponent {
   readonly clients = signal<Client[]>([]);
   readonly products = signal<Product[]>([]);
   readonly services = signal<Service[]>([]);
+
+  /** Opciones del buscador: nombre, y codigo/marca o categoria como texto secundario buscable. */
+  readonly productOptions = computed<SearchSelectOption[]>(() =>
+    this.products().map((product) => ({
+      value: product.id,
+      label: product.name,
+      detail: [product.internalCode, product.brand, product.model].filter(Boolean).join(' · '),
+    })),
+  );
+  readonly serviceOptions = computed<SearchSelectOption[]>(() =>
+    this.services().map((service) => ({ value: service.id, label: service.name, detail: service.category?.name })),
+  );
   readonly settings = signal<QuotationSetting | null>(null);
   readonly existingQuotation = signal<Quotation | null>(null);
 
@@ -152,7 +166,7 @@ export class QuotationFormPageComponent {
   loadBaseData(): void {
     this.loading.set(true);
 
-    const requests: Record<string, any> = {
+    const requests: Record<string, Observable<unknown>> = {
       clients: this.api.list<Client>('clients'),
       products: this.api.list<Product>('products'),
       services: this.api.list<Service>('services'),

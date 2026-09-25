@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
 import { ApiService } from '../../../core/services/api.service';
@@ -29,13 +29,17 @@ export interface CreateQuotationPayload {
 
 @Injectable({ providedIn: 'root' })
 export class QuotationsService {
-  constructor(
-    private readonly api: ApiService,
-    private readonly http: HttpClient,
-  ) {}
+  private readonly api = inject(ApiService);
+  private readonly http = inject(HttpClient);
 
-  list(page = 1, limit = 10) {
-    return this.api.listPaginated<Quotation>('quotations', { page, limit });
+  /** Busqueda por numero o cliente y filtro de estado: los resuelve el servidor sobre todas las paginas. */
+  list(page = 1, limit = 10, filters: { search?: string; status?: string } = {}) {
+    return this.api.listPaginated<Quotation>('quotations', {
+      page,
+      limit,
+      search: filters.search?.trim(),
+      status: filters.status,
+    });
   }
 
   findOne(id: string) {

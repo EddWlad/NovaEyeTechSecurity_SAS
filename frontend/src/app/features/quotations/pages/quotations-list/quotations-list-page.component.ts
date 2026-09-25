@@ -1,11 +1,13 @@
 import { DatePipe, NgFor, NgIf } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { Subscription } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { Quotation } from '../../../../core/models/entities.models';
 import { QuotationStatus } from '../../../../core/models/enums';
 import { toMoney } from '../../../../core/utils/format.util';
+import { onSearchChange } from '../../../../core/utils/search.util';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state.component';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header.component';
@@ -45,27 +47,25 @@ export class QuotationsListPageComponent {
 
   readonly statuses: QuotationStatus[] = ['BORRADOR', 'ENVIADA', 'APROBADA', 'RECHAZADA'];
 
-  readonly filtered = computed(() => {
-    const text = this.query().toLowerCase();
-    const status = this.status();
-
-    return this.rows().filter((row) => {
-      const matchesText =
-        !text ||
-        row.quotationNumber.toLowerCase().includes(text) ||
-        row.client.nameOrBusinessName.toLowerCase().includes(text);
-      const matchesStatus = !status || row.status === status;
-      return matchesText && matchesStatus;
-    });
-  });
+  private loadSubscription?: Subscription;
 
   constructor() {
+    // Busqueda y estado los resuelve el servidor sobre todas las cotizaciones, no solo la pagina visible.
+    onSearchChange(this.query, () => this.load(1));
     this.load();
+  }
+
+  changeStatus(status: string): void {
+    this.status.set(status);
+    this.load(1);
   }
 
   load(nextPage = this.page()): void {
     this.loading.set(true);
-    this.quotationsService.list(nextPage, this.limit()).subscribe({
+    this.loadSubscription?.unsubscribe();
+    this.loadSubscription = this.quotationsService
+      .list(nextPage, this.limit(), { search: this.query(), status: this.status() })
+      .subscribe({
       next: (response) => {
         this.rows.set(response.items);
         this.page.set(response.page);
@@ -73,6 +73,7 @@ export class QuotationsListPageComponent {
         this.total.set(response.total);
         this.totalPages.set(response.totalPages);
       },
+      error: () => this.loading.set(false),
       complete: () => this.loading.set(false),
     });
   }

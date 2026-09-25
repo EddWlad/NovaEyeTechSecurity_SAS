@@ -14,18 +14,19 @@
     <input
       class="input"
       style="max-width: 280px;"
+      maxlength="100"
       placeholder="Buscar cliente o sistema"
       [ngModel]="query()"
       (ngModelChange)="query.set($event)"
     />
 
     <div class="filters-group">
-      <select class="select filter-select" [ngModel]="typeFilter()" (ngModelChange)="typeFilter.set($event)">
+      <select class="select filter-select" [ngModel]="typeFilter()" (ngModelChange)="changeType($event)">
         <option value="">Todos los tipos</option>
         <option *ngFor="let type of types" [value]="type">{{ type }}</option>
       </select>
 
-      <select class="select filter-select" [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)">
+      <select class="select filter-select" [ngModel]="statusFilter()" (ngModelChange)="changeStatus($event)">
         <option value="">Todos los estados</option>
         <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
       </select>
@@ -34,7 +35,7 @@
 
   <app-loading-spinner *ngIf="loading()" />
 
-  <div class="table-wrapper table-stack" *ngIf="!loading() && filtered().length">
+  <div class="table-wrapper table-stack" *ngIf="!loading() && rows().length">
     <table class="table">
       <thead>
         <tr>
@@ -48,7 +49,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let item of filtered()">
+        <tr *ngFor="let item of rows()">
           <td data-label="Cliente">{{ item.client.nameOrBusinessName }}</td>
           <td data-label="Tipo">{{ item.type }}</td>
           <td data-label="Estado"><app-status-badge [status]="item.status" /></td>
@@ -81,7 +82,7 @@
     (pageChange)="changePage($event)"
   />
 
-  <app-empty-state *ngIf="!loading() && !filtered().length" title="Sin mantenimientos" description="No hay registros disponibles." />
+  <app-empty-state *ngIf="!loading() && !rows().length" title="Sin mantenimientos" description="No hay registros disponibles." />
 </section>
 
 <div class="confirm-backdrop" *ngIf="showDeleteModal()">

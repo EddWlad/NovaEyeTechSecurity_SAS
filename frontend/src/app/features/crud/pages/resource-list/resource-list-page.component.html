@@ -11,7 +11,8 @@
     <input
       class="input resource-search-input"
       style="max-width: 360px;"
-      placeholder="Buscar por cualquier campo"
+      maxlength="100"
+      placeholder="Buscar en todos los registros"
       [ngModel]="query()"
       (ngModelChange)="query.set($event)"
     />
@@ -23,7 +24,7 @@
 
   <app-loading-spinner *ngIf="loading()" text="Cargando datos..." />
 
-  <div class="table-wrapper table-stack" *ngIf="!loading() && filteredRows().length">
+  <div class="table-wrapper table-stack" *ngIf="!loading() && rows().length">
     <table class="table resource-table">
       <thead>
         <tr>
@@ -32,7 +33,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let row of filteredRows()">
+        <tr *ngFor="let row of rows()">
           <td *ngFor="let column of columns()" [attr.data-label]="column.label">
             <ng-container [ngSwitch]="column.key">
               <app-status-badge *ngSwitchCase="'active'" [status]="row[column.key] ? 'ACTIVO' : 'INACTIVO'" />
@@ -74,7 +75,7 @@
   />
 
   <app-empty-state
-    *ngIf="!loading() && !filteredRows().length"
+    *ngIf="!loading() && !rows().length"
     title="Sin registros"
     description="No hay información para esta sección."
   />
