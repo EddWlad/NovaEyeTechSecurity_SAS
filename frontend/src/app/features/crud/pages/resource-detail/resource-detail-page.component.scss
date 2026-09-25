@@ -35,3 +35,13 @@
     padding: .6rem .62rem;
   }
 }
+
+.detail-image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  background: #f8fafc;
+  display: block;
+}

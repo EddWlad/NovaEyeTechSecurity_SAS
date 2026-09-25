@@ -8,6 +8,8 @@ import { PageHeaderComponent } from '../../../../shared/components/page-header.c
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner.component';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state.component';
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge.component';
+import { toImageSrc } from '../../../../core/utils/image.util';
+import { relationLabel } from '../../../../core/utils/relation.util';
 
 @Component({
   selector: 'app-resource-detail-page',
@@ -63,16 +65,22 @@ export class ResourceDetailPageComponent {
       return '-';
     }
 
+    // El nombre de la relación va primero: el backend manda `categoryId` Y `category`, y leer el id
+    // directo mostraba el UUID al usuario.
+    const label = relationLabel(row, key);
+    if (label) {
+      return label;
+    }
+
     const direct = row[key];
-    if (direct !== undefined) {
-      return direct;
+    if (direct === undefined || direct === null || direct === '') {
+      return '-';
     }
 
-    if (key.endsWith('Id')) {
-      const relation = row[key.replace(/Id$/, '')] as Record<string, unknown>;
-      return relation?.['name'] ?? relation?.['fullName'] ?? relation?.['businessName'] ?? relation?.['id'] ?? '-';
-    }
+    return direct;
+  }
 
-    return '-';
+  imageSrc(key: string): string | null {
+    return toImageSrc(this.entity()?.[key]);
   }
 }

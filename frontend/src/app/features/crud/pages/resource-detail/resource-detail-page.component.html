@@ -24,6 +24,10 @@
 
         <ng-container [ngSwitch]="field.key">
           <app-status-badge *ngSwitchCase="'active'" [status]="valueFor(field.key) ? 'ACTIVO' : 'INACTIVO'" />
+          <ng-container *ngSwitchCase="'imageUrl'">
+            <img *ngIf="imageSrc(field.key) as src; else noImage" class="detail-image" [src]="src" alt="Imagen del producto" />
+            <ng-template #noImage><span>-</span></ng-template>
+          </ng-container>
           <span *ngSwitchDefault [class.masked-password]="field.key === 'password'">{{ valueFor(field.key) }}</span>
         </ng-container>
       </article>

@@ -12,6 +12,8 @@ import { ResourceCrudService } from '../../services/resource-crud.service';
 import { ResourceDefinition } from '../../../../core/models/resource.models';
 import { AuthService } from '../../../../core/services/auth.service';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { toImageSrc } from '../../../../core/utils/image.util';
+import { relationLabel } from '../../../../core/utils/relation.util';
 
 @Component({
   selector: 'app-resource-list-page',
@@ -224,16 +226,8 @@ export class ResourceListPageComponent {
   }
 
   getCellValue(row: Record<string, unknown>, key: string): string {
-    if (key === 'categoryId') {
-      const category = row['category'] as Record<string, unknown> | undefined;
-      const categoryName = category?.['name'];
-      return categoryName ? String(categoryName) : '-';
-    }
-
-    if (key === 'mainSupplierId') {
-      const supplier = row['mainSupplier'] as Record<string, unknown> | undefined;
-      const supplierName = supplier?.['businessName'] ?? supplier?.['name'];
-      return supplierName ? String(supplierName) : '-';
+    if (key.endsWith('Id')) {
+      return relationLabel(row, key) ?? '-';
     }
 
     const value = row[key];
@@ -255,25 +249,7 @@ export class ResourceListPageComponent {
   }
 
   productImageSrc(row: Record<string, unknown>): string | null {
-    const raw = row['imageUrl'];
-    if (!raw) {
-      return null;
-    }
-
-    const url = String(raw).trim();
-    if (!url) {
-      return null;
-    }
-
-    if (url.startsWith('data:image/') || url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
-    }
-
-    if (url.startsWith('www.')) {
-      return `https://${url}`;
-    }
-
-    return url;
+    return toImageSrc(row['imageUrl']);
   }
 
   asId(value: unknown): string {
