@@ -4,6 +4,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
+import { Attachment, Maintenance, MaintenanceComment } from '../../../../core/models/entities.models';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header.component';
@@ -34,9 +35,9 @@ export class MaintenanceDetailPageComponent {
 
   readonly loading = signal(true);
   readonly uploadingAttachment = signal(false);
-  readonly maintenance = signal<any>(null);
-  readonly comments = signal<any[]>([]);
-  readonly attachments = signal<any[]>([]);
+  readonly maintenance = signal<Maintenance | null>(null);
+  readonly comments = signal<MaintenanceComment[]>([]);
+  readonly attachments = signal<Attachment[]>([]);
   readonly selectedFiles = signal<File[]>([]);
 
   readonly commentForm = this.fb.group({

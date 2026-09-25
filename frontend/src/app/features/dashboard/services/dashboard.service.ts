@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { ApiService } from '../../../core/services/api.service';
@@ -16,7 +16,7 @@ export interface DashboardSummary {
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
-  constructor(private readonly api: ApiService) {}
+  private readonly api = inject(ApiService);
 
   /** Una sola petición: el backend calcula los totales y devuelve los 5 registros recientes. */
   loadDashboard(): Observable<DashboardSummary> {

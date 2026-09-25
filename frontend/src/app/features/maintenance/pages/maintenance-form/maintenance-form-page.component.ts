@@ -64,7 +64,7 @@ export class MaintenanceFormPageComponent {
     this.maintenanceService
       .listUsers()
       .pipe(catchError(() => of([])))
-      .subscribe({ next: (rows) => this.technicians.set(rows.filter((item: any) => item.role === 'TECNICO')) });
+      .subscribe({ next: (rows) => this.technicians.set(rows.filter((item) => item.role === 'TECNICO')) });
 
     if (!this.isEditMode) {
       const currentUser = this.authService.user();

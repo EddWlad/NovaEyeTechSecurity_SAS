@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
 import { ApiService } from '../../../core/services/api.service';
 import { QuotationSetting } from '../../../core/models/entities.models';
 
 @Injectable({ providedIn: 'root' })
 export class QuotationSettingsService {
-  constructor(private readonly api: ApiService) {}
+  private readonly api = inject(ApiService);
 
   getCurrent() {
     return this.api.getOne<QuotationSetting>('quotation-settings');

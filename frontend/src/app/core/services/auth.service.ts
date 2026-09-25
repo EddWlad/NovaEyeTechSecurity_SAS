@@ -1,4 +1,4 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { Injectable, computed, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, catchError, map, of, tap } from 'rxjs';
@@ -12,6 +12,9 @@ const USER_KEY = 'nexteye_user';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private readonly http = inject(HttpClient);
+  private readonly router = inject(Router);
+
   private readonly userSignal = signal<SessionUser | null>(null);
   private readonly tokenSignal = signal<string | null>(null);
 
@@ -19,10 +22,7 @@ export class AuthService {
   readonly token = computed(() => this.tokenSignal());
   readonly isAuthenticated = computed(() => !!this.tokenSignal());
 
-  constructor(
-    private readonly http: HttpClient,
-    private readonly router: Router,
-  ) {
+  constructor() {
     this.hydrateSession();
   }
 

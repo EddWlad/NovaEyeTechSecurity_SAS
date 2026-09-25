@@ -34,7 +34,8 @@
     </section>
   </aside>
 
-  <div class="overlay" [ngClass]="{ show: sidebarOpen() }" (click)="toggleSidebar()"></div>
+  <!-- Fondo del menu movil: atajo para mouse/tactil, oculto a lectores; con teclado se cierra con el boton del menu. -->
+  <div class="overlay" aria-hidden="true" [ngClass]="{ show: sidebarOpen() }" (click)="toggleSidebar()"></div>
 
   <section class="content-area">
     <header class="topbar card">
