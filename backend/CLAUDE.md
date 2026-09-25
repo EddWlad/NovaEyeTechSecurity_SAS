@@ -87,7 +87,7 @@ com.tidsec.novaeyetech_backend
 
 - `Identifiable<ID>`: toda entidad expone `getId()`. Es el bound genérico de los repositorios y deja leer el identificador sin reflexión ni casts.
 - `IGenericRepo<T extends Identifiable<ID>, ID>`: base de todos los repositorios.
-- `ICRUD<T, ID>` / `CRUDImpl<T, ID>`: **solo lectura y borrado** (`findAll`, `findAll(Pageable)`, `findById`, `delete`). El alta y la actualización no están aquí: cada dominio las declara con su propio request DTO porque necesita resolver relaciones, normalizar campos y registrar auditoría.
+- `ICRUD<T, ID>` / `CRUDImpl<T, ID>`: **solo lectura y borrado** (`findAll`, `findAll(Pageable)`, `findAll(search, Pageable)`, `findById`, `delete`). La búsqueda usa los campos de `searchFields()`, que cada servicio sobrescribe (ver `pagination-dual-mode`). El alta y la actualización no están aquí: cada dominio las declara con su propio request DTO porque necesita resolver relaciones, normalizar campos y registrar auditoría.
 - `DtoMapper`: fachada sobre ModelMapper. `map`, `mapList` y `patch` (vuelca sobre una instancia existente ignorando nulos).
 - `ListingResponder`: resuelve la paginación de doble modo en un solo lugar.
 

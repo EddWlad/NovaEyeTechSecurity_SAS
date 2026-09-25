@@ -13,6 +13,7 @@ import com.tidsec.novaeyetech_backend.service.IAuditLogService;
 import com.tidsec.novaeyetech_backend.service.IServiceItemService;
 import com.tidsec.novaeyetech_backend.util.DtoMapper;
 import com.tidsec.novaeyetech_backend.util.MoneyUtils;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,11 @@ public class ServiceItemServiceImpl extends CRUDImpl<ServiceItem, UUID> implemen
     @Override
     protected IGenericRepo<ServiceItem, UUID> getRepo() {
         return repo;
+    }
+
+    @Override
+    protected List<String> searchFields() {
+        return List.of("name", "description", "category.name");
     }
 
     @Override

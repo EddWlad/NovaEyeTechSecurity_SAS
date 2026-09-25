@@ -20,6 +20,7 @@ import com.tidsec.novaeyetech_backend.util.DtoMapper;
 import com.tidsec.novaeyetech_backend.util.InlineImageGuard;
 import com.tidsec.novaeyetech_backend.util.MoneyUtils;
 import java.util.Locale;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,11 @@ public class ProductServiceImpl extends CRUDImpl<Product, UUID> implements IProd
     @Override
     protected IGenericRepo<Product, UUID> getRepo() {
         return repo;
+    }
+
+    @Override
+    protected List<String> searchFields() {
+        return List.of("name", "internalCode", "brand", "model", "category.name", "mainSupplier.businessName");
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.tidsec.novaeyetech_backend.util;
 import com.tidsec.novaeyetech_backend.dto.common.PageResponse;
 import com.tidsec.novaeyetech_backend.dto.common.PaginationQuery;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
@@ -37,5 +38,15 @@ public class ListingResponder {
         Page<E> page = findPage.apply(PaginationSupport.toPageable(query, defaultLimit));
 
         return ResponseEntity.ok(PageResponse.from(page, dtoMapper.mapList(page.getContent(), dtoType)));
+    }
+
+    /** Igual que {@link #respond}, pero la pagina se filtra con {@code ?search}. */
+    public <E, D> ResponseEntity<Object> respondWithSearch(PaginationQuery query,
+                                                           int defaultLimit,
+                                                           Supplier<List<E>> findAll,
+                                                           BiFunction<String, Pageable, Page<E>> findPage,
+                                                           Class<D> dtoType) {
+        return respond(query, defaultLimit, findAll,
+                pageable -> findPage.apply(query.getSearch(), pageable), dtoType);
     }
 }

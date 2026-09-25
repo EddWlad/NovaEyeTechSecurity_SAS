@@ -2,6 +2,7 @@ package com.tidsec.novaeyetech_backend.dto.common;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,6 +23,10 @@ public class PaginationQuery {
     @Min(value = 1, message = "limit debe ser mayor o igual a 1")
     @Max(value = 100, message = "limit no puede superar 100")
     private Integer limit;
+
+    /** Texto libre; cada listado decide en que campos buscar. Solo aplica en modo paginado. */
+    @Size(max = 100, message = "search no puede superar 100 caracteres")
+    private String search;
 
     /** Verdadero solo cuando el cliente pidio explicitamente una pagina. */
     public boolean isPaginated() {

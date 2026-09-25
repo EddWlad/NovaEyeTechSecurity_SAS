@@ -10,6 +10,7 @@ import com.tidsec.novaeyetech_backend.security.AuthenticatedUser;
 import com.tidsec.novaeyetech_backend.service.IAuditLogService;
 import com.tidsec.novaeyetech_backend.service.ISupplierService;
 import com.tidsec.novaeyetech_backend.util.DtoMapper;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,11 @@ public class SupplierServiceImpl extends CRUDImpl<Supplier, UUID> implements ISu
     @Override
     protected IGenericRepo<Supplier, UUID> getRepo() {
         return repo;
+    }
+
+    @Override
+    protected List<String> searchFields() {
+        return List.of("businessName", "ruc", "contact", "email", "city");
     }
 
     @Override

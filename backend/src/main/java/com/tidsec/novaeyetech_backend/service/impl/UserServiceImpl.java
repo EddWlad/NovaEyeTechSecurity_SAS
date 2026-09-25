@@ -9,6 +9,7 @@ import com.tidsec.novaeyetech_backend.service.IStorageService;
 import com.tidsec.novaeyetech_backend.service.IUserService;
 import com.tidsec.novaeyetech_backend.util.DtoMapper;
 import com.tidsec.novaeyetech_backend.util.InlineImageGuard;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,6 +31,11 @@ public class UserServiceImpl extends CRUDImpl<User, UUID> implements IUserServic
     @Override
     protected IGenericRepo<User, UUID> getRepo() {
         return repo;
+    }
+
+    @Override
+    protected List<String> searchFields() {
+        return List.of("fullName", "email", "phone");
     }
 
     @Override

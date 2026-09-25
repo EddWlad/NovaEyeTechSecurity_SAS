@@ -42,6 +42,15 @@ return listingResponder.respond(query, PaginationSupport.DEFAULT_LIMIT,
 
 Cotizaciones, mantenimientos y adjuntos resuelven el doble modo dentro del controlador porque su consulta depende del usuario autenticado o de parámetros de ruta. El contrato de salida es idéntico: si se cambia uno hay que cambiar los demás.
 
+## Búsqueda (`?search`)
+
+Solo en modo paginado. `PaginationQuery.search` (máx. 100 caracteres) filtra **todas** las páginas, no la visible:
+
+- Catálogos: `ListingResponder.respondWithSearch(...)` + `service::findAll` con `(search, pageable)`. Cada servicio declara dónde buscar sobrescribiendo `CRUDImpl.searchFields()`; un punto recorre una relación (`"category.name"`, con LEFT JOIN). Sin campos declarados, `search` se ignora.
+- Cotizaciones (`?search` por número o cliente, `?status`) y mantenimientos (`?search` por cliente o sistema, `?type`, `?status`): el filtro se suma al alcance por rol, **nunca lo reemplaza**; un técnico que busca sigue viendo solo lo suyo.
+
+`util/SearchSpecification` arma la condición: contiene el término, sin distinguir mayúsculas, con `%` y `_` del usuario tratados como texto literal. Sin término (o solo espacios) se usa la consulta de siempre.
+
 ## Excepción: `GET /products` en modo array no incluye `imageUrl`
 
 Los productos heredados guardan su imagen en base64 (~27 KB c/u), y el modo array alimenta selects que no la muestran: con 684 productos la respuesta pesaba **18.8 MB** y ahora pesa ~0.7 MB. `ProductController.findAll` pone `imageUrl` en `null` solo en modo array. El modo paginado, que sí pinta miniaturas, la conserva. Si un consumidor nuevo del modo array necesita la imagen, usar el paginado o el detalle `GET /products/{id}`.

@@ -2,6 +2,8 @@ package com.tidsec.novaeyetech_backend.service;
 
 import com.tidsec.novaeyetech_backend.dto.MaintenanceRequest;
 import com.tidsec.novaeyetech_backend.model.Maintenance;
+import com.tidsec.novaeyetech_backend.model.enums.MaintenanceStatus;
+import com.tidsec.novaeyetech_backend.model.enums.MaintenanceType;
 import com.tidsec.novaeyetech_backend.security.AuthenticatedUser;
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +18,10 @@ public interface IMaintenanceService {
     List<Maintenance> findAll(AuthenticatedUser actor);
 
     Page<Maintenance> findAll(AuthenticatedUser actor, Pageable pageable);
+
+    /** Pagina filtrada por cliente o sistema ({@code search}), tipo y estado, dentro del alcance del usuario. */
+    Page<Maintenance> findAll(AuthenticatedUser actor, String search, MaintenanceType type,
+                              MaintenanceStatus status, Pageable pageable);
 
     /**
      * Mantenimientos que no estan COMPLETADO, dentro del alcance del usuario. Incluye los CANCELADO:

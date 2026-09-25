@@ -20,6 +20,7 @@ import com.tidsec.novaeyetech_backend.service.IQuotationSettingService;
 import com.tidsec.novaeyetech_backend.util.MoneyUtils;
 import com.tidsec.novaeyetech_backend.util.PaginationSupport;
 import com.tidsec.novaeyetech_backend.util.PdfPageRenderer;
+import com.tidsec.novaeyetech_backend.util.SearchSpecification;
 import com.tidsec.novaeyetech_backend.util.QuotationPdfGenerator;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -30,6 +31,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -113,6 +115,28 @@ public class QuotationServiceImpl implements IQuotationService {
         return actor.isTechnician()
                 ? repo.findByCreatedByUser_Id(actor.id(), pageable)
                 : repo.findAll(pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Quotation> findAll(AuthenticatedUser actor, String search, QuotationStatus status, Pageable pageable) {
+        String term = SearchSpecification.normalize(search);
+        if (term == null && status == null) {
+            return findAll(actor, pageable);
+        }
+
+        // El alcance por rol va siempre: un filtro nunca amplia lo que un tecnico puede ver.
+        Specification<Quotation> spec = actor.isTechnician()
+                ? (root, query, cb) -> cb.equal(root.get("createdByUser").get("id"), actor.id())
+                : Specification.unrestricted();
+        if (term != null) {
+            spec = spec.and(SearchSpecification.containsAny(term, List.of("quotationNumber", "client.nameOrBusinessName")));
+        }
+        if (status != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), status));
+        }
+
+        return repo.findAll(spec, pageable);
     }
 
     @Override

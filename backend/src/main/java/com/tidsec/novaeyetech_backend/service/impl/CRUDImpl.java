@@ -6,6 +6,7 @@ import com.tidsec.novaeyetech_backend.model.Identifiable;
 import com.tidsec.novaeyetech_backend.repo.IGenericRepo;
 import com.tidsec.novaeyetech_backend.service.ICRUD;
 import com.tidsec.novaeyetech_backend.util.PaginationSupport;
+import com.tidsec.novaeyetech_backend.util.SearchSpecification;
 import java.util.List;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
@@ -28,6 +29,14 @@ public abstract class CRUDImpl<T extends Identifiable<ID>, ID> implements ICRUD<
         return "No se puede eliminar el registro porque tiene registros relacionados.";
     }
 
+    /**
+     * Campos donde busca {@link #findAll(String, Pageable)}. Un punto recorre una relacion
+     * ({@code "category.name"}). Sin campos, la busqueda se ignora.
+     */
+    protected List<String> searchFields() {
+        return List.of();
+    }
+
     @Override
     @Transactional(readOnly = true)
     public List<T> findAll() {
@@ -38,6 +47,16 @@ public abstract class CRUDImpl<T extends Identifiable<ID>, ID> implements ICRUD<
     @Transactional(readOnly = true)
     public Page<T> findAll(Pageable pageable) {
         return getRepo().findAll(pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<T> findAll(String search, Pageable pageable) {
+        String term = SearchSpecification.normalize(search);
+        if (term == null || searchFields().isEmpty()) {
+            return findAll(pageable);
+        }
+        return getRepo().findAll(SearchSpecification.containsAny(term, searchFields()), pageable);
     }
 
     @Override

@@ -8,6 +8,7 @@ import com.tidsec.novaeyetech_backend.model.Client;
 import com.tidsec.novaeyetech_backend.model.Maintenance;
 import com.tidsec.novaeyetech_backend.model.User;
 import com.tidsec.novaeyetech_backend.model.enums.MaintenanceStatus;
+import com.tidsec.novaeyetech_backend.model.enums.MaintenanceType;
 import com.tidsec.novaeyetech_backend.repo.IClientRepo;
 import com.tidsec.novaeyetech_backend.repo.IMaintenanceRepo;
 import com.tidsec.novaeyetech_backend.repo.IUserRepo;
@@ -16,12 +17,14 @@ import com.tidsec.novaeyetech_backend.service.IAuditLogService;
 import com.tidsec.novaeyetech_backend.service.IMaintenanceService;
 import com.tidsec.novaeyetech_backend.util.DtoMapper;
 import com.tidsec.novaeyetech_backend.util.PaginationSupport;
+import com.tidsec.novaeyetech_backend.util.SearchSpecification;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -77,6 +80,32 @@ public class MaintenanceServiceImpl implements IMaintenanceService {
         return actor.isTechnician()
                 ? repo.findByTechnician_Id(actor.id(), pageable)
                 : repo.findAll(pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Maintenance> findAll(AuthenticatedUser actor, String search, MaintenanceType type,
+                                     MaintenanceStatus status, Pageable pageable) {
+        String term = SearchSpecification.normalize(search);
+        if (term == null && type == null && status == null) {
+            return findAll(actor, pageable);
+        }
+
+        // El alcance por rol va siempre: un filtro nunca amplia lo que un tecnico puede ver.
+        Specification<Maintenance> spec = actor.isTechnician()
+                ? (root, query, cb) -> cb.equal(root.get("technician").get("id"), actor.id())
+                : Specification.unrestricted();
+        if (term != null) {
+            spec = spec.and(SearchSpecification.containsAny(term, List.of("client.nameOrBusinessName", "intervenedSystem")));
+        }
+        if (type != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("type"), type));
+        }
+        if (status != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("status"), status));
+        }
+
+        return repo.findAll(spec, pageable);
     }
 
     @Override

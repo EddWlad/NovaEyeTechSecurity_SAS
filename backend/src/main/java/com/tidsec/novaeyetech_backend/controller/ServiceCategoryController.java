@@ -42,7 +42,7 @@ public class ServiceCategoryController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
     public ResponseEntity<Object> findAll(@Valid PaginationQuery query) {
-        return listingResponder.respond(query, PaginationSupport.DEFAULT_LIMIT,
+        return listingResponder.respondWithSearch(query, PaginationSupport.DEFAULT_LIMIT,
                 service::findAll, service::findAll, CategoryDTO.class);
     }
 

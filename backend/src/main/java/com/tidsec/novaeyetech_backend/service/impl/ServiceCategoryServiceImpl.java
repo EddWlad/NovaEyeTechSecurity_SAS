@@ -7,6 +7,7 @@ import com.tidsec.novaeyetech_backend.repo.IGenericRepo;
 import com.tidsec.novaeyetech_backend.repo.IServiceCategoryRepo;
 import com.tidsec.novaeyetech_backend.service.IServiceCategoryService;
 import com.tidsec.novaeyetech_backend.util.DtoMapper;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,11 @@ public class ServiceCategoryServiceImpl extends CRUDImpl<ServiceCategory, UUID>
     @Override
     protected IGenericRepo<ServiceCategory, UUID> getRepo() {
         return repo;
+    }
+
+    @Override
+    protected List<String> searchFields() {
+        return List.of("name", "description");
     }
 
     @Override

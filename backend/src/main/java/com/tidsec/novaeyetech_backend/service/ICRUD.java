@@ -17,6 +17,9 @@ public interface ICRUD<T, ID> {
 
     Page<T> findAll(Pageable pageable);
 
+    /** Pagina filtrada por texto libre. Sin termino equivale a {@link #findAll(Pageable)}. */
+    Page<T> findAll(String search, Pageable pageable);
+
     T findById(ID id);
 
     void delete(ID id);

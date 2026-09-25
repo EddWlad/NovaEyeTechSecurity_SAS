@@ -3,6 +3,7 @@ package com.tidsec.novaeyetech_backend.service;
 import com.tidsec.novaeyetech_backend.dto.QuotationRequest;
 import com.tidsec.novaeyetech_backend.dto.QuotationStatusRequest;
 import com.tidsec.novaeyetech_backend.model.Quotation;
+import com.tidsec.novaeyetech_backend.model.enums.QuotationStatus;
 import com.tidsec.novaeyetech_backend.security.AuthenticatedUser;
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +23,9 @@ public interface IQuotationService {
     List<Quotation> findAll(AuthenticatedUser actor);
 
     Page<Quotation> findAll(AuthenticatedUser actor, Pageable pageable);
+
+    /** Pagina filtrada por numero o cliente ({@code search}) y por estado, dentro del alcance del usuario. */
+    Page<Quotation> findAll(AuthenticatedUser actor, String search, QuotationStatus status, Pageable pageable);
 
     Quotation findById(UUID id, AuthenticatedUser actor);
 

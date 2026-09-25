@@ -7,6 +7,7 @@ import com.tidsec.novaeyetech_backend.dto.QuotationStatusRequest;
 import com.tidsec.novaeyetech_backend.dto.common.PageResponse;
 import com.tidsec.novaeyetech_backend.dto.common.PaginationQuery;
 import com.tidsec.novaeyetech_backend.model.Quotation;
+import com.tidsec.novaeyetech_backend.model.enums.QuotationStatus;
 import com.tidsec.novaeyetech_backend.security.AuthenticatedUser;
 import com.tidsec.novaeyetech_backend.service.IQuotationService;
 import com.tidsec.novaeyetech_backend.util.DtoMapper;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -53,12 +55,13 @@ public class QuotationController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
     public ResponseEntity<Object> findAll(@AuthenticationPrincipal AuthenticatedUser actor,
-                                          @Valid PaginationQuery query) {
+                                          @Valid PaginationQuery query,
+                                          @RequestParam(required = false) QuotationStatus status) {
         if (!query.isPaginated()) {
             return ResponseEntity.ok(dtoMapper.mapList(service.findAll(actor), QuotationDTO.class));
         }
 
-        Page<Quotation> page = service.findAll(actor,
+        Page<Quotation> page = service.findAll(actor, query.getSearch(), status,
                 PaginationSupport.toPageable(query, PaginationSupport.DEFAULT_LIMIT));
 
         return ResponseEntity.ok(
