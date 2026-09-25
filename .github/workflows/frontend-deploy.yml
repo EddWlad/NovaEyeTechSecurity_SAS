@@ -39,6 +39,15 @@ jobs:
         working-directory: frontend
         run: npm run check:icons
 
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint
+
+      # El runner de GitHub trae Chrome; sin pruebas en verde no se despliega.
+      - name: Pruebas unitarias
+        working-directory: frontend
+        run: npm run test:ci
+
       - name: Build production
         working-directory: frontend
         run: npm run build -- --configuration production

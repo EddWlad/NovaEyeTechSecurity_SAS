@@ -29,16 +29,21 @@ npm run build
 ```
 
 ```bash
-npm test
+npm test          # Karma en modo watch, con Chrome
+npm run test:ci   # una pasada en Chrome sin ventana (lo que corre el workflow)
+```
+
+```bash
+npm run lint
 ```
 
 ```bash
 npm run check:icons
 ```
 
-`check:icons` verifica que todo icono usado en las plantillas esté en la lista `icon_names` de `src/index.html` (ver "Iconos" abajo). Corre también en el workflow de despliegue.
+`lint` usa angular-eslint (`eslint.config.js`): reglas recomendadas de TypeScript y Angular más las de accesibilidad en plantillas. `check:icons` verifica que todo icono usado en las plantillas esté en la lista `icon_names` de `src/index.html` (ver "Iconos" abajo). Los tres corren en el workflow de despliegue antes del build: si uno falla, no se despliega.
 
-No hay archivos `.spec.ts` en el repositorio y los schematics tienen `skipTests: true`: el comando corre, pero no existe suite. No asumir cobertura previa.
+Las pruebas cubren las piezas compartidas: interceptor `dedupe-get`, utilidades de `core/utils`, `SearchSelectComponent` y la tabla de rutas y roles. Los schematics tienen `skipTests: true`, así que un componente nuevo no trae `.spec.ts`: si tiene lógica que valga la pena fijar, escribirlo a mano.
 
 ---
 
@@ -71,6 +76,10 @@ El backend responde de dos formas según la query string, y las dos se usan:
 
 - `ApiService.list()` — sin `?page`, devuelve un array plano. Alimenta selects y lookups.
 - `ApiService.listPaginated()` — con `?page`, devuelve un objeto paginado. Alimenta tablas.
+
+La búsqueda de las tablas la resuelve el servidor sobre todos los registros (`?search=`, y en cotizaciones y mantenimientos también `?status=` y `?type=`), no solo sobre la página visible. Las pantallas lo conectan con `onSearchChange` (`core/utils/search.util.ts`): una petición cuando el usuario deja de escribir, no una por tecla.
+
+Los selects con cientos de opciones (productos y servicios en el detalle de una cotización) usan `SearchSelectComponent` (`shared/components/`): un combobox accesible que filtra por palabras sin distinguir tildes, se usa con `formControlName` y trabaja sobre la lista que ya trae el modo array.
 
 Interceptores en `core/interceptors/`, en este orden: `dedupe-get` unifica en una sola petición los GET idénticos que están en vuelo a la vez (por ejemplo la pantalla y la miga de pan pidiendo el mismo registro; no guarda nada en caché), `auth-token` inyecta el JWT y `http-error` centraliza los errores hacia `NotificationService`.
 
