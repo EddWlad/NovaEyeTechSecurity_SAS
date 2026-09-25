@@ -60,6 +60,7 @@ public class ProductServiceImpl extends CRUDImpl<Product, UUID> implements IProd
     @Transactional
     public Product create(ProductRequest request, AuthenticatedUser actor) {
         InlineImageGuard.reject(request.getImageUrl());
+        request.setImageUrl(null);
         String internalCode = request.getInternalCode().trim();
 
         if (repo.existsByInternalCode(internalCode)) {
@@ -92,6 +93,7 @@ public class ProductServiceImpl extends CRUDImpl<Product, UUID> implements IProd
     @Transactional
     public Product update(UUID id, ProductRequest request, AuthenticatedUser actor) {
         InlineImageGuard.reject(request.getImageUrl());
+        request.setImageUrl(null);
         Product product = findById(id);
 
         if (request.getInternalCode() != null) {

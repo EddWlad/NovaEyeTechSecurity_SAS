@@ -3,10 +3,12 @@ package com.tidsec.novaeyetech_backend.util;
 import com.tidsec.novaeyetech_backend.exception.BusinessRuleException;
 
 /**
- * Impide que una imagen entre a la base como data URL.
+ * Las imagenes solo entran por los endpoints de subida, nunca por el cuerpo de un POST/PATCH.
  *
- * <p>Las imagenes van al almacenamiento externo y en la base solo queda su URL. Un base64 pesa
- * decenas de KB por fila y viaja completo en cada listado: con 653 productos ya eran 17 MB.
+ * <p>Un base64 en la peticion metia decenas de KB por fila en la base y viajaba completo en cada
+ * listado: con 653 productos ya eran 17 MB. Cualquier otra URL enviada en el cuerpo se ignora
+ * (el servicio la pone en null antes de mapear), porque una URL ajena guardada en la entidad se
+ * borraria del almacenamiento al reemplazar la imagen.
  */
 public final class InlineImageGuard {
 

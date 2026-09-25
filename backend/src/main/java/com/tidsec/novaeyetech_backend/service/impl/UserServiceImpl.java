@@ -46,6 +46,7 @@ public class UserServiceImpl extends CRUDImpl<User, UUID> implements IUserServic
     @Transactional
     public User create(UserRequest request) {
         InlineImageGuard.reject(request.getAvatarDataUrl());
+        request.setAvatarDataUrl(null);
         String email = normalizeEmail(request.getEmail());
 
         if (repo.existsByEmailIgnoreCase(email)) {
@@ -64,6 +65,7 @@ public class UserServiceImpl extends CRUDImpl<User, UUID> implements IUserServic
     @Transactional
     public User update(UUID id, UserRequest request) {
         InlineImageGuard.reject(request.getAvatarDataUrl());
+        request.setAvatarDataUrl(null);
         User user = findById(id);
 
         // El orden importa: la unicidad se valida contra el email todavia guardado, y el hash se

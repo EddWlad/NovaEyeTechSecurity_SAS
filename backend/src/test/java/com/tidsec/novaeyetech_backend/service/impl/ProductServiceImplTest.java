@@ -93,6 +93,21 @@ class ProductServiceImplTest {
     }
 
     @Test
+    @DisplayName("Una URL enviada en el cuerpo se ignora: la imagen solo la fija el endpoint de subida")
+    void updateIgnoresImageUrlFromRequest() {
+        ProductRequest request = new ProductRequest();
+        request.setImageUrl("https://res.cloudinary.com/cuenta/image/upload/v1/novaeyetech/avatars/ajena.jpg");
+        when(repo.findById(product.getId())).thenReturn(Optional.of(product));
+        when(repo.save(product)).thenReturn(product);
+
+        service.update(product.getId(), request, ACTOR);
+
+        assertThat(request.getImageUrl()).isNull();
+        verify(dtoMapper).patch(request, product);
+        assertThat(product.getImageUrl()).isEqualTo(OLD_URL);
+    }
+
+    @Test
     @DisplayName("Reemplazar la imagen sube la nueva, guarda y solo entonces borra la anterior")
     void updateImageDeletesPreviousAfterSaving() {
         MockMultipartFile file = new MockMultipartFile("file", "foto.jpg", "image/jpeg", new byte[] {1, 2});
