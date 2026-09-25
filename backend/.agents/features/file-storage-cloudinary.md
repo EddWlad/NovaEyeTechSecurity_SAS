@@ -25,6 +25,8 @@ Las evidencias de mantenimiento, los adjuntos y la foto de perfil se guardan en 
 
 **La descarga pasa por el backend.** `GET /api/attachments/{id}/download` descarga de Cloudinary y devuelve los bytes en vez de redirigir. Mantiene el endpoint autenticado y conserva el contrato que ya consume el frontend, que espera un blob. El DTO expone además `storagePath` con la URL, para que una imagen pueda mostrarse directo en un `img` sin pasar por el backend.
 
+**Solo recursos propios.** `download` y `deleteByUrl` solo actúan sobre URLs `https://res.cloudinary.com/<CLOUDINARY_CLOUD_NAME>/…/upload/…` bajo `<CLOUDINARY_ROOT_FOLDER>/`. Como el servidor descarga la URL y devuelve su contenido, aceptar cualquier URL permitiría leer direcciones internas (SSRF). Por eso tampoco existe un endpoint que registre un adjunto con metadatos enviados por el cliente: los adjuntos solo nacen de una subida real (`POST /api/attachments/upload/maintenance/{id}`).
+
 **El archivo se valida antes que la configuración.** Un tipo no permitido es culpa del cliente y el mensaje debe decir eso, no que al servidor le falten credenciales.
 
 **El borrado remoto no bloquea el local.** Al eliminar un adjunto se borra primero en Cloudinary y después en la base. Si el remoto falla, el registro se borra igual: un archivo huérfano en el proveedor es menos dañino que una fila que apunta a algo que el usuario cree eliminado.

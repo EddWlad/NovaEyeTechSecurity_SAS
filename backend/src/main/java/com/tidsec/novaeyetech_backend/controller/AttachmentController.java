@@ -1,7 +1,6 @@
 package com.tidsec.novaeyetech_backend.controller;
 
 import com.tidsec.novaeyetech_backend.dto.AttachmentDTO;
-import com.tidsec.novaeyetech_backend.dto.AttachmentRequest;
 import com.tidsec.novaeyetech_backend.dto.common.MessageResponse;
 import com.tidsec.novaeyetech_backend.dto.common.PageResponse;
 import com.tidsec.novaeyetech_backend.dto.common.PaginationQuery;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,24 +44,6 @@ public class AttachmentController {
 
     private final IAttachmentService service;
     private final DtoMapper dtoMapper;
-
-    @PostMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
-    public ResponseEntity<AttachmentDTO> create(@Valid @RequestBody AttachmentRequest request,
-                                                @AuthenticationPrincipal AuthenticatedUser actor) {
-        return ResponseEntity.ok(dtoMapper.map(service.create(request, actor), AttachmentDTO.class));
-    }
-
-    @PostMapping("/upload")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
-    public ResponseEntity<AttachmentDTO> upload(@RequestParam String sourceEntity,
-                                                @RequestParam String sourceEntityId,
-                                                @RequestParam("file") MultipartFile file,
-                                                @AuthenticationPrincipal AuthenticatedUser actor) {
-        Attachment attachment = service.createFromUpload(sourceEntity, sourceEntityId, file, actor);
-
-        return ResponseEntity.ok(dtoMapper.map(attachment, AttachmentDTO.class));
-    }
 
     @PostMapping("/upload/maintenance/{maintenanceId}")
     @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")

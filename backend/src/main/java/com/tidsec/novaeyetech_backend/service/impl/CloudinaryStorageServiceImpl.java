@@ -48,6 +48,7 @@ public class CloudinaryStorageServiceImpl implements IStorageService {
     private static final String DEFAULT_MIME_TYPE = "application/octet-stream";
     private static final String DEFAULT_ROOT_FOLDER = "novaeyetech";
     private static final String DEFAULT_FOLDER = "general";
+    private static final String CLOUDINARY_HOST = "res.cloudinary.com";
     private static final Duration DOWNLOAD_TIMEOUT = Duration.ofSeconds(30);
 
     private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
@@ -119,6 +120,12 @@ public class CloudinaryStorageServiceImpl implements IStorageService {
         if (url == null || url.isBlank() || !url.startsWith("http")) {
             throw new ResourceNotFoundException("Archivo no encontrado en el almacenamiento");
         }
+        // El backend descarga la URL y devuelve su contenido: si no se limitara al almacenamiento propio,
+        // una URL guardada en la base podria hacer que el servidor lea direcciones internas (SSRF).
+        if (!isOwnResource(url)) {
+            log.warn("Se rechaza la descarga de un recurso ajeno al almacenamiento configurado: {}", url);
+            throw new ResourceNotFoundException("Archivo no encontrado en el almacenamiento");
+        }
 
         try {
             HttpRequest request = HttpRequest.newBuilder()
@@ -173,24 +180,40 @@ public class CloudinaryStorageServiceImpl implements IStorageService {
             return false;
         }
 
-        String publicId = extractPublicId(url);
-        // La URL puede llegar de una peticion del cliente (por ejemplo avatarDataUrl): solo se borra lo
-        // que este backend subio, dentro de su cuenta y de su carpeta raiz.
-        if (!isOwnResource(url, publicId)) {
+        // Solo se borra lo que este backend subio, dentro de su cuenta y de su carpeta raiz.
+        if (!isOwnResource(url)) {
             log.warn("Se omite el borrado de un recurso ajeno a la cuenta o carpeta configuradas: {}", url);
             return false;
         }
 
-        return delete(publicId, url.contains("/raw/upload/") ? RAW_RESOURCE_TYPE : IMAGE_RESOURCE_TYPE);
+        return delete(extractPublicId(url), url.contains("/raw/upload/") ? RAW_RESOURCE_TYPE : IMAGE_RESOURCE_TYPE);
     }
 
-    private boolean isOwnResource(String url, String publicId) {
+    /**
+     * Un recurso es propio si esta en el host de Cloudinary, en la cuenta configurada y bajo la carpeta
+     * raiz de este backend: https://res.cloudinary.com/CUENTA/(image|raw)/upload/[vNNN/]RAIZ/...
+     */
+    private boolean isOwnResource(String url) {
         String cloudName = properties.cloudName();
+        if (cloudName == null || cloudName.isBlank()) {
+            return false;
+        }
 
-        return cloudName != null
-                && !cloudName.isBlank()
-                && url.contains("/" + cloudName + "/")
-                && publicId.startsWith(rootFolder() + "/");
+        URI uri;
+        try {
+            uri = new URI(url);
+        } catch (URISyntaxException ex) {
+            return false;
+        }
+
+        String path = uri.getPath();
+        return "https".equalsIgnoreCase(uri.getScheme())
+                && CLOUDINARY_HOST.equalsIgnoreCase(uri.getHost())
+                && uri.getPort() == -1
+                && path != null
+                && path.startsWith("/" + cloudName + "/")
+                && path.contains("/upload/")
+                && extractPublicId(url).startsWith(rootFolder() + "/");
     }
 
     private String rootFolder() {

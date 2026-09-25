@@ -1,7 +1,6 @@
 package com.tidsec.novaeyetech_backend.service;
 
 import com.tidsec.novaeyetech_backend.model.Attachment;
-import com.tidsec.novaeyetech_backend.dto.AttachmentRequest;
 import com.tidsec.novaeyetech_backend.security.AuthenticatedUser;
 import java.util.List;
 import java.util.UUID;
@@ -10,8 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface IAttachmentService {
-
-    Attachment create(AttachmentRequest request, AuthenticatedUser actor);
 
     Attachment createFromUpload(String sourceEntity, String sourceEntityId, MultipartFile file, AuthenticatedUser actor);
 

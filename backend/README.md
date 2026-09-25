@@ -77,7 +77,7 @@ Todos cuelgan de `/api`. Salvo el login, todos exigen `Authorization: Bearer <to
 | `POST` | `/maintenance-comments` | ambos |
 | `GET` | `/maintenance-comments/maintenance/{id}` | ambos |
 | `POST` | `/users/me/avatar` (multipart, campo `file`) | ambos |
-| `POST` | `/attachments`, `/attachments/upload`, `/attachments/upload/maintenance/{id}` | ambos |
+| `POST` | `/attachments/upload/maintenance/{id}` (multipart, campo `file`) | ambos |
 | `GET` | `/attachments/{id}/download`, `/attachments/{origen}/{id}` | ambos |
 | `DELETE` | `/attachments/{id}` | ambos |
 | `GET` | `/audit-logs` | ADMINISTRADOR |

@@ -1,6 +1,5 @@
 package com.tidsec.novaeyetech_backend.service.impl;
 
-import com.tidsec.novaeyetech_backend.dto.AttachmentRequest;
 import com.tidsec.novaeyetech_backend.dto.common.AuditEntry;
 import com.tidsec.novaeyetech_backend.exception.BusinessRuleException;
 import com.tidsec.novaeyetech_backend.exception.ResourceNotFoundException;
@@ -44,26 +43,6 @@ public class AttachmentServiceImpl implements IAttachmentService {
     private final IMaintenanceRepo maintenanceRepo;
     private final IAuditLogService auditLogService;
     private final IStorageService storageService;
-
-    @Override
-    @Transactional
-    public Attachment create(AttachmentRequest request, AuthenticatedUser actor) {
-        String sourceEntity = normalizeSourceEntity(request.getSourceEntity());
-        validateSourceAssociation(sourceEntity, request.getSourceEntityId());
-
-        Attachment attachment = Attachment.builder()
-                .sourceEntity(sourceEntity)
-                .sourceEntityId(request.getSourceEntityId())
-                .originalName(request.getOriginalName())
-                .storedName(request.getStoredName())
-                .mimeType(request.getMimeType())
-                .storagePath(request.getStoragePath())
-                .size(request.getSize())
-                .uploadedBy(actor.email())
-                .build();
-
-        return persist(attachment, actor);
-    }
 
     @Override
     @Transactional
