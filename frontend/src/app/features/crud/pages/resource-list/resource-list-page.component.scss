@@ -38,6 +38,23 @@
   display: block;
 }
 
+/*
+ * Desktop: [Ver] [Editar] [Eliminar] en una sola fila. La celda de acciones no tenia ancho propio,
+ * asi que en tablas con muchas columnas (Clientes, Productos) el navegador la comprimia y los
+ * botones saltaban de linea. Con width:1% + nowrap la columna mide justo lo que ocupan los botones.
+ * En movil (<=680px) la tabla se convierte en tarjetas y se conserva su propio comportamiento.
+ */
+@media (min-width: 681px) {
+  .resource-table td[data-label='Acciones'] {
+    width: 1%;
+    white-space: nowrap;
+  }
+
+  .resource-table td[data-label='Acciones'] .actions {
+    flex-wrap: nowrap;
+  }
+}
+
 @media (max-width: 780px) {
   .resource-filters-toolbar {
     align-items: stretch;
