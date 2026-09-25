@@ -21,7 +21,7 @@
     <div class="actions quotation-head-actions">
       <a class="btn btn-secondary" [routerLink]="['/quotations', quotation.id, 'pdf-preview']">
         <span class="material-symbols-outlined" aria-hidden="true">picture_as_pdf</span>
-        Preview PDF
+        Ver PDF
       </a>
       <a *ngIf="quotation.status === 'BORRADOR'" class="btn btn-secondary"
         [routerLink]="['/quotations', quotation.id, 'edit']">

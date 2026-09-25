@@ -67,6 +67,14 @@ a {
   text-decoration: none;
 }
 
+/* Casillas de 18 px con el color de la marca: las del sistema median 13 px, dificiles de tocar. */
+input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--wine-600);
+  cursor: pointer;
+}
+
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
 }
@@ -387,5 +395,6 @@ $table-stack-breakpoint: 768px;
   .table-stack td[data-label='Acciones'] .btn {
     flex: 1 1 0;
     min-width: 0;
+    min-height: 40px;
   }
 }

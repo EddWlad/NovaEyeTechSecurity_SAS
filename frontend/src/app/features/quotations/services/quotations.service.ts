@@ -62,6 +62,11 @@ export class QuotationsService {
     return this.http.get(this.getPdfUrl(id), { responseType: 'blob' });
   }
 
+  /** Paginas del PDF como imagenes (data URL PNG), para dispositivos que no muestran un PDF embebido. */
+  getPdfPreview(id: string) {
+    return this.api.getOne<{ pages: string[] }>(`quotations/${id}/pdf/preview`);
+  }
+
   getSettings() {
     return this.api.getOne<QuotationSetting>('quotation-settings');
   }

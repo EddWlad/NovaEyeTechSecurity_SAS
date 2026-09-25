@@ -53,6 +53,14 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         display: flex;
         gap: 0.45rem;
       }
+
+      /* En pantallas tactiles, botones del tamano minimo recomendado para el dedo. */
+      @media (pointer: coarse) {
+        .pagination-actions .btn {
+          min-height: 40px;
+          min-width: 96px;
+        }
+      }
     `,
   ],
 })

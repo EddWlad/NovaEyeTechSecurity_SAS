@@ -8,18 +8,22 @@
       <span class="material-symbols-outlined" aria-hidden="true">arrow_back</span>
       Volver
     </a>
-    <button class="btn btn-secondary" type="button" (click)="print()">
+    <button *ngIf="embedPdf" class="btn btn-secondary" type="button" [disabled]="working()" (click)="print()">
       <span class="material-symbols-outlined" aria-hidden="true">print</span>
       Imprimir
     </button>
-    <button class="btn btn-primary" type="button" (click)="download()">
+    <button *ngIf="canShareFiles" class="btn btn-secondary" type="button" [disabled]="working()" (click)="share()">
+      <span class="material-symbols-outlined" aria-hidden="true">share</span>
+      Compartir
+    </button>
+    <button class="btn btn-primary" type="button" [disabled]="working()" (click)="download()">
       <span class="material-symbols-outlined" aria-hidden="true">download</span>
       Descargar
     </button>
   </div>
 </section>
 
-<app-loading-spinner *ngIf="loading()" />
+<app-loading-spinner *ngIf="loading()" text="Generando vista previa..." />
 
 <section class="card pdf-mini-summary" *ngIf="!loading() && quotation() as quotation">
   <div>
@@ -32,13 +36,22 @@
   </div>
 </section>
 
-<section class="pdf-card card" *ngIf="!loading()">
-  <object
-    *ngIf="safePdfUrl()"
-    [data]="safePdfUrl()"
-    type="application/pdf"
-    class="pdf-object"
-  >
-    <iframe [src]="safePdfUrl()" class="pdf-frame"></iframe>
+<app-empty-state
+  *ngIf="!loading() && failed()"
+  icon="error"
+  title="No se pudo generar la vista previa"
+  description="Intenta de nuevo en unos segundos o usa Descargar."
+/>
+
+<section class="pdf-card card" *ngIf="!loading() && !failed() && embedPdf">
+  <object *ngIf="safePdfUrl()" [data]="safePdfUrl()" type="application/pdf" class="pdf-object">
+    <iframe [src]="safePdfUrl()" class="pdf-frame" title="Vista previa del PDF"></iframe>
   </object>
+</section>
+
+<section class="pdf-pages" *ngIf="!loading() && !failed() && !embedPdf">
+  <figure class="pdf-page card" *ngFor="let page of pages(); let i = index; let total = count">
+    <img [src]="page" [alt]="'Página ' + (i + 1) + ' de la cotización'" />
+    <figcaption *ngIf="total > 1">Página {{ i + 1 }} de {{ total }}</figcaption>
+  </figure>
 </section>
