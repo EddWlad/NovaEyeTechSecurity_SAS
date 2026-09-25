@@ -1,6 +1,7 @@
 import { NgIf } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Observable, catchError, map, of, switchMap } from 'rxjs';
 
 import { AuthService } from '../../../../core/services/auth.service';
 import { ApiService } from '../../../../core/services/api.service';
@@ -9,6 +10,7 @@ import { ROLE_LABELS } from '../../../../shared/constants/roles.constants';
 import { PageHeaderComponent } from '../../../../shared/components/page-header.component';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner.component';
 import { toInitials } from '../../../../core/utils/format.util';
+import { toImageSrc } from '../../../../core/utils/image.util';
 
 @Component({
   selector: 'app-profile-page',
@@ -25,8 +27,15 @@ export class ProfilePageComponent {
 
   readonly loading = signal(true);
   readonly saving = signal(false);
+  /** Foto que se muestra: la guardada (URL de Cloudinary) o la vista previa local de la elegida. */
   readonly avatarDataUrl = signal<string | null>(null);
   readonly selectedFileName = signal('');
+
+  /** Foto elegida y aún sin subir: se envía a Cloudinary al guardar el perfil. */
+  private pendingAvatar: File | null = null;
+  /** El usuario ya tenía foto guardada, o sea que "quitar" implica borrarla. */
+  private hadAvatar = false;
+  private avatarRemoved = false;
 
   readonly form = this.fb.group({
     fullName: ['', [Validators.required, Validators.minLength(3)]],
@@ -37,6 +46,7 @@ export class ProfilePageComponent {
   readonly roleLabel = signal('');
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => this.revokePreview());
     this.load();
   }
 
@@ -54,7 +64,13 @@ export class ProfilePageComponent {
           email: user.email,
           phone: user.phone ?? '',
         });
-        this.avatarDataUrl.set(user.avatarDataUrl ?? null);
+
+        this.revokePreview();
+        const savedAvatar = toImageSrc(user.avatarDataUrl);
+        this.avatarDataUrl.set(savedAvatar);
+        this.hadAvatar = !!savedAvatar;
+        this.pendingAvatar = null;
+        this.avatarRemoved = false;
         this.selectedFileName.set('');
 
         this.roleLabel.set(ROLE_LABELS[user.role]);
@@ -71,19 +87,23 @@ export class ProfilePageComponent {
 
     this.saving.set(true);
 
+    // La foto ya no viaja en el perfil: se sube (o se quita) aparte, después de guardar los datos.
     const payload = {
       fullName: this.form.controls.fullName.value ?? '',
       phone: this.form.controls.phone.value ?? '',
-      avatarDataUrl: this.avatarDataUrl(),
     };
 
-    this.api.patch('users/me/profile', payload).subscribe({
-      next: () => {
-        this.notifications.success('Perfil actualizado correctamente.');
-        this.load();
-      },
-      complete: () => this.saving.set(false),
-    });
+    this.api
+      .patch('users/me/profile', payload)
+      .pipe(switchMap(() => this.syncAvatar()))
+      .subscribe({
+        next: () => {
+          this.notifications.success('Perfil actualizado correctamente.');
+          this.load();
+        },
+        complete: () => this.saving.set(false),
+        error: () => this.saving.set(false),
+      });
   }
 
   onAvatarSelected(event: Event): void {
@@ -109,17 +129,11 @@ export class ProfilePageComponent {
     }
 
     this.buildOptimizedAvatar(file)
-      .then((optimized) => {
-        const approxBytes = this.estimateBytes(optimized);
-        if (approxBytes > 95 * 1024) {
-          this.notifications.error(
-            'La imagen sigue siendo muy pesada. Prueba una foto más ligera.',
-          );
-          input.value = '';
-          return;
-        }
-
-        this.avatarDataUrl.set(optimized);
+      .then(({ optimized, previewUrl }) => {
+        this.revokePreview();
+        this.pendingAvatar = optimized;
+        this.avatarRemoved = false;
+        this.avatarDataUrl.set(previewUrl);
         this.selectedFileName.set(file.name);
       })
       .catch(() => {
@@ -129,8 +143,12 @@ export class ProfilePageComponent {
   }
 
   clearAvatar(input: HTMLInputElement): void {
+    this.revokePreview();
+    this.pendingAvatar = null;
     this.avatarDataUrl.set(null);
     this.selectedFileName.set('');
+    // Solo hay algo que borrar del almacenamiento si el usuario ya tenía una foto guardada.
+    this.avatarRemoved = this.hadAvatar;
     input.value = '';
   }
 
@@ -138,40 +156,84 @@ export class ProfilePageComponent {
     return toInitials(name || 'Perfil');
   }
 
-  private buildOptimizedAvatar(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onerror = () => reject(new Error('No se pudo leer archivo'));
-      reader.onload = () => {
-        const image = new Image();
-        image.onerror = () => reject(new Error('No se pudo cargar imagen'));
-        image.onload = () => {
-          const size = 240;
-          const canvas = document.createElement('canvas');
-          canvas.width = size;
-          canvas.height = size;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) {
-            reject(new Error('No se pudo procesar imagen'));
-            return;
-          }
+  /** Sube o quita la foto según lo que el usuario decidió. Un fallo no deshace el perfil ya guardado. */
+  private syncAvatar(): Observable<unknown> {
+    let avatar$: Observable<unknown> | null = null;
 
-          // Crop cuadrado centrado para mantener avatar consistente.
-          const minSide = Math.min(image.width, image.height);
-          const sx = (image.width - minSide) / 2;
-          const sy = (image.height - minSide) / 2;
-          ctx.drawImage(image, sx, sy, minSide, minSide, 0, 0, size, size);
+    if (this.pendingAvatar) {
+      const body = new FormData();
+      body.append('file', this.pendingAvatar);
+      avatar$ = this.api.post('users/me/avatar', body);
+    } else if (this.avatarRemoved && this.hadAvatar) {
+      avatar$ = this.api.remove('users/me/avatar');
+    }
 
-          resolve(canvas.toDataURL('image/jpeg', 0.82));
-        };
-        image.src = String(reader.result ?? '');
-      };
-      reader.readAsDataURL(file);
-    });
+    if (!avatar$) {
+      return of(null);
+    }
+
+    return avatar$.pipe(
+      map(() => null),
+      catchError(() => {
+        this.notifications.error('Se guardaron tus datos, pero la foto no se pudo actualizar.');
+        return of(null);
+      }),
+    );
   }
 
-  private estimateBytes(dataUrl: string): number {
-    const base64 = dataUrl.split(',')[1] ?? '';
-    return Math.ceil((base64.length * 3) / 4);
+  private revokePreview(): void {
+    const preview = this.avatarDataUrl();
+    if (preview?.startsWith('blob:')) {
+      URL.revokeObjectURL(preview);
+    }
+  }
+
+  /** Recorta al centro en un cuadrado de 240 px y lo convierte a JPEG; la vista previa es local. */
+  private buildOptimizedAvatar(file: File): Promise<{ optimized: File; previewUrl: string }> {
+    return new Promise((resolve, reject) => {
+      const source = URL.createObjectURL(file);
+      const image = new Image();
+
+      image.onerror = () => {
+        URL.revokeObjectURL(source);
+        reject(new Error('No se pudo cargar imagen'));
+      };
+      image.onload = () => {
+        URL.revokeObjectURL(source);
+
+        const size = 240;
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('No se pudo procesar imagen'));
+          return;
+        }
+
+        // Crop cuadrado centrado para mantener avatar consistente.
+        const minSide = Math.min(image.width, image.height);
+        const sx = (image.width - minSide) / 2;
+        const sy = (image.height - minSide) / 2;
+        ctx.drawImage(image, sx, sy, minSide, minSide, 0, 0, size, size);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error('No se pudo procesar imagen'));
+              return;
+            }
+
+            const optimized = new File([blob], 'avatar.jpg', { type: 'image/jpeg' });
+            resolve({ optimized, previewUrl: URL.createObjectURL(optimized) });
+          },
+          'image/jpeg',
+          0.82,
+        );
+      };
+
+      image.src = source;
+    });
   }
 }

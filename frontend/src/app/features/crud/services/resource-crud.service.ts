@@ -51,4 +51,17 @@ export class ResourceCrudService {
     const def = this.getDefinition(resourceKey);
     return this.api.delete(def.endpoint, id);
   }
+
+  /** Sube la imagen del registro al almacenamiento (Cloudinary) a través del backend. */
+  uploadImage<T>(resourceKey: string, id: string, file: File): Observable<T> {
+    const def = this.getDefinition(resourceKey);
+    const body = new FormData();
+    body.append('file', file);
+    return this.api.post<T>(`${def.endpoint}/${id}/image`, body);
+  }
+
+  removeImage<T>(resourceKey: string, id: string): Observable<T> {
+    const def = this.getDefinition(resourceKey);
+    return this.api.remove<T>(`${def.endpoint}/${id}/image`);
+  }
 }

@@ -1,13 +1,14 @@
 import { NgFor, NgIf, NgSwitch, NgSwitchCase } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
+import { Observable, catchError, forkJoin, map, of, switchMap } from 'rxjs';
 
 import { ResourceCrudService } from '../../services/resource-crud.service';
 import { LookupService } from '../../services/lookup.service';
 import { ResourceDefinition, ResourceField } from '../../../../core/models/resource.models';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { toImageSrc } from '../../../../core/utils/image.util';
 import { PageHeaderComponent } from '../../../../shared/components/page-header.component';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner.component';
 
@@ -43,11 +44,18 @@ export class ResourceFormPageComponent {
   readonly selectedProductImageName = signal('');
   readonly productImageRemoved = signal(false);
 
+  /** Imagen elegida y aún sin subir: se envía a Cloudinary después de guardar el producto. */
+  private pendingProductImage: File | null = null;
+  /** El producto ya tenía una imagen guardada, o sea que "quitar" implica borrarla. */
+  private hadProductImage = false;
+
   readonly form = this.fb.group({});
   readonly options = signal<Record<string, { label: string; value: string | boolean }[]>>({});
   readonly isProductsModule = computed(() => this.definition()?.key === 'products');
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => this.revokeProductPreview());
+
     this.route.data.subscribe((data) => {
       const resourceKey = String(data['resourceKey'] ?? '');
       this.definition.set(this.crudService.getDefinition(resourceKey));
@@ -89,6 +97,9 @@ export class ResourceFormPageComponent {
     });
 
     if (this.isProductsModule()) {
+      this.revokeProductPreview();
+      this.pendingProductImage = null;
+      this.hadProductImage = false;
       this.productImagePreview.set(null);
       this.selectedProductImageName.set('');
       this.productImageRemoved.set(false);
@@ -157,8 +168,9 @@ export class ResourceFormPageComponent {
         this.form.patchValue(patch);
 
         if (this.isProductsModule()) {
-          const imageUrl = String(patch['imageUrl'] ?? '').trim();
-          this.productImagePreview.set(this.normalizeProductImageUrl(imageUrl || null));
+          const savedImage = toImageSrc(patch['imageUrl']);
+          this.hadProductImage = !!savedImage;
+          this.productImagePreview.set(savedImage);
           this.selectedProductImageName.set('');
           this.productImageRemoved.set(false);
         }
@@ -199,6 +211,12 @@ export class ResourceFormPageComponent {
     definition.fields.forEach((field) => {
       let value = raw[field.key];
 
+      // La imagen se sube aparte y nunca viaja en el cuerpo: reenviar la heredada (base64) al editar
+      // haría que el backend la rechace, y las nuevas van a Cloudinary.
+      if (field.key === 'imageUrl' && this.isProductsModule()) {
+        return;
+      }
+
       if (field.type === 'number' && value !== '') {
         value = String(value);
       }
@@ -215,16 +233,6 @@ export class ResourceFormPageComponent {
         return;
       }
 
-      if (
-        field.key === 'imageUrl' &&
-        this.isProductsModule() &&
-        value === '' &&
-        this.productImageRemoved()
-      ) {
-        payload[field.key] = '';
-        return;
-      }
-
       if (value === '') {
         return;
       }
@@ -238,7 +246,7 @@ export class ResourceFormPageComponent {
       ? this.crudService.update(definition.key, this.entityId()!, payload)
       : this.crudService.create(definition.key, payload);
 
-    request$.subscribe({
+    request$.pipe(switchMap((response) => this.syncProductImage(response))).subscribe({
       next: (response) => {
         const entity = response as { id?: string };
         this.notifications.success(
@@ -291,9 +299,10 @@ export class ResourceFormPageComponent {
     }
 
     this.buildOptimizedProductImage(file)
-      .then((optimized) => {
-        this.form.patchValue({ imageUrl: optimized });
-        this.productImagePreview.set(optimized);
+      .then(({ optimized, previewUrl }) => {
+        this.revokeProductPreview();
+        this.pendingProductImage = optimized;
+        this.productImagePreview.set(previewUrl);
         this.selectedProductImageName.set(file.name);
         this.productImageRemoved.set(false);
       })
@@ -304,61 +313,99 @@ export class ResourceFormPageComponent {
   }
 
   clearProductImage(input: HTMLInputElement): void {
-    this.form.patchValue({ imageUrl: '' });
+    this.revokeProductPreview();
+    this.pendingProductImage = null;
     this.productImagePreview.set(null);
     this.selectedProductImageName.set('');
-    this.productImageRemoved.set(true);
+    // Solo hay algo que borrar del almacenamiento si el producto ya tenía una imagen guardada.
+    this.productImageRemoved.set(this.hadProductImage);
     input.value = '';
   }
 
-  private normalizeProductImageUrl(value: string | null): string | null {
-    if (!value) {
-      return null;
+  /**
+   * Sincroniza la imagen con el almacenamiento una vez guardado el producto (el id ya existe).
+   * Si la imagen falla, el producto queda guardado y se avisa: no se pierde lo que el usuario escribió.
+   */
+  private syncProductImage(response: unknown): Observable<unknown> {
+    const definition = this.definition();
+    const id = (response as { id?: string } | null)?.id;
+
+    if (!definition || !this.isProductsModule() || !id) {
+      return of(response);
     }
 
-    if (
-      value.startsWith('data:image/') ||
-      value.startsWith('http://') ||
-      value.startsWith('https://')
-    ) {
-      return value;
+    let image$: Observable<unknown> | null = null;
+    if (this.pendingProductImage) {
+      image$ = this.crudService.uploadImage(definition.key, id, this.pendingProductImage);
+    } else if (this.productImageRemoved() && this.hadProductImage) {
+      image$ = this.crudService.removeImage(definition.key, id);
     }
 
-    if (value.startsWith('www.')) {
-      return `https://${value}`;
+    if (!image$) {
+      return of(response);
     }
 
-    return value;
+    return image$.pipe(
+      map(() => response),
+      catchError(() => {
+        this.notifications.error(
+          'El producto se guardó, pero la imagen no se pudo actualizar. Edítalo para reintentar.',
+        );
+        return of(response);
+      }),
+    );
   }
 
-  private buildOptimizedProductImage(file: File): Promise<string> {
+  private revokeProductPreview(): void {
+    const preview = this.productImagePreview();
+    if (preview?.startsWith('blob:')) {
+      URL.revokeObjectURL(preview);
+    }
+  }
+
+  /** Reduce la imagen a 920 px y la convierte a JPEG antes de subirla; la vista previa es local. */
+  private buildOptimizedProductImage(file: File): Promise<{ optimized: File; previewUrl: string }> {
     return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onerror = () => reject(new Error('No se pudo leer archivo'));
-      reader.onload = () => {
-        const image = new Image();
-        image.onerror = () => reject(new Error('No se pudo cargar imagen'));
-        image.onload = () => {
-          const maxSide = 920;
-          const ratio = Math.min(maxSide / image.width, maxSide / image.height, 1);
-          const width = Math.round(image.width * ratio);
-          const height = Math.round(image.height * ratio);
+      const source = URL.createObjectURL(file);
+      const image = new Image();
 
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          if (!ctx) {
-            reject(new Error('No se pudo procesar imagen'));
-            return;
-          }
-
-          ctx.drawImage(image, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', 0.84));
-        };
-        image.src = String(reader.result ?? '');
+      image.onerror = () => {
+        URL.revokeObjectURL(source);
+        reject(new Error('No se pudo cargar imagen'));
       };
-      reader.readAsDataURL(file);
+      image.onload = () => {
+        URL.revokeObjectURL(source);
+
+        const maxSide = 920;
+        const ratio = Math.min(maxSide / image.width, maxSide / image.height, 1);
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(image.width * ratio);
+        canvas.height = Math.round(image.height * ratio);
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('No se pudo procesar imagen'));
+          return;
+        }
+
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error('No se pudo procesar imagen'));
+              return;
+            }
+
+            const baseName = file.name.replace(/\.[^.]+$/, '') || 'producto';
+            const optimized = new File([blob], `${baseName}.jpg`, { type: 'image/jpeg' });
+            resolve({ optimized, previewUrl: URL.createObjectURL(optimized) });
+          },
+          'image/jpeg',
+          0.84,
+        );
+      };
+
+      image.src = source;
     });
   }
 }
