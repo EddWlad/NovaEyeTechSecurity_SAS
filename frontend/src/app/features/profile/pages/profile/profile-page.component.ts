@@ -97,8 +97,11 @@ export class ProfilePageComponent {
       .patch('users/me/profile', payload)
       .pipe(switchMap(() => this.syncAvatar()))
       .subscribe({
-        next: () => {
-          this.notifications.success('Perfil actualizado correctamente.');
+        next: (avatarSynced) => {
+          // Si la foto falló, syncAvatar ya avisó: no se contradice con un mensaje de éxito.
+          if (avatarSynced) {
+            this.notifications.success('Perfil actualizado correctamente.');
+          }
           this.load();
         },
         complete: () => this.saving.set(false),
@@ -157,7 +160,7 @@ export class ProfilePageComponent {
   }
 
   /** Sube o quita la foto según lo que el usuario decidió. Un fallo no deshace el perfil ya guardado. */
-  private syncAvatar(): Observable<unknown> {
+  private syncAvatar(): Observable<boolean> {
     let avatar$: Observable<unknown> | null = null;
 
     if (this.pendingAvatar) {
@@ -169,14 +172,14 @@ export class ProfilePageComponent {
     }
 
     if (!avatar$) {
-      return of(null);
+      return of(true);
     }
 
     return avatar$.pipe(
-      map(() => null),
+      map(() => true),
       catchError(() => {
         this.notifications.error('Se guardaron tus datos, pero la foto no se pudo actualizar.');
-        return of(null);
+        return of(false);
       }),
     );
   }

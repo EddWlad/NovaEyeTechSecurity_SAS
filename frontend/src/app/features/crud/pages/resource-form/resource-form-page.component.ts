@@ -260,6 +260,8 @@ export class ResourceFormPageComponent {
 
         void this.router.navigate([`/${definition.key}`]);
       },
+      // Sin esto un error dejaba el botón en "Guardando..." y deshabilitado hasta recargar la página.
+      error: () => this.saving.set(false),
       complete: () => this.saving.set(false),
     });
   }
