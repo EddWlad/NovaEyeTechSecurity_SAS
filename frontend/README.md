@@ -32,6 +32,12 @@ npm run build
 npm test
 ```
 
+```bash
+npm run check:icons
+```
+
+`check:icons` verifica que todo icono usado en las plantillas esté en la lista `icon_names` de `src/index.html` (ver "Iconos" abajo). Corre también en el workflow de despliegue.
+
 No hay archivos `.spec.ts` en el repositorio y los schematics tienen `skipTests: true`: el comando corre, pero no existe suite. No asumir cobertura previa.
 
 ---
@@ -53,7 +59,7 @@ No usa `.env`. Los entornos viven en `src/environments/`:
 
 `core/config/resource-definitions.ts` describe cada recurso (endpoint, roles, campos con su tipo, validación, opciones o lookup remoto). `features/crud/` provee `ResourceListPageComponent`, `ResourceFormPageComponent` y `ResourceDetailPageComponent` para todos ellos.
 
-Para agregar un CRUD simple: definir el recurso ahí, añadir las cuatro rutas (`/x`, `/x/new`, `/x/:id`, `/x/:id/edit`) y la entrada en `core/config/navigation.config.ts`. **No crear componentes por entidad** salvo que la pantalla se salga del patrón.
+Para agregar un CRUD simple: definir el recurso ahí, añadir **una línea** `...crudRoutes('x', roles)` en `app.routes.ts` (genera `/x`, `/x/new`, `/x/:id` y `/x/:id/edit`) y la entrada en `core/config/navigation.config.ts`. Si el detalle debe mostrar el nombre del registro en las migas de pan, sumar una entrada en `core/config/breadcrumb.config.ts`. **No crear componentes por entidad** salvo que la pantalla se salga del patrón.
 
 Pantallas propias, fuera del motor CRUD, solo para: `quotations`, `maintenance`, `quotation-settings`, `audit-logs`, `dashboard`, `profile` y `auth`.
 
@@ -66,15 +72,27 @@ El backend responde de dos formas según la query string, y las dos se usan:
 - `ApiService.list()` — sin `?page`, devuelve un array plano. Alimenta selects y lookups.
 - `ApiService.listPaginated()` — con `?page`, devuelve un objeto paginado. Alimenta tablas.
 
-Interceptores en `core/interceptors/`: `auth-token` inyecta el JWT, `http-error` centraliza los errores hacia `NotificationService`.
+Interceptores en `core/interceptors/`, en este orden: `dedupe-get` unifica en una sola petición los GET idénticos que están en vuelo a la vez (por ejemplo la pantalla y la miga de pan pidiendo el mismo registro; no guarda nada en caché), `auth-token` inyecta el JWT y `http-error` centraliza los errores hacia `NotificationService`.
 
 ### Rutas y permisos
 
 Todo cuelga de `AppShellComponent` con `authGuard`, y cada ruta lleva `roleGuard` más `data: { roles, resourceKey }`. Solo existen los roles `ADMINISTRADOR` y `TECNICO`.
 
+Solo el login y el shell se cargan de entrada; el resto de pantallas son **lazy** (`loadComponent`) y el router las precarga en segundo plano (`PreloadAllModules`). Tras un despliegue, los archivos con hash de la versión anterior desaparecen: si un usuario con la app abierta navega a una pantalla aún no descargada, `app.config.ts` recarga la página una vez para tomar la versión nueva.
+
 ### Estilos
 
 SCSS global con tokens en `src/styles.scss` (paleta vino `--wine-700/600` más grises, sombras y utilitarias como `.page-title`). Componentes compartidos en `app/shared/components/`: `page-header`, `pagination-controls`, `status-badge`, `empty-state`, `loading-spinner`, `toast-stack`. Reutilizar tokens y componentes antes de crear estilos nuevos.
+
+**Tablas responsivas.** Una lista con tabla que en pantallas chicas se vuelve una lista de tarjetas usa `<div class="table-wrapper table-stack">` con `data-label` en cada `<td>` y `data-label="Acciones"` en la celda de botones. Toda la lógica vive en `styles.scss` (breakpoint único de 768 px): botones de acción en una sola fila, columna de acciones anclada a la derecha en tablas anchas y diseño de tarjetas en móvil. No repetirla en los componentes.
+
+**Scrollbars.** Finos y discretos en toda la app (`scrollbar-width: thin`). El menú lateral, oscuro, lo oculta en reposo y lo muestra translúcido al pasar el mouse.
+
+**Accesibilidad.** Un botón o enlace que solo tiene un icono lleva `title` y `aria-label`; los iconos decorativos llevan `aria-hidden="true"`.
+
+### Iconos
+
+La fuente Material Symbols se pide con solo los iconos que usa la app (`icon_names` en `src/index.html`): ~6 KB en vez de los 316 KB de la fuente completa. **Al usar un icono nuevo hay que agregarlo a esa lista, en orden alfabético**; si no, se ve como texto. `npm run check:icons` lo detecta (iconos en plantillas, `{{ cond ? 'a' : 'b' }}` y `icon: 'x'` en configuración). Un icono que solo se devuelve desde código (como los del toast) no lo ve el chequeo: agregarlo a mano.
 
 ---
 
