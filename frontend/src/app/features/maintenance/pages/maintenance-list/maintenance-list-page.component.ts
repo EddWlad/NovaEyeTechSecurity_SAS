@@ -5,7 +5,6 @@ import { RouterLink } from '@angular/router';
 
 import { MaintenanceStatus, MaintenanceType } from '../../../../core/models/enums';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { toDateInputValue } from '../../../../core/utils/format.util';
 import { EmptyStateComponent } from '../../../../shared/components/empty-state.component';
 import { LoadingSpinnerComponent } from '../../../../shared/components/loading-spinner.component';
 import { PageHeaderComponent } from '../../../../shared/components/page-header.component';
@@ -121,7 +120,4 @@ export class MaintenanceListPageComponent {
     });
   }
 
-  today(): string {
-    return toDateInputValue(new Date());
-  }
 }

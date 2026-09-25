@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { forkJoin, Observable, catchError } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 
 import { ApiService } from '../../../core/services/api.service';
 import {
@@ -67,52 +67,13 @@ export class MaintenanceService {
     return this.api.list<Attachment>(`attachments/${sourceEntity}/${sourceEntityId}`);
   }
 
-  addAttachment(payload: {
-    sourceEntity: string;
-    sourceEntityId: string;
-    originalName: string;
-    storedName: string;
-    mimeType: string;
-    storagePath: string;
-    size: string;
-  }) {
-    return this.api.post<Attachment>('attachments', payload);
-  }
-
-  private uploadAttachmentToMaintenanceEndpoint(
-    maintenanceId: string,
-    file: File,
-  ): Observable<Attachment> {
+  uploadAttachment(maintenanceId: string, file: File): Observable<Attachment> {
     const formData = new FormData();
     formData.append('file', file);
 
     return this.http.post<Attachment>(
       `${environment.apiBaseUrl}/attachments/upload/maintenance/${maintenanceId}`,
       formData,
-    );
-  }
-
-  private uploadAttachmentToLegacyEndpoint(
-    maintenanceId: string,
-    file: File,
-  ): Observable<Attachment> {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('sourceEntity', 'maintenance');
-    formData.append('sourceEntityId', maintenanceId);
-
-    return this.http.post<Attachment>(
-      `${environment.apiBaseUrl}/attachments/upload`,
-      formData,
-    );
-  }
-
-  uploadAttachment(maintenanceId: string, file: File): Observable<Attachment> {
-    return this.uploadAttachmentToMaintenanceEndpoint(maintenanceId, file).pipe(
-      // Fallback por compatibilidad: si el endpoint nuevo falla, intenta el legado.
-      catchError(() =>
-        this.uploadAttachmentToLegacyEndpoint(maintenanceId, file),
-      ),
     );
   }
 

@@ -66,7 +66,4 @@ export class ApiService {
     return this.http.delete<T>(`${environment.apiBaseUrl}/${endpoint}`);
   }
 
-  absoluteGet<T>(url: string): Observable<T> {
-    return this.http.get<T>(url);
-  }
 }
