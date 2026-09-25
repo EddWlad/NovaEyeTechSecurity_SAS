@@ -10,6 +10,9 @@ const inFlight = new Map<string, Observable<HttpEvent<unknown>>>();
  * recurso en el mismo instante; sin esto viajaban dos peticiones identicas. No guarda nada: en cuanto
  * la respuesta llega, el siguiente GET va a la red de nuevo, asi que nunca sirve datos viejos.
  *
+ * Las respuestas se comparten por referencia entre quienes pidieron lo mismo: quien reciba el cuerpo
+ * no debe mutarlo (ordenarlo en sitio, por ejemplo); si necesita cambiarlo, que lo copie.
+ *
  * Va primero en la cadena: el interceptor de errores queda por debajo, y con una sola peticion
  * compartida un fallo muestra un solo aviso en vez de dos.
  */
