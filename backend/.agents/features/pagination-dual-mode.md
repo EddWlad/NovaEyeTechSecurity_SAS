@@ -41,3 +41,7 @@ return listingResponder.respond(query, PaginationSupport.DEFAULT_LIMIT,
 ```
 
 Cotizaciones, mantenimientos y adjuntos resuelven el doble modo dentro del controlador porque su consulta depende del usuario autenticado o de parámetros de ruta. El contrato de salida es idéntico: si se cambia uno hay que cambiar los demás.
+
+## Excepción: `GET /products` en modo array no incluye `imageUrl`
+
+Los productos heredados guardan su imagen en base64 (~27 KB c/u), y el modo array alimenta selects que no la muestran: con 684 productos la respuesta pesaba **18.8 MB** y ahora pesa ~0.7 MB. `ProductController.findAll` pone `imageUrl` en `null` solo en modo array. El modo paginado, que sí pinta miniaturas, la conserva. Si un consumidor nuevo del modo array necesita la imagen, usar el paginado o el detalle `GET /products/{id}`.

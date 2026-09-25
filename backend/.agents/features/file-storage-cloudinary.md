@@ -43,6 +43,7 @@ Las evidencias de mantenimiento, los adjuntos y la foto de perfil se guardan en 
 <CLOUDINARY_ROOT_FOLDER>/       (por defecto "novaeyetech")
 ├── maintenance/                evidencias de mantenimiento
 ├── avatars/                    fotos de perfil
+├── products/                   imágenes de producto
 └── general/                    subidas sin carpeta indicada
 ```
 
@@ -60,3 +61,24 @@ Van en `.env` (ignorado por git) o como variables de entorno del despliegue. Nun
 ## Foto de perfil
 
 `POST /api/users/me/avatar` (multipart, campo `file`) sube la imagen y guarda su URL. El campo de la entidad sigue llamándose `avatarDataUrl` por compatibilidad: el frontend lo pone directo en el `src` de una imagen, y ahí un data URL heredado y una URL https funcionan igual. Al reemplazar la foto se borra la anterior, pero solo **después** de guardar la nueva: si la subida falla, el usuario conserva la que tenía.
+
+## Imágenes de producto
+
+`POST /api/products/{id}/image` (multipart, campo `file`, solo `ADMINISTRADOR`) sube a `<root>/products/` y guarda la URL en `imageUrl`; `DELETE /api/products/{id}/image` la quita. Es el mismo patrón del avatar: la imagen anterior se borra **después** de guardar la nueva, y también al eliminar el producto. El archivo debe ser una imagen (el almacenamiento acepta además PDF y Office).
+
+El frontend reduce la imagen a 920 px y la convierte a JPEG antes de subirla, y **guarda primero el producto y sube la imagen después** (necesita el id). Si la subida falla, el producto queda guardado sin imagen y se reintenta editándolo.
+
+## La URL de imagen solo la fija el endpoint de subida
+
+Ni `imageUrl` (producto) ni `avatarDataUrl` (usuario) se toman del cuerpo de un POST/PATCH:
+
+- Un **data URL** (base64) responde **400** (`InlineImageGuard`). Antes las imágenes entraban por ahí y 653 productos sumaban 17 MB en la base, que viajaban completos en cada listado.
+- **Cualquier otra URL se ignora.** Si se aceptara, un usuario podría apuntar `avatarDataUrl` a otra imagen del almacenamiento y borrarla al reemplazar su foto.
+
+Las imágenes heredadas en base64 siguen en la base tal cual y se muestran igual; se sobrescriben cuando alguien sube una nueva.
+
+`IStorageService.deleteByUrl` solo borra recursos de la cuenta y de la carpeta raíz configuradas: la cuenta de Cloudinary se comparte con otra aplicación y la URL puede venir de una petición.
+
+## Quitar el avatar
+
+`DELETE /api/users/me/avatar`. El `PATCH` del perfil no podía hacerlo: el mapeo ignora los nulos, así que `avatarDataUrl: null` nunca borraba la foto.
