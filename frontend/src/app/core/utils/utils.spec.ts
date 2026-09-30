@@ -1,6 +1,6 @@
 import { toDateInputValue, toInitials, toMoney } from './format.util';
 import { MAX_UPLOAD_BYTES, imageFileError, toImageSrc } from './image.util';
-import { relationLabel } from './relation.util';
+import { optionLabel, relationLabel } from './relation.util';
 
 describe('format.util', () => {
   it('toMoney formatea con dos decimales y tolera valores invalidos', () => {
@@ -48,6 +48,22 @@ describe('imageFileError', () => {
   it('rechaza las que superan 10 MB o no son imagen', () => {
     expect(imageFileError(fileOf(MAX_UPLOAD_BYTES + 1, 'image/png'))).toContain('10 MB');
     expect(imageFileError(fileOf(1024, 'application/pdf'))).toContain('Formato');
+  });
+});
+
+describe('optionLabel', () => {
+  const roles = [
+    { value: 'ADMINISTRADOR', label: 'Super administrador' },
+    { value: 'ADMIN_OPERATIVO', label: 'Administrador' },
+  ];
+
+  it('traduce el valor guardado a su etiqueta', () => {
+    expect(optionLabel(roles, 'ADMIN_OPERATIVO')).toBe('Administrador');
+  });
+
+  it('devuelve null sin opciones o con un valor desconocido', () => {
+    expect(optionLabel(undefined, 'X')).toBeNull();
+    expect(optionLabel(roles, 'TECNICO')).toBeNull();
   });
 });
 

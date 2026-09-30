@@ -11,7 +11,7 @@ import { LoadingSpinnerComponent } from '../../../../shared/components/loading-s
 import { EmptyStateComponent } from '../../../../shared/components/empty-state.component';
 import { StatusBadgeComponent } from '../../../../shared/components/status-badge.component';
 import { toImageSrc } from '../../../../core/utils/image.util';
-import { relationLabel } from '../../../../core/utils/relation.util';
+import { optionLabel, relationLabel } from '../../../../core/utils/relation.util';
 
 @Component({
   selector: 'app-resource-detail-page',
@@ -85,7 +85,7 @@ export class ResourceDetailPageComponent {
       return '-';
     }
 
-    return direct;
+    return optionLabel(this.definition()?.fields.find((field) => field.key === key)?.options, direct) ?? direct;
   }
 
   imageSrc(key: string): string | null {

@@ -85,7 +85,7 @@ Interceptores en `core/interceptors/`, en este orden: `dedupe-get` unifica en un
 
 ### Rutas y permisos
 
-Todo cuelga de `AppShellComponent` con `authGuard`, y cada ruta lleva `roleGuard` más `data: { roles, resourceKey }`. Solo existen los roles `ADMINISTRADOR` y `TECNICO`.
+Todo cuelga de `AppShellComponent` con `authGuard`, y cada ruta lleva `roleGuard` más `data: { roles, resourceKey }`. Roles: `ADMINISTRADOR` (super administrador), `ADMIN_OPERATIVO` (se muestra como "Administrador": todo menos Usuarios, Parámetros y Auditoría) y `TECNICO`. Los conjuntos de roles por pantalla viven en `shared/constants/roles.constants.ts`.
 
 Solo el login y el shell se cargan de entrada; el resto de pantallas son **lazy** (`loadComponent`) y el router las precarga en segundo plano (`PreloadAllModules`). Tras un despliegue, los archivos con hash de la versión anterior desaparecen: si un usuario con la app abierta navega a una pantalla aún no descargada, `app.config.ts` recarga la página una vez para tomar la versión nueva.
 

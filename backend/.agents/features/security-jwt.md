@@ -35,4 +35,4 @@ La API es **stateless**: no hay sesión de servidor. El cliente obtiene un token
 
 ## Roles
 
-Solo existen `ADMINISTRADOR` y `TECNICO` (`model/enums/Role.java`). La authority es `ROLE_<nombre>`, de modo que `@PreAuthorize("hasRole('ADMINISTRADOR')")` funciona con la convención estándar de Spring.
+Existen `ADMINISTRADOR`, `ADMIN_OPERATIVO` y `TECNICO` (`model/enums/Role.java`; ver su Javadoc). La authority es `ROLE_<nombre>`, de modo que `@PreAuthorize("hasRole('ADMINISTRADOR')")` funciona con la convención estándar de Spring.

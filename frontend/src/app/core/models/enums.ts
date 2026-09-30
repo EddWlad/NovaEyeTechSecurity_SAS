@@ -1,4 +1,5 @@
-export type Role = 'ADMINISTRADOR' | 'TECNICO';
+/** ADMINISTRADOR es el super administrador; ADMIN_OPERATIVO, el administrador sin usuarios, parametros ni auditoria. */
+export type Role = 'ADMINISTRADOR' | 'ADMIN_OPERATIVO' | 'TECNICO';
 
 export type QuotationStatus = 'BORRADOR' | 'ENVIADA' | 'APROBADA' | 'RECHAZADA';
 

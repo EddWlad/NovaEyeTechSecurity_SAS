@@ -40,7 +40,7 @@ public class MaintenanceController {
     private final DtoMapper dtoMapper;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<MaintenanceDTO> create(
             @Validated(OnCreate.class) @RequestBody MaintenanceRequest request,
             @AuthenticationPrincipal AuthenticatedUser actor) {
@@ -49,7 +49,7 @@ public class MaintenanceController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<Object> findAll(@AuthenticationPrincipal AuthenticatedUser actor,
                                           @Valid PaginationQuery query,
                                           @RequestParam(required = false) MaintenanceType type,
@@ -66,14 +66,14 @@ public class MaintenanceController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<MaintenanceDTO> findById(@PathVariable UUID id,
                                                     @AuthenticationPrincipal AuthenticatedUser actor) {
         return ResponseEntity.ok(dtoMapper.map(service.findById(id, actor), MaintenanceDTO.class));
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<MaintenanceDTO> update(@PathVariable UUID id,
                                                   @Valid @RequestBody MaintenanceRequest request,
                                                   @AuthenticationPrincipal AuthenticatedUser actor) {
@@ -81,7 +81,7 @@ public class MaintenanceController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<MessageResponse> delete(@PathVariable UUID id,
                                                    @AuthenticationPrincipal AuthenticatedUser actor) {
         service.delete(id, actor);

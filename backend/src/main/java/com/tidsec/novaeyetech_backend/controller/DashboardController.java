@@ -23,7 +23,7 @@ public class DashboardController {
     private final DtoMapper dtoMapper;
 
     @GetMapping("/summary")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<DashboardSummaryDTO> summary(@AuthenticationPrincipal AuthenticatedUser actor) {
         IDashboardService.DashboardSummary summary = service.summary(actor);
 

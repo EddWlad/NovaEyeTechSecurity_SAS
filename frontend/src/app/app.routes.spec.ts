@@ -27,15 +27,21 @@ describe('app.routes', () => {
 
   it('el tecnico ve productos y servicios pero no los crea ni edita', () => {
     for (const key of ['products', 'services']) {
-      expect(find(key)?.data?.['roles']).toEqual(['ADMINISTRADOR', 'TECNICO']);
-      expect(find(`${key}/new`)?.data?.['roles']).toEqual(['ADMINISTRADOR']);
-      expect(find(`${key}/:id/edit`)?.data?.['roles']).toEqual(['ADMINISTRADOR']);
+      expect(find(key)?.data?.['roles']).toEqual(['ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO']);
+      expect(find(`${key}/new`)?.data?.['roles']).toEqual(['ADMINISTRADOR', 'ADMIN_OPERATIVO']);
+      expect(find(`${key}/:id/edit`)?.data?.['roles']).toEqual(['ADMINISTRADOR', 'ADMIN_OPERATIVO']);
     }
   });
 
-  it('usuarios, proveedores y auditoria son solo para administradores', () => {
-    for (const path of ['users', 'suppliers', 'audit-logs', 'quotation-settings']) {
+  it('usuarios, parametros y auditoria son solo del super administrador', () => {
+    for (const path of ['users', 'users/new', 'users/:id/edit', 'audit-logs', 'quotation-settings']) {
       expect(find(path)?.data?.['roles']).withContext(path).toEqual(['ADMINISTRADOR']);
+    }
+  });
+
+  it('el administrador gestiona catalogos y proveedores', () => {
+    for (const path of ['suppliers', 'product-categories', 'service-categories', 'suppliers/new']) {
+      expect(find(path)?.data?.['roles']).withContext(path).toEqual(['ADMINISTRADOR', 'ADMIN_OPERATIVO']);
     }
   });
 });

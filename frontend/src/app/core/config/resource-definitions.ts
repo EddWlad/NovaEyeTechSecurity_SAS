@@ -1,4 +1,5 @@
 import { ResourceDefinition } from '../models/resource.models';
+import { ALL_ROLES, MANAGER_ROLES, SUPER_ADMIN_ROLES } from '../../shared/constants/roles.constants';
 
 export const RESOURCE_DEFINITIONS: Record<string, ResourceDefinition> = {
   users: {
@@ -7,7 +8,7 @@ export const RESOURCE_DEFINITIONS: Record<string, ResourceDefinition> = {
     subtitle: 'Administra cuentas y accesos del personal.',
     endpoint: 'users',
     singular: 'usuario',
-    roles: ['ADMINISTRADOR'],
+    roles: SUPER_ADMIN_ROLES,
     fields: [
       { key: 'fullName', label: 'Nombre completo', type: 'text', required: true },
       { key: 'email', label: 'Correo', type: 'email', required: true },
@@ -17,7 +18,8 @@ export const RESOURCE_DEFINITIONS: Record<string, ResourceDefinition> = {
         type: 'select',
         required: true,
         options: [
-          { value: 'ADMINISTRADOR', label: 'Administrador' },
+          { value: 'ADMINISTRADOR', label: 'Super administrador' },
+          { value: 'ADMIN_OPERATIVO', label: 'Administrador' },
           { value: 'TECNICO', label: 'Técnico' },
         ],
       },
@@ -39,7 +41,7 @@ export const RESOURCE_DEFINITIONS: Record<string, ResourceDefinition> = {
     subtitle: 'Gestión comercial de clientes empresariales y residenciales.',
     endpoint: 'clients',
     singular: 'cliente',
-    roles: ['ADMINISTRADOR', 'TECNICO'],
+    roles: ALL_ROLES,
     fields: [
       { key: 'nameOrBusinessName', label: 'Nombre / Razón social', type: 'text', required: true },
       { key: 'documentNumber', label: 'Documento', type: 'text', required: true },
@@ -58,7 +60,7 @@ export const RESOURCE_DEFINITIONS: Record<string, ResourceDefinition> = {
     subtitle: 'Administración de aliados estratégicos y datos de contacto.',
     endpoint: 'suppliers',
     singular: 'proveedor',
-    roles: ['ADMINISTRADOR'],
+    roles: MANAGER_ROLES,
     fields: [
       { key: 'businessName', label: 'Razón social', type: 'text', required: true },
       { key: 'ruc', label: 'RUC', type: 'text', required: true },
@@ -76,7 +78,7 @@ export const RESOURCE_DEFINITIONS: Record<string, ResourceDefinition> = {
     subtitle: 'Clasifica el inventario técnico y comercial.',
     endpoint: 'product-categories',
     singular: 'categoría de producto',
-    roles: ['ADMINISTRADOR'],
+    roles: MANAGER_ROLES,
     fields: [
       { key: 'name', label: 'Nombre', type: 'text', required: true },
       { key: 'description', label: 'Descripción', type: 'textarea' },
@@ -89,7 +91,7 @@ export const RESOURCE_DEFINITIONS: Record<string, ResourceDefinition> = {
     subtitle: 'Catálogo de equipos, materiales y stock de seguridad.',
     endpoint: 'products',
     singular: 'producto',
-    roles: ['ADMINISTRADOR'],
+    roles: MANAGER_ROLES,
     fields: [
       {
         key: 'categoryId',
@@ -124,7 +126,7 @@ export const RESOURCE_DEFINITIONS: Record<string, ResourceDefinition> = {
     subtitle: 'Agrupa servicios de instalación y soporte técnico.',
     endpoint: 'service-categories',
     singular: 'categoría de servicio',
-    roles: ['ADMINISTRADOR'],
+    roles: MANAGER_ROLES,
     fields: [
       { key: 'name', label: 'Nombre', type: 'text', required: true },
       { key: 'description', label: 'Descripción', type: 'textarea' },
@@ -137,7 +139,7 @@ export const RESOURCE_DEFINITIONS: Record<string, ResourceDefinition> = {
     subtitle: 'Gestión del portafolio de mano de obra y soporte.',
     endpoint: 'services',
     singular: 'servicio',
-    roles: ['ADMINISTRADOR'],
+    roles: MANAGER_ROLES,
     fields: [
       {
         key: 'categoryId',

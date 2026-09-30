@@ -40,14 +40,14 @@ public class ProductController {
     private final DtoMapper dtoMapper;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO')")
     public ResponseEntity<ProductDTO> create(@Validated(OnCreate.class) @RequestBody ProductRequest request,
                                              @AuthenticationPrincipal AuthenticatedUser actor) {
         return ResponseEntity.ok(dtoMapper.map(service.create(request, actor), ProductDTO.class));
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<Object> findAll(@Valid PaginationQuery query) {
         if (query.isPaginated()) {
             return listingResponder.respondWithSearch(query, PaginationSupport.DEFAULT_LIMIT,
@@ -64,13 +64,13 @@ public class ProductController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<ProductDTO> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(dtoMapper.map(service.findById(id), ProductDTO.class));
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO')")
     public ResponseEntity<ProductDTO> update(@PathVariable UUID id,
                                              @Valid @RequestBody ProductRequest request,
                                              @AuthenticationPrincipal AuthenticatedUser actor) {
@@ -79,7 +79,7 @@ public class ProductController {
 
     /** Sube la imagen del producto a Cloudinary y deja su URL en el producto. */
     @PostMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO')")
     public ResponseEntity<ProductDTO> updateImage(@PathVariable UUID id,
                                                   @RequestParam("file") MultipartFile file,
                                                   @AuthenticationPrincipal AuthenticatedUser actor) {
@@ -87,14 +87,14 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}/image")
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO')")
     public ResponseEntity<ProductDTO> removeImage(@PathVariable UUID id,
                                                   @AuthenticationPrincipal AuthenticatedUser actor) {
         return ResponseEntity.ok(dtoMapper.map(service.removeImage(id, actor), ProductDTO.class));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO')")
     public ResponseEntity<MessageResponse> delete(@PathVariable UUID id,
                                                   @AuthenticationPrincipal AuthenticatedUser actor) {
         service.delete(id, actor);

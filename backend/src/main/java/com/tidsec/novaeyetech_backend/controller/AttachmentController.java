@@ -46,7 +46,7 @@ public class AttachmentController {
     private final DtoMapper dtoMapper;
 
     @PostMapping("/upload/maintenance/{maintenanceId}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<AttachmentDTO> uploadMaintenanceEvidence(@PathVariable UUID maintenanceId,
                                                                    @RequestParam("file") MultipartFile file,
                                                                    @AuthenticationPrincipal AuthenticatedUser actor) {
@@ -57,7 +57,7 @@ public class AttachmentController {
     }
 
     @GetMapping("/{id}/download")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<byte[]> download(@PathVariable UUID id) {
         IAttachmentService.DownloadedAttachment downloaded = service.download(id);
         Attachment attachment = downloaded.attachment();
@@ -70,7 +70,7 @@ public class AttachmentController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<MessageResponse> delete(@PathVariable UUID id,
                                                   @AuthenticationPrincipal AuthenticatedUser actor) {
         service.delete(id, actor);
@@ -79,7 +79,7 @@ public class AttachmentController {
     }
 
     @GetMapping("/{sourceEntity}/{sourceEntityId}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<Object> findBySource(@PathVariable String sourceEntity,
                                                @PathVariable String sourceEntityId,
                                                @Valid PaginationQuery query) {

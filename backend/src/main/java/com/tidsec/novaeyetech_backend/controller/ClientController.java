@@ -36,27 +36,27 @@ public class ClientController {
     private final DtoMapper dtoMapper;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<ClientDTO> create(@Validated(OnCreate.class) @RequestBody ClientRequest request,
                                             @AuthenticationPrincipal AuthenticatedUser actor) {
         return ResponseEntity.ok(dtoMapper.map(service.create(request, actor), ClientDTO.class));
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<Object> findAll(@Valid PaginationQuery query) {
         return listingResponder.respondWithSearch(query, PaginationSupport.DEFAULT_LIMIT,
                 service::findAll, service::findAll, ClientDTO.class);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<ClientDTO> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(dtoMapper.map(service.findById(id), ClientDTO.class));
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<ClientDTO> update(@PathVariable UUID id,
                                             @Valid @RequestBody ClientRequest request,
                                             @AuthenticationPrincipal AuthenticatedUser actor) {
@@ -64,7 +64,7 @@ public class ClientController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<MessageResponse> delete(@PathVariable UUID id,
                                                   @AuthenticationPrincipal AuthenticatedUser actor) {
         service.delete(id, actor);

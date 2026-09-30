@@ -48,8 +48,13 @@ public class UserController {
         return ResponseEntity.ok(dtoMapper.map(service.create(request), UserDTO.class));
     }
 
+    /**
+     * Lista de usuarios. El administrador operativo la lee (solo lectura) porque el formulario de
+     * mantenimientos elige al tecnico de aqui; crear, editar y borrar usuarios sigue siendo del super
+     * administrador.
+     */
     @GetMapping
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO')")
     public ResponseEntity<Object> findAll(@Valid PaginationQuery query) {
         return listingResponder.respondWithSearch(query, PaginationSupport.DEFAULT_LIMIT,
                 service::findAll, service::findAll, UserDTO.class);
@@ -57,13 +62,13 @@ public class UserController {
 
     /** Debe declararse antes que /{id} para que "me" no se interprete como identificador. */
     @GetMapping("/me")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<UserDTO> me(@AuthenticationPrincipal AuthenticatedUser actor) {
         return ResponseEntity.ok(dtoMapper.map(service.findById(actor.id()), UserDTO.class));
     }
 
     @PatchMapping("/me/profile")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<UserDTO> updateOwnProfile(@AuthenticationPrincipal AuthenticatedUser actor,
                                                     @Valid @RequestBody UserRequest request) {
         return ResponseEntity.ok(dtoMapper.map(service.updateOwnProfile(actor.id(), request), UserDTO.class));
@@ -71,7 +76,7 @@ public class UserController {
 
     /** Sube la foto de perfil a Cloudinary y deja su URL en el usuario. */
     @PostMapping(value = "/me/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<UserDTO> updateOwnAvatar(@AuthenticationPrincipal AuthenticatedUser actor,
                                                    @RequestParam("file") MultipartFile file) {
         return ResponseEntity.ok(dtoMapper.map(service.updateAvatar(actor.id(), file), UserDTO.class));
@@ -79,7 +84,7 @@ public class UserController {
 
     /** Quita la foto de perfil y la elimina de Cloudinary. */
     @DeleteMapping("/me/avatar")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<UserDTO> removeOwnAvatar(@AuthenticationPrincipal AuthenticatedUser actor) {
         return ResponseEntity.ok(dtoMapper.map(service.removeAvatar(actor.id()), UserDTO.class));
     }

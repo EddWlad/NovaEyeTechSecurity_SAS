@@ -36,27 +36,27 @@ public class SupplierController {
     private final DtoMapper dtoMapper;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO')")
     public ResponseEntity<SupplierDTO> create(@Validated(OnCreate.class) @RequestBody SupplierRequest request,
                                               @AuthenticationPrincipal AuthenticatedUser actor) {
         return ResponseEntity.ok(dtoMapper.map(service.create(request, actor), SupplierDTO.class));
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<Object> findAll(@Valid PaginationQuery query) {
         return listingResponder.respondWithSearch(query, PaginationSupport.DEFAULT_LIMIT,
                 service::findAll, service::findAll, SupplierDTO.class);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<SupplierDTO> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(dtoMapper.map(service.findById(id), SupplierDTO.class));
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO')")
     public ResponseEntity<SupplierDTO> update(@PathVariable UUID id,
                                               @Valid @RequestBody SupplierRequest request,
                                               @AuthenticationPrincipal AuthenticatedUser actor) {
@@ -64,7 +64,7 @@ public class SupplierController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO')")
     public ResponseEntity<MessageResponse> delete(@PathVariable UUID id,
                                                   @AuthenticationPrincipal AuthenticatedUser actor) {
         service.delete(id, actor);

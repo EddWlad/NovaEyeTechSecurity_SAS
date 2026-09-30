@@ -3,6 +3,7 @@ import { Route, Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { roleGuard } from './core/guards/role.guard';
 import { Role } from './core/models/enums';
+import { ALL_ROLES, MANAGER_ROLES, SUPER_ADMIN_ROLES } from './shared/constants/roles.constants';
 import { AppShellComponent } from './core/layout/app-shell.component';
 import { LoginPageComponent } from './features/auth/pages/login/login-page.component';
 
@@ -11,8 +12,9 @@ import { LoginPageComponent } from './features/auth/pages/login/login-page.compo
  * visita (y el router precarga el resto en segundo plano, ver app.config.ts): el bundle inicial
  * pasa de una sola pieza a lo minimo para pintar el login.
  */
-const ADMIN: Role[] = ['ADMINISTRADOR'];
-const BOTH: Role[] = ['ADMINISTRADOR', 'TECNICO'];
+const SUPER = SUPER_ADMIN_ROLES;
+const MANAGERS = MANAGER_ROLES;
+const ALL = ALL_ROLES;
 
 const loadDashboard = () =>
   import('./features/dashboard/pages/dashboard/dashboard-page.component').then((m) => m.DashboardPageComponent);
@@ -74,31 +76,31 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
-      { path: 'dashboard', loadComponent: loadDashboard, canActivate: [roleGuard], data: { roles: BOTH } },
-      { path: 'profile', loadComponent: loadProfile, canActivate: [roleGuard], data: { roles: BOTH } },
+      { path: 'dashboard', loadComponent: loadDashboard, canActivate: [roleGuard], data: { roles: ALL } },
+      { path: 'profile', loadComponent: loadProfile, canActivate: [roleGuard], data: { roles: ALL } },
 
-      ...crudRoutes('users', ADMIN),
-      ...crudRoutes('clients', BOTH),
-      ...crudRoutes('suppliers', ADMIN),
-      ...crudRoutes('product-categories', ADMIN),
-      ...crudRoutes('products', BOTH, ADMIN),
-      ...crudRoutes('service-categories', ADMIN),
-      ...crudRoutes('services', BOTH, ADMIN),
+      ...crudRoutes('users', SUPER),
+      ...crudRoutes('clients', ALL),
+      ...crudRoutes('suppliers', MANAGERS),
+      ...crudRoutes('product-categories', MANAGERS),
+      ...crudRoutes('products', ALL, MANAGERS),
+      ...crudRoutes('service-categories', MANAGERS),
+      ...crudRoutes('services', ALL, MANAGERS),
 
-      { path: 'quotation-settings', loadComponent: loadQuotationSettings, canActivate: [roleGuard], data: { roles: ADMIN } },
+      { path: 'quotation-settings', loadComponent: loadQuotationSettings, canActivate: [roleGuard], data: { roles: SUPER } },
 
-      { path: 'quotations', loadComponent: loadQuotationsList, canActivate: [roleGuard], data: { roles: BOTH } },
-      { path: 'quotations/new', loadComponent: loadQuotationForm, canActivate: [roleGuard], data: { roles: BOTH } },
-      { path: 'quotations/:id', loadComponent: loadQuotationDetail, canActivate: [roleGuard], data: { roles: BOTH } },
-      { path: 'quotations/:id/edit', loadComponent: loadQuotationForm, canActivate: [roleGuard], data: { roles: BOTH } },
-      { path: 'quotations/:id/pdf-preview', loadComponent: loadQuotationPdfPreview, canActivate: [roleGuard], data: { roles: BOTH } },
+      { path: 'quotations', loadComponent: loadQuotationsList, canActivate: [roleGuard], data: { roles: ALL } },
+      { path: 'quotations/new', loadComponent: loadQuotationForm, canActivate: [roleGuard], data: { roles: ALL } },
+      { path: 'quotations/:id', loadComponent: loadQuotationDetail, canActivate: [roleGuard], data: { roles: ALL } },
+      { path: 'quotations/:id/edit', loadComponent: loadQuotationForm, canActivate: [roleGuard], data: { roles: ALL } },
+      { path: 'quotations/:id/pdf-preview', loadComponent: loadQuotationPdfPreview, canActivate: [roleGuard], data: { roles: ALL } },
 
-      { path: 'maintenance', loadComponent: loadMaintenanceList, canActivate: [roleGuard], data: { roles: BOTH } },
-      { path: 'maintenance/new', loadComponent: loadMaintenanceForm, canActivate: [roleGuard], data: { roles: BOTH } },
-      { path: 'maintenance/:id', loadComponent: loadMaintenanceDetail, canActivate: [roleGuard], data: { roles: BOTH } },
-      { path: 'maintenance/:id/edit', loadComponent: loadMaintenanceForm, canActivate: [roleGuard], data: { roles: BOTH } },
+      { path: 'maintenance', loadComponent: loadMaintenanceList, canActivate: [roleGuard], data: { roles: ALL } },
+      { path: 'maintenance/new', loadComponent: loadMaintenanceForm, canActivate: [roleGuard], data: { roles: ALL } },
+      { path: 'maintenance/:id', loadComponent: loadMaintenanceDetail, canActivate: [roleGuard], data: { roles: ALL } },
+      { path: 'maintenance/:id/edit', loadComponent: loadMaintenanceForm, canActivate: [roleGuard], data: { roles: ALL } },
 
-      { path: 'audit-logs', loadComponent: loadAuditLogs, canActivate: [roleGuard], data: { roles: ADMIN } },
+      { path: 'audit-logs', loadComponent: loadAuditLogs, canActivate: [roleGuard], data: { roles: SUPER } },
     ],
   },
   { path: '**', redirectTo: '' },

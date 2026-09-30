@@ -114,7 +114,7 @@ Un campo no declarado en el DTO responde 400.
 
 **Alcance por rol**
 
-Solo existen `ADMINISTRADOR` y `TECNICO`. Un técnico solo ve y edita sus propias cotizaciones y los mantenimientos donde figura como técnico asignado; un id ajeno responde 404, no 403.
+Existen `ADMINISTRADOR` (super administrador), `ADMIN_OPERATIVO` (administrador sin usuarios, parámetros ni auditoría) y `TECNICO`. Un técnico solo ve y edita sus propias cotizaciones y los mantenimientos donde figura como técnico asignado; un id ajeno responde 404, no 403.
 
 ---
 

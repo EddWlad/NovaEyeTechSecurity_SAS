@@ -28,14 +28,14 @@ public class MaintenanceCommentController {
     private final DtoMapper dtoMapper;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<MaintenanceCommentDTO> create(@Valid @RequestBody MaintenanceCommentRequest request,
                                                         @AuthenticationPrincipal AuthenticatedUser actor) {
         return ResponseEntity.ok(dtoMapper.map(service.create(request, actor), MaintenanceCommentDTO.class));
     }
 
     @GetMapping("/maintenance/{maintenanceId}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<List<MaintenanceCommentDTO>> findByMaintenance(@PathVariable UUID maintenanceId) {
         return ResponseEntity.ok(
                 dtoMapper.mapList(service.findByMaintenance(maintenanceId), MaintenanceCommentDTO.class));

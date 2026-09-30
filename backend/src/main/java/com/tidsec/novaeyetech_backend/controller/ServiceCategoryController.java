@@ -34,33 +34,33 @@ public class ServiceCategoryController {
     private final DtoMapper dtoMapper;
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO')")
     public ResponseEntity<CategoryDTO> create(@Validated(OnCreate.class) @RequestBody CategoryRequest request) {
         return ResponseEntity.ok(dtoMapper.map(service.create(request), CategoryDTO.class));
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<Object> findAll(@Valid PaginationQuery query) {
         return listingResponder.respondWithSearch(query, PaginationSupport.DEFAULT_LIMIT,
                 service::findAll, service::findAll, CategoryDTO.class);
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<CategoryDTO> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(dtoMapper.map(service.findById(id), CategoryDTO.class));
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO')")
     public ResponseEntity<CategoryDTO> update(@PathVariable UUID id,
                                               @Valid @RequestBody CategoryRequest request) {
         return ResponseEntity.ok(dtoMapper.map(service.update(id, request), CategoryDTO.class));
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO')")
     public ResponseEntity<MessageResponse> delete(@PathVariable UUID id) {
         service.delete(id);
 

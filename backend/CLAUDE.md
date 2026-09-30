@@ -150,7 +150,7 @@ Un servicio nuevo que necesite guardar archivos inyecta `IStorageService` y no t
 - Stateless: sin sesión, JWT en `Authorization: Bearer`.
 - Regla base `anyRequest().authenticated()` **más** `@PreAuthorize` en cada handler. Es una diferencia deliberada con el backend NestJS, donde el `RolesGuard` dejaba pasar cualquier handler sin `@Roles`: allí olvidar el decorador abría el endpoint, aquí no.
 - Único endpoint público: `POST /api/auth/login`.
-- Solo dos roles: `ADMINISTRADOR` y `TECNICO`.
+- Tres roles: `ADMINISTRADOR` (super administrador, acceso total), `ADMIN_OPERATIVO` (administrador sin usuarios, parámetros de cotización ni auditoría; puede leer la lista de usuarios para asignar técnicos) y `TECNICO`.
 - El filtro JWT revalida el usuario contra la base en cada petición: un usuario desactivado pierde acceso aunque su token siga vigente.
 - `JwtAuthenticationFilter` **no es un bean**: lo instancia `SecurityConfig`. Declararlo como bean haría que Boot lo registrara también como filtro del contenedor y se ejecutaría dos veces.
 - `UserDTO` no declara `password`: el hash no puede salir por un descuido de saneado.

@@ -6,6 +6,7 @@ El esquema de la base **no lo genera Hibernate**: existe desde el backend NestJS
 |---|---|
 | `000-esquema-base.sql` | Volcado del esquema en producción, tal como lo dejó TypeORM. Punto de partida para montar una base local idéntica. No se ejecuta en producción, que ya lo tiene aplicado. |
 | `001-migracion-a-spring-boot.sql` | Añade lo que el backend Spring Boot necesita y no existía. Aditivo e idempotente. |
+| `002-rol-admin-operativo.sql` | Agrega el rol `ADMIN_OPERATIVO` (administrador sin usuarios, parámetros ni auditoría). No toca filas. |
 
 ## Montar la base local
 

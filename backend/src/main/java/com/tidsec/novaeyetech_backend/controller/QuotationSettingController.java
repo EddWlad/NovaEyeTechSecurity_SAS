@@ -26,7 +26,7 @@ public class QuotationSettingController {
     private final DtoMapper dtoMapper;
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<QuotationSettingDTO> getSettings() {
         return ResponseEntity.ok(dtoMapper.map(service.getCurrentSettings(), QuotationSettingDTO.class));
     }

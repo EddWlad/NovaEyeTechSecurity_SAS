@@ -46,14 +46,14 @@ public class QuotationController {
     private final DtoMapper dtoMapper;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<QuotationDTO> create(@Valid @RequestBody QuotationRequest request,
                                                @AuthenticationPrincipal AuthenticatedUser actor) {
         return ResponseEntity.ok(dtoMapper.map(service.create(request, actor), QuotationDTO.class));
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<Object> findAll(@AuthenticationPrincipal AuthenticatedUser actor,
                                           @Valid PaginationQuery query,
                                           @RequestParam(required = false) QuotationStatus status) {
@@ -69,14 +69,14 @@ public class QuotationController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<QuotationDTO> findById(@PathVariable UUID id,
                                                   @AuthenticationPrincipal AuthenticatedUser actor) {
         return ResponseEntity.ok(dtoMapper.map(service.findById(id, actor), QuotationDTO.class));
     }
 
     @PatchMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<QuotationDTO> updateDraft(@PathVariable UUID id,
                                                      @Valid @RequestBody QuotationRequest request,
                                                      @AuthenticationPrincipal AuthenticatedUser actor) {
@@ -84,7 +84,7 @@ public class QuotationController {
     }
 
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<QuotationDTO> updateStatus(@PathVariable UUID id,
                                                       @Valid @RequestBody QuotationStatusRequest request,
                                                       @AuthenticationPrincipal AuthenticatedUser actor) {
@@ -93,7 +93,7 @@ public class QuotationController {
 
     /** Se sirve inline para que el frontend pueda mostrarlo en su vista previa. */
     @GetMapping(value = "/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<byte[]> downloadPdf(@PathVariable UUID id,
                                               @AuthenticationPrincipal AuthenticatedUser actor) {
         byte[] pdf = service.buildPdf(id, actor);
@@ -109,7 +109,7 @@ public class QuotationController {
      * rol que el PDF: un tecnico solo ve la de sus propias cotizaciones.
      */
     @GetMapping("/{id}/pdf/preview")
-    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'TECNICO')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'ADMIN_OPERATIVO', 'TECNICO')")
     public ResponseEntity<PdfPreviewDTO> previewPdf(@PathVariable UUID id,
                                                     @AuthenticationPrincipal AuthenticatedUser actor) {
         Base64.Encoder encoder = Base64.getEncoder();

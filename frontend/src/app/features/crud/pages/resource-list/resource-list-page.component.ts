@@ -14,8 +14,9 @@ import { ResourceDefinition } from '../../../../core/models/resource.models';
 import { AuthService } from '../../../../core/services/auth.service';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { toImageSrc } from '../../../../core/utils/image.util';
-import { relationLabel } from '../../../../core/utils/relation.util';
+import { optionLabel, relationLabel } from '../../../../core/utils/relation.util';
 import { onSearchChange } from '../../../../core/utils/search.util';
+import { MANAGER_ROLES } from '../../../../shared/constants/roles.constants';
 
 @Component({
   selector: 'app-resource-list-page',
@@ -71,7 +72,7 @@ export class ResourceListPageComponent {
     if (def.key === 'clients') {
       return true;
     }
-    return this.authService.hasRole(['ADMINISTRADOR']);
+    return this.authService.hasRole(MANAGER_ROLES);
   });
 
   readonly usesDeleteModal = computed(() => {
@@ -240,6 +241,11 @@ export class ResourceListPageComponent {
 
     if (value === null || value === undefined || value === '') {
       return '-';
+    }
+
+    const option = optionLabel(this.definition()?.fields.find((field) => field.key === key)?.options, value);
+    if (option) {
+      return option;
     }
 
     if (typeof value === 'object' && value !== null) {
