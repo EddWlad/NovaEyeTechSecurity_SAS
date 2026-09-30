@@ -38,15 +38,15 @@
       </article>
       <article class="card info-card" style="grid-column:1/-1;">
         <strong>Diagnóstico</strong>
-        <p>{{ maintenance.diagnosis }}</p>
+        <p class="multiline">{{ maintenance.diagnosis }}</p>
       </article>
       <article class="card info-card" style="grid-column:1/-1;">
         <strong>Solución aplicada</strong>
-        <p>{{ maintenance.appliedSolution }}</p>
+        <p class="multiline">{{ maintenance.appliedSolution }}</p>
       </article>
       <article class="card info-card" style="grid-column:1/-1;">
         <strong>Observaciones</strong>
-        <p>{{ maintenance.observations || 'Sin observaciones' }}</p>
+        <p class="multiline">{{ maintenance.observations || 'Sin observaciones' }}</p>
       </article>
     </div>
   </article>
@@ -57,7 +57,7 @@
       <article *ngFor="let comment of comments()" class="timeline-item">
         <strong>{{ comment.user.fullName }}</strong>
         <small>{{ comment.createdAt | date: 'dd/MM/yyyy HH:mm' }}</small>
-        <p>{{ comment.comment }}</p>
+        <p class="multiline">{{ comment.comment }}</p>
       </article>
     </div>
     <ng-template #noComments>

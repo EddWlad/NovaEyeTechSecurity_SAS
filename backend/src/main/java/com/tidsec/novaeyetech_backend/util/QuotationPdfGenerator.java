@@ -45,13 +45,24 @@ public class QuotationPdfGenerator {
     private static final Color FOOTER_TEXT = new Color(0x5C5C62);
 
     private static final float MARGIN = 36f;
-    private static final float HEADER_HEIGHT = 110f;
+    private static final float HEADER_HEIGHT = 128f;
     private static final float ACCENT_HEIGHT = 10f;
+    /** Donde empieza el contenido bajo la cabecera; todo lo demas se mide desde aqui. */
+    private static final float CONTENT_TOP = HEADER_HEIGHT + ACCENT_HEIGHT + 20f;
+    private static final float LOGO_TOP = 8f;
+    private static final float LOGO_MAX_WIDTH = 150f;
+    private static final float LOGO_MAX_HEIGHT = HEADER_HEIGHT - 2 * LOGO_TOP;
+    private static final float HEADER_GAP = 12f;
     private static final float CLIENT_CARD_HEIGHT = 92f;
     private static final float SUMMARY_HEIGHT = 108f;
+    /** Alto minimo del cuadro de observaciones; crece con el texto. */
     private static final float OBSERVATIONS_HEIGHT = 88f;
+    private static final float OBSERVATIONS_TEXT_TOP = 28f;
+    private static final float OBSERVATIONS_LINE_HEIGHT = 12f;
+    private static final float OBSERVATIONS_PADDING_BOTTOM = 12f;
     private static final float FOOTER_RESERVED = 56f;
-    private static final float CONTINUATION_CONTENT_TOP = 170f;
+    /** En paginas de continuacion el contenido baja para dejar lugar al rotulo "Cotizacion N". */
+    private static final float CONTINUATION_CONTENT_TOP = CONTENT_TOP + 30f;
     private static final float ROW_MIN_HEIGHT = 28f;
     private static final float TABLE_HEADER_HEIGHT = 24f;
 
@@ -98,38 +109,57 @@ public class QuotationPdfGenerator {
         canvas.fillRect(0, 0, pageWidth, HEADER_HEIGHT, HEADER_BACKGROUND);
         canvas.fillRect(0, HEADER_HEIGHT, pageWidth, ACCENT_HEIGHT, ACCENT);
 
-        float logoX = MARGIN - 2;
-
         if (logo != null) {
-            canvas.drawImage(logo, "logo", logoX, 10f, 138f, 92f);
+            canvas.drawImage(logo, "logo", MARGIN, LOGO_TOP, LOGO_MAX_WIDTH, LOGO_MAX_HEIGHT);
         } else {
-            canvas.text("NOVAEYE", logoX, 30f, bold, 20f, HEADER_TEXT);
-            canvas.text("TECHNOLOGY S.A.S", logoX, 56f, bold, 11f, HEADER_TEXT);
+            canvas.text("NOVAEYE", MARGIN, 40f, bold, 20f, HEADER_TEXT);
+            canvas.text("TECHNOLOGY S.A.S", MARGIN, 66f, bold, 11f, HEADER_TEXT);
         }
 
-        float companyInfoX = MARGIN + 122;
-        float companyInfoWidth = 220f;
+        float rightEdge = pageWidth - MARGIN;
+        List<HeaderLine> details = List.of(
+                new HeaderLine("No: " + quotation.getQuotationNumber(), 27f, 10.2f),
+                new HeaderLine("Fecha: " + quotation.getIssuedAt(), 42f, 10.2f),
+                new HeaderLine("RUC: " + company.taxId(), 60f, 8.9f),
+                new HeaderLine("Direccion: " + company.address(), 74f, 8.9f),
+                new HeaderLine("Telefono: " + company.phone(), 88f, 8.9f));
 
-        // 15 pt: el nombre actual es largo y a 17 pt quedaba pegado a los datos de la derecha.
-        canvas.textCentered(company.name(), companyInfoX, companyInfoWidth, 31f, bold, 15f, HEADER_TEXT);
-        canvas.textCentered(company.tagline(), companyInfoX, companyInfoWidth, 54f, regular, 10.5f,
+        float detailsWidth = 0f;
+        for (HeaderLine line : details) {
+            canvas.textRight(line.text(), rightEdge, line.top(), regular, line.size(), HEADER_TEXT);
+            detailsWidth = Math.max(detailsWidth, canvas.textWidth(line.text(), regular, line.size()));
+        }
+
+        // El nombre ocupa el espacio entre el logo y los datos de la derecha; si no cabe, se achica
+        // en lugar de pisarlos (un nombre o una direccion mas largos no rompen la cabecera).
+        float titleX = MARGIN + LOGO_MAX_WIDTH + HEADER_GAP;
+        float titleWidth = rightEdge - detailsWidth - HEADER_GAP - titleX;
+        float titleSize = fitFontSize(canvas, company.name(), bold, 17f, 9f, titleWidth);
+        float taglineSize = fitFontSize(canvas, company.tagline(), regular, 10.5f, 7f, titleWidth);
+
+        canvas.textCentered(company.name(), titleX, titleWidth, 44f, bold, titleSize, HEADER_TEXT);
+        canvas.textCentered(company.tagline(), titleX, titleWidth, 68f, regular, taglineSize,
                 new Color(0xF5F5F5));
 
-        float rightEdge = pageWidth - MARGIN;
-
-        canvas.textRight("No: " + quotation.getQuotationNumber(), rightEdge, 18f, regular, 10.2f, HEADER_TEXT);
-        canvas.textRight("Fecha: " + quotation.getIssuedAt(), rightEdge, 33f, regular, 10.2f, HEADER_TEXT);
-        canvas.textRight("RUC: " + company.taxId(), rightEdge, 51f, regular, 8.9f, HEADER_TEXT);
-        canvas.textRight("Direccion: " + company.address(), rightEdge, 65f, regular, 8.9f, HEADER_TEXT);
-        canvas.textRight("Telefono: " + company.phone(), rightEdge, 79f, regular, 8.9f, HEADER_TEXT);
-
         if (!firstPage) {
-            canvas.text("Cotizacion " + quotation.getQuotationNumber(), MARGIN, 136f, bold, 11f, TEXT);
+            canvas.text("Cotizacion " + quotation.getQuotationNumber(), MARGIN, CONTENT_TOP - 4f, bold, 11f, TEXT);
         }
     }
 
+    private record HeaderLine(String text, float top, float size) {
+    }
+
+    /** El mayor tamano entre {@code min} y {@code max} con el que el texto cabe en {@code width}. */
+    private float fitFontSize(PdfCanvas canvas, String text, PDType1Font font, float max, float min, float width) {
+        float size = max;
+        while (size > min && canvas.textWidth(text, font, size) > width) {
+            size -= 0.5f;
+        }
+        return size;
+    }
+
     private float drawClientCard(PdfCanvas canvas, Quotation quotation, float contentWidth) {
-        float top = 140f;
+        float top = CONTENT_TOP;
 
         canvas.roundedRect(MARGIN, top, contentWidth, CLIENT_CARD_HEIGHT, 8f, CARD_BACKGROUND, BORDER);
 
@@ -216,7 +246,7 @@ public class QuotationPdfGenerator {
     private float drawSummary(PdfCanvas canvas, Quotation quotation, byte[] logo, float startTop) {
         float cursor = startTop;
 
-        if (cursor + SUMMARY_HEIGHT + OBSERVATIONS_HEIGHT + 18 > canvas.pageHeight() - FOOTER_RESERVED) {
+        if (cursor + SUMMARY_HEIGHT + OBSERVATIONS_HEIGHT + 18 > canvas.pageHeight() - FOOTER_RESERVED - 12) {
             canvas.newPage();
             drawPageChrome(canvas, quotation, logo, false);
             cursor = CONTINUATION_CONTENT_TOP;
@@ -251,26 +281,57 @@ public class QuotationPdfGenerator {
         return cursor + SUMMARY_HEIGHT + 18;
     }
 
+    /**
+     * Cuadro de observaciones. Respeta los saltos de linea que escribio el usuario y crece con el
+     * texto; si no cabe en lo que queda de pagina, sigue en la siguiente en lugar de salirse del cuadro.
+     */
     private void drawObservations(PdfCanvas canvas, Quotation quotation, byte[] logo,
                                   float contentWidth, float startTop) {
-        float cursor = startTop;
-
-        if (cursor + OBSERVATIONS_HEIGHT > canvas.pageHeight() - FOOTER_RESERVED) {
-            canvas.newPage();
-            drawPageChrome(canvas, quotation, logo, false);
-            cursor = CONTINUATION_CONTENT_TOP;
-        }
-
-        canvas.roundedRect(MARGIN, cursor, contentWidth, OBSERVATIONS_HEIGHT, 8f, CARD_BACKGROUND, BORDER);
-        canvas.text("OBSERVACIONES", MARGIN + 12, cursor + 10, bold, 10f, TEXT);
-
         String observations = quotation.getObservations() != null && !quotation.getObservations().isBlank()
                 ? quotation.getObservations()
                 : "Agradecemos la oportunidad de servirle. Esta cotizacion se elaboro segun los "
                         + "requerimientos levantados y mantiene vigencia segun fecha indicada.";
 
-        canvas.textWrapped(observations, MARGIN + 12, cursor + 28, contentWidth - 24,
-                regular, 9.5f, 12f, MUTED_TEXT);
+        List<String> lines = canvas.wrap(observations, regular, 9.5f, contentWidth - 24);
+        // Mismo limite inferior que las filas de la tabla: deja libre el pie de pagina.
+        float pageBottom = canvas.pageHeight() - FOOTER_RESERVED - 12;
+        float cursor = startTop;
+        int next = 0;
+        boolean continued = false;
+
+        while (next < lines.size()) {
+            // El cuadro minimo no cabe en lo que queda: a la pagina siguiente.
+            if (cursor + OBSERVATIONS_HEIGHT > pageBottom) {
+                canvas.newPage();
+                drawPageChrome(canvas, quotation, logo, false);
+                cursor = CONTINUATION_CONTENT_TOP;
+            }
+
+            int count = Math.min(observationLinesThatFit(pageBottom - cursor), lines.size() - next);
+            float height = Math.max(OBSERVATIONS_HEIGHT,
+                    OBSERVATIONS_TEXT_TOP + count * OBSERVATIONS_LINE_HEIGHT + OBSERVATIONS_PADDING_BOTTOM);
+            height = Math.min(height, pageBottom - cursor);
+
+            canvas.roundedRect(MARGIN, cursor, contentWidth, height, 8f, CARD_BACKGROUND, BORDER);
+            canvas.text(continued ? "OBSERVACIONES (continuacion)" : "OBSERVACIONES",
+                    MARGIN + 12, cursor + 10, bold, 10f, TEXT);
+
+            float lineTop = cursor + OBSERVATIONS_TEXT_TOP;
+            for (String line : lines.subList(next, next + count)) {
+                canvas.text(line, MARGIN + 12, lineTop, regular, 9.5f, MUTED_TEXT);
+                lineTop += OBSERVATIONS_LINE_HEIGHT;
+            }
+
+            next += count;
+            continued = true;
+            // Fuerza el salto de pagina en la siguiente vuelta si aun queda texto.
+            cursor = pageBottom;
+        }
+    }
+
+    private int observationLinesThatFit(float availableHeight) {
+        return (int) ((availableHeight - OBSERVATIONS_TEXT_TOP - OBSERVATIONS_PADDING_BOTTOM)
+                / OBSERVATIONS_LINE_HEIGHT);
     }
 
     private void drawFooter(PdfCanvas canvas, float contentWidth) {

@@ -174,7 +174,11 @@ public class PdfCanvas implements AutoCloseable {
         }
     }
 
-    /** Parte el texto en lineas que caben en {@code width}, cortando palabras solo si no caben solas. */
+    /**
+     * Parte el texto en lineas que caben en {@code width}, cortando palabras solo si no caben solas.
+     * Los saltos de linea del texto se respetan: cada uno empieza una linea nueva, y una linea en
+     * blanco entre parrafos se conserva como linea vacia.
+     */
     public List<String> wrap(String value, PDFont font, float fontSize, float width) {
         List<String> lines = new ArrayList<>();
 
@@ -182,9 +186,21 @@ public class PdfCanvas implements AutoCloseable {
             return lines;
         }
 
+        for (String paragraph : value.strip().split("\\R")) {
+            if (paragraph.isBlank()) {
+                lines.add("");
+            } else {
+                wrapParagraph(paragraph, font, fontSize, width, lines);
+            }
+        }
+
+        return lines;
+    }
+
+    private void wrapParagraph(String paragraph, PDFont font, float fontSize, float width, List<String> lines) {
         StringBuilder current = new StringBuilder();
 
-        for (String word : value.replaceAll("\\s+", " ").trim().split(" ")) {
+        for (String word : paragraph.replaceAll("\\s+", " ").trim().split(" ")) {
             String candidate = current.isEmpty() ? word : current + " " + word;
 
             if (textWidth(candidate, font, fontSize) <= width) {
@@ -201,8 +217,6 @@ public class PdfCanvas implements AutoCloseable {
         if (!current.isEmpty()) {
             lines.add(current.toString());
         }
-
-        return lines;
     }
 
     @Override

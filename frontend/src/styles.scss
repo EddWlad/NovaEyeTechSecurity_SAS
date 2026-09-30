@@ -125,6 +125,24 @@ input[type='checkbox'] {
   color: var(--gray-900);
 }
 
+/* Areas de texto: altura inicial de varias lineas y crecen con lo escrito (field-sizing, donde el
+   navegador lo soporta); en el resto el usuario las agranda arrastrando la esquina. */
+.textarea {
+  min-height: 6.25rem;
+  max-height: 60vh;
+  line-height: 1.45;
+  resize: vertical;
+  field-sizing: content;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Texto escrito por el usuario en un area de texto: conserva sus saltos de linea al mostrarlo. */
+.multiline {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
 .input:focus,
 .select:focus,
 .textarea:focus {

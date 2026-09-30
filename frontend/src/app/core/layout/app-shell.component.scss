@@ -26,32 +26,39 @@
 
 .brand {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: .55rem;
+  gap: .2rem;
   border: 1px solid #4b5563;
-  padding: .62rem;
+  padding: .7rem .6rem .6rem;
   border-radius: 12px;
   background: rgb(255 255 255 / 4%);
+  text-align: center;
+  /* El logo nunca se encoge para dejar lugar al menu: el que se desplaza es el menu. */
+  flex-shrink: 0;
 }
 
+/* El dibujo crece con el alto de la pantalla: grande donde sobra espacio, contenido en portatiles
+   bajos para no quitarle lugar al menu. */
 .brand img {
-  width: 44px;
-  height: 44px;
-  object-fit: contain;
+  width: auto;
+  height: clamp(52px, 9.5vh, 104px);
+  aspect-ratio: 278 / 231;
 }
 
 .brand-name {
-  margin: 0;
+  margin: .15rem 0 0;
   font-weight: 800;
-  font-size: .82rem;
+  font-size: .875rem;
   letter-spacing: .02em;
-  /* El nombre ocupa dos lineas en el menu: juntas, para que se lea como un solo bloque. */
   line-height: 1.2;
+  /* Cabe en una linea; si el menu fuera mas angosto, se parte en dos lineas parejas. */
+  text-wrap: balance;
 }
 
 .brand-subtitle {
-  margin: .15rem 0 0;
-  font-size: .69rem;
+  margin: 0;
+  font-size: .72rem;
   color: #c8d3de;
 }
 
@@ -120,6 +127,17 @@
   /* Franja clara: sobre el gris del menu el verde de marca solo no se distingue. */
   box-shadow: inset 3px 0 0 var(--brand-on-dark);
   color: white;
+}
+
+/* Portatiles bajos: el menu se compacta para que el logo grande no esconda opciones. */
+@media (max-height: 800px) {
+  .sidebar {
+    gap: .75rem;
+  }
+
+  .nav-list a {
+    padding-block: .42rem;
+  }
 }
 
 .profile-box {
@@ -228,6 +246,16 @@
 
   .sidebar.open {
     left: 0;
+  }
+
+  /* El menu movil es 20 px mas angosto: asi el nombre sigue en una linea. */
+  .brand-name {
+    font-size: .8rem;
+  }
+
+  /* En el celular las opciones son mas altas (tactiles): el dibujo cede algo de alto. */
+  .brand img {
+    height: 60px;
   }
 
   .overlay.show {
