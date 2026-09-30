@@ -103,14 +103,15 @@ public class QuotationPdfGenerator {
         if (logo != null) {
             canvas.drawImage(logo, "logo", logoX, 10f, 138f, 92f);
         } else {
-            canvas.text("NEXT EYE", logoX, 30f, bold, 20f, HEADER_TEXT);
-            canvas.text("SECURITY", logoX, 56f, bold, 11f, HEADER_TEXT);
+            canvas.text("NOVAEYE", logoX, 30f, bold, 20f, HEADER_TEXT);
+            canvas.text("TECHNOLOGY S.A.S", logoX, 56f, bold, 11f, HEADER_TEXT);
         }
 
         float companyInfoX = MARGIN + 122;
         float companyInfoWidth = 220f;
 
-        canvas.textCentered(company.name(), companyInfoX, companyInfoWidth, 30f, bold, 17f, HEADER_TEXT);
+        // 15 pt: el nombre actual es largo y a 17 pt quedaba pegado a los datos de la derecha.
+        canvas.textCentered(company.name(), companyInfoX, companyInfoWidth, 31f, bold, 15f, HEADER_TEXT);
         canvas.textCentered(company.tagline(), companyInfoX, companyInfoWidth, 54f, regular, 10.5f,
                 new Color(0xF5F5F5));
 
@@ -147,9 +148,10 @@ public class QuotationPdfGenerator {
         float rightX = MARGIN + 320;
 
         canvas.text("Direccion: " + client.getAddress(), rightX, top + 32, regular, 10f, MUTED_TEXT);
-        canvas.text("Ciudad: " + client.getCity(), rightX, top + 50, regular, 10f, MUTED_TEXT);
-        canvas.text("Vigencia: " + quotation.getValidUntil(), rightX, top + 66, regular, 10f, MUTED_TEXT);
-        canvas.text("Asesor: " + resolveAdvisor(quotation), rightX, top + 82, regular, 10f, MUTED_TEXT);
+        // Mismas alturas que la columna izquierda: con las anteriores el asesor pisaba el borde inferior.
+        canvas.text("Ciudad: " + client.getCity(), rightX, top + 48, regular, 10f, MUTED_TEXT);
+        canvas.text("Vigencia: " + quotation.getValidUntil(), rightX, top + 62, regular, 10f, MUTED_TEXT);
+        canvas.text("Asesor: " + resolveAdvisor(quotation), rightX, top + 76, regular, 10f, MUTED_TEXT);
 
         return top + CLIENT_CARD_HEIGHT + 20;
     }

@@ -1,6 +1,6 @@
 # NovaEyeTech Backend
 
-Backend de **Nova Eye Technology SAS / Next Eye Security**: catálogo comercial, motor de cotizaciones con generación de PDF, mantenimientos con evidencias y bitácora de auditoría.
+Backend de **NOVAEYE TECHNOLOGY S.A.S** (antes Next Eye Security): catálogo comercial, motor de cotizaciones con generación de PDF, mantenimientos con evidencias y bitácora de auditoría.
 
 Migración a Spring Boot del backend NestJS que vivía en `../NextEyeSecurity/apps/backend`. El contrato HTTP se conservó intacto, de modo que el frontend Angular de ese repositorio funciona contra este backend sin cambios.
 

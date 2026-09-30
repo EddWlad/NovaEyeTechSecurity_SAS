@@ -72,7 +72,7 @@ app:
     api-secret: ${CLOUDINARY_API_SECRET:}
     root-folder: ${CLOUDINARY_ROOT_FOLDER:novaeyetech}
   company:
-    name: ${COMPANY_NAME:NEXT EYE SECURITY}
+    name: ${COMPANY_NAME:NOVAEYE TECHNOLOGY S.A.S}
     tagline: ${COMPANY_TAGLINE:Tu aliado en seguridad}
     tax-id: ${COMPANY_TAX_ID:1717345407001}
     address: ${COMPANY_ADDRESS:De los Guabos y Av. El Inca}

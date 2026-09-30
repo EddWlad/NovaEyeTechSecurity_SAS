@@ -1,6 +1,6 @@
 # NovaEyeTech Frontend
 
-Portal administrativo de **Nova Eye Technology SAS / Next Eye Security**: catálogo comercial, cotizaciones con vista previa de PDF, mantenimientos con evidencias y bitácora de auditoría.
+Portal administrativo de **NOVAEYE TECHNOLOGY S.A.S** (antes Next Eye Security): catálogo comercial, cotizaciones con vista previa de PDF, mantenimientos con evidencias y bitácora de auditoría.
 
 Consume el backend Spring Boot de [`../novaeyetech-backend`](../novaeyetech-backend).
 

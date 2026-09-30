@@ -45,6 +45,8 @@
   font-weight: 800;
   font-size: .82rem;
   letter-spacing: .02em;
+  /* El nombre ocupa dos lineas en el menu: juntas, para que se lea como un solo bloque. */
+  line-height: 1.2;
 }
 
 .brand-subtitle {

@@ -6,7 +6,7 @@ Guía para trabajar en este repositorio. El código, los mensajes de error, los 
 
 ## Qué es
 
-Backend de **Nova Eye Technology SAS / Next Eye Security**: catálogo comercial, motor de cotizaciones con PDF, mantenimientos con evidencias y bitácora de auditoría.
+Backend de **NOVAEYE TECHNOLOGY S.A.S** (antes Next Eye Security): catálogo comercial, motor de cotizaciones con PDF, mantenimientos con evidencias y bitácora de auditoría.
 
 Es la migración del backend NestJS que vivía en `../NextEyeSecurity/apps/backend`. El contrato HTTP se conservó para que el frontend Angular de ese repo siga funcionando sin cambios: mismo prefijo `/api`, mismas rutas, `PATCH` para actualizaciones, `access_token` en el login y paginación de doble modo.
 

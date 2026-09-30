@@ -12,7 +12,7 @@
 	<artifactId>novaeyetech-backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>novaeyetech-backend</name>
-	<description>Backend Nova Eye Technology SAS - Next Eye Security</description>
+	<description>Backend NOVAEYE TECHNOLOGY S.A.S</description>
 
 	<properties>
 		<java.version>21</java.version>

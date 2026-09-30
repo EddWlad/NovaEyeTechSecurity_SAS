@@ -4,6 +4,8 @@
   --brand-700: #2a3110;
   --brand-600: #374015;
   --brand-rgb: 55 64 21;
+  /* Hover de botones: mas claro, porque oscurecer un verde tan oscuro casi no se nota. */
+  --brand-hover: #4d5a1e;
   /* Marca sobre fondos oscuros (menu lateral): el verde es casi tan oscuro como el fondo. */
   --brand-on-dark: #c9d18f;
   --gray-900: #111111;
@@ -166,7 +168,7 @@ input[type='checkbox'] {
 }
 
 .btn-primary:hover {
-  background: var(--brand-700);
+  background: var(--brand-hover);
 }
 
 .btn-secondary {
