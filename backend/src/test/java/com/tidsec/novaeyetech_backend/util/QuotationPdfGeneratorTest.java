@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 class QuotationPdfGeneratorTest {
 
     private final QuotationPdfGenerator generator = new QuotationPdfGenerator(new CompanyProperties(
-            "NOVAEYE TECHNOLOGY S.A.S", "Tu aliado en seguridad", "1717345407001",
+            "NOVAEYE TECHNOLOGY S.A.S", "Tu aliado en seguridad", "1793241347001",
             "De los Guabos y Av. El Inca", "0969379333"));
 
     @Test
