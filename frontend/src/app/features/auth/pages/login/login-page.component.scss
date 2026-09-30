@@ -4,7 +4,7 @@
   place-items: center;
   padding: 1.2rem;
   background:
-    radial-gradient(circle at 0% 0%, rgb(123 30 43 / 16%), transparent 48%),
+    radial-gradient(circle at 0% 0%, rgb(var(--brand-rgb) / 16%), transparent 48%),
     radial-gradient(circle at 100% 100%, rgb(17 24 39 / 12%), transparent 45%),
     #f6f7fb;
 }
@@ -12,7 +12,7 @@
 .login-card {
   width: min(420px, 100%);
   padding: 1.6rem;
-  border-top: 7px solid var(--wine-600);
+  border-top: 7px solid var(--brand-600);
 }
 
 header {

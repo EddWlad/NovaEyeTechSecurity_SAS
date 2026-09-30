@@ -103,12 +103,12 @@ let nextId = 0;
 
     li[role='option'].active,
     li[role='option']:hover {
-      background: rgb(123 30 43 / 8%);
+      background: rgb(var(--brand-rgb) / 8%);
     }
 
     li[role='option'][aria-selected='true'] .label {
       font-weight: 700;
-      color: var(--wine-600);
+      color: var(--brand-600);
     }
 
     small {

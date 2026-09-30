@@ -1,6 +1,11 @@
 :root {
-  --wine-700: #5e1621;
-  --wine-600: #7b1e2b;
+  /* Color de marca. Para cambiarlo: estos tres valores (--brand-rgb es --brand-600 en RGB, para los
+     tintes translucidos) y ACCENT / TABLE_HEADER en QuotationPdfGenerator.java del backend. */
+  --brand-700: #2a3110;
+  --brand-600: #374015;
+  --brand-rgb: 55 64 21;
+  /* Marca sobre fondos oscuros (menu lateral): el verde es casi tan oscuro como el fondo. */
+  --brand-on-dark: #c9d18f;
   --gray-900: #111111;
   --gray-800: #2f2f33;
   --gray-600: #666a70;
@@ -70,7 +75,7 @@ a {
 input[type='checkbox'] {
   width: 18px;
   height: 18px;
-  accent-color: var(--wine-600);
+  accent-color: var(--brand-600);
   cursor: pointer;
 }
 
@@ -121,8 +126,8 @@ input[type='checkbox'] {
 .input:focus,
 .select:focus,
 .textarea:focus {
-  outline: 2px solid rgb(123 30 43 / 30%);
-  border-color: var(--wine-600);
+  outline: 2px solid rgb(var(--brand-rgb) / 30%);
+  border-color: var(--brand-600);
 }
 
 .field {
@@ -157,11 +162,11 @@ input[type='checkbox'] {
 
 .btn-primary {
   color: var(--white);
-  background: var(--wine-600);
+  background: var(--brand-600);
 }
 
 .btn-primary:hover {
-  background: var(--wine-700);
+  background: var(--brand-700);
 }
 
 .btn-secondary {

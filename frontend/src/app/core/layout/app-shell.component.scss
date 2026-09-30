@@ -114,7 +114,9 @@
 }
 
 .nav-list a.active {
-  background: linear-gradient(180deg, #7b1e2b 0%, #6f1825 100%);
+  background: var(--brand-600);
+  /* Franja clara: sobre el gris del menu el verde de marca solo no se distingue. */
+  box-shadow: inset 3px 0 0 var(--brand-on-dark);
   color: white;
 }
 
@@ -136,7 +138,8 @@
   border-radius: 999px;
   display: grid;
   place-items: center;
-  background: #7b1e2b;
+  background: var(--brand-600);
+  box-shadow: 0 0 0 1px var(--brand-on-dark);
   color: white;
   font-weight: 700;
 }

@@ -35,12 +35,13 @@ public class QuotationPdfGenerator {
     private static final Color PAGE_BACKGROUND = new Color(0xF2F2F2);
     private static final Color CARD_BACKGROUND = Color.WHITE;
     private static final Color HEADER_BACKGROUND = new Color(0x6A6A6A);
-    private static final Color ACCENT = new Color(0x5B1126);
+    // Color de marca (el mismo que --brand-600 del frontend) y su tinte claro para el encabezado de tabla.
+    private static final Color ACCENT = new Color(0x374015);
     private static final Color BORDER = new Color(0xA6A6A6);
     private static final Color TEXT = Color.BLACK;
     private static final Color MUTED_TEXT = new Color(0x4D4D4D);
     private static final Color HEADER_TEXT = Color.WHITE;
-    private static final Color TABLE_HEADER = new Color(0xD99794);
+    private static final Color TABLE_HEADER = new Color(0xC5CCA0);
     private static final Color FOOTER_TEXT = new Color(0x5C5C62);
 
     private static final float MARGIN = 36f;

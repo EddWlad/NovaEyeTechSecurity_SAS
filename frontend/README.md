@@ -91,7 +91,7 @@ Solo el login y el shell se cargan de entrada; el resto de pantallas son **lazy*
 
 ### Estilos
 
-SCSS global con tokens en `src/styles.scss` (paleta vino `--wine-700/600` más grises, sombras y utilitarias como `.page-title`). Componentes compartidos en `app/shared/components/`: `page-header`, `pagination-controls`, `status-badge`, `empty-state`, `loading-spinner`, `toast-stack`. Reutilizar tokens y componentes antes de crear estilos nuevos.
+SCSS global con tokens en `src/styles.scss` (paleta de marca verde `--brand-700/600` (`#374015`), con `--brand-rgb` para los tintes translúcidos, más grises, sombras y utilitarias como `.page-title`). Componentes compartidos en `app/shared/components/`: `page-header`, `pagination-controls`, `status-badge`, `empty-state`, `loading-spinner`, `toast-stack`. Reutilizar tokens y componentes antes de crear estilos nuevos.
 
 **Tablas responsivas.** Una lista con tabla que en pantallas chicas se vuelve una lista de tarjetas usa `<div class="table-wrapper table-stack">` con `data-label` en cada `<td>` y `data-label="Acciones"` en la celda de botones. Toda la lógica vive en `styles.scss` (breakpoint único de 768 px): botones de acción en una sola fila, columna de acciones anclada a la derecha en tablas anchas y diseño de tarjetas en móvil. No repetirla en los componentes.
 
